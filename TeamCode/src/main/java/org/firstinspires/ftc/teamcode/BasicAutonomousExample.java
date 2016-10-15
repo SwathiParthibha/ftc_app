@@ -25,34 +25,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "Basic Autonomous", group = "Sensor")
-//@Disabled
-public class BasicAutonomous extends LinearOpMode
+@Disabled
+
+/*
+This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
+ */
+public class BasicAutonomousExample extends LinearOpMode
 {
   @Override
   public void runOpMode() throws InterruptedException
   {
+    //Use this command to access the all the functions in the RobotHardware Class
     RobotHardware robot= new RobotHardware();
-
+    //Use this command to initialize the robot in the RobotHardware Class
     robot.init(hardwareMap);
 
-    // wait for the start button to be pressed.
+      // wait for the start button to be pressed.
       waitForStart();
       {
+          //An example of using the Drive function from the RobotHardware Class
           robot.Drive(robot.ROTATION * 2, 0.5);
 
+          //A little bit of settling time
           sleep(500);
 
+          //An example of using the Turn function from the RobotHardware Class
           robot.Turn("right", 45, 0.5);
       }
 
 
     while(true)
     {
-      telemetry.addData("Light: %d", robot.light.getLightDetected());
+      //Getting the Lego Line Sensor Values
+      telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());
       telemetry.update();
     }
 

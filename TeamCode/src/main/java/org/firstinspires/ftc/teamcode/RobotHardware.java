@@ -15,24 +15,40 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * In this case that robot is a our robot.
  * Our files for usage examples.
  */
+
+/*
+
+This is our Class where all our functions are included that are used in the entire project
+Please do not edit any of the functions as it will affect other programs in the project
+
+If you have accomplished something please tell us so we can implement into the class.
+*/
 public class RobotHardware
 {
+    //1000 Milliseconds
     int SECOND = 1000;
 
+    //Motor Variables
     int ROTATION = 1220;
     int MOTOR_POWER = 1;
 
+    //Lego Line Sensor Thresholds
     double black = 0.20;
     double white = 0.48;
     double avg = (black + white)/ 2;
 
+    //Z-Axis of the Modern Robotics Gyro Sensor
     int heading = 0;
 
     /* Public OpMode members. */
-    public DcMotor left = null;
-    public DcMotor right = null;
-    public GyroSensor gyro = null;
-    public LightSensor light = null;
+
+    //Currently there are two motors defined. As the season progresses we may add additional motors
+    public DcMotor motorLeft = null;
+    public DcMotor motorRight = null;
+
+    //Where all Sensor are defined
+    public GyroSensor ModernRoboticsGyroSensor = null;
+    public LightSensor LegoLineSensor = null;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -52,50 +68,52 @@ public class RobotHardware
 
 
         // Define and Initialize Motors
-        left = hwMap.dcMotor.get("motorLeft");
-        right = hwMap.dcMotor.get("motorRight");
-        gyro = hwMap.gyroSensor.get("gyro");
-        light = hwMap.lightSensor.get("light");
+        motorLeft = hwMap.dcMotor.get("motorLeft");
+        motorRight = hwMap.dcMotor.get("motorRight");
 
+        //Define and Initialize Sensors
+        ModernRoboticsGyroSensor = hwMap.gyroSensor.get("ModernRoboticsGyro");
+        LegoLineSensor = hwMap.lightSensor.get("LegoLineSensor");
 
-        gyro.calibrate();
-
-        light.enableLed(true);
-
-        left.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        right.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        //Configure the Direction of the Motors
+        motorLeft.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        motorRight.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
 
         // Set all motors to zero power
-        left.setPower(0);
-        right.setPower(0);
-
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-    /*    while (gyro.isCalibrating()) {
-            try {
+        /*This prevents the Modern Robotics Gyro Sensor from
+          incorrectly calibrating before the start of Autonomous
+        */
+        while (ModernRoboticsGyroSensor.isCalibrating())
+        {
+            try
+            {
                 Thread.sleep(50);
-            } catch (InterruptedException e) {
-                //do nothing
             }
 
-
+            catch (InterruptedException e)
+            {
+                //do nothing
+            }
         }
-*/
-
     }
+
+    /***
+     * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
+     * periodic tick.  This is used to compensate for varying processing times for each cycle.
+     * The function looks at the elapsed cycle time, and sleeps for the remaining time interval.
+     *
+     * @param periodMs Length of wait cycle in mSec.
+     */
     public void waitForTick(long periodMs)
     {
-        /***
-         * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
-         * periodic tick.  This is used to compensate for varying processing times for each cycle.
-         * The function looks at the elapsed cycle time, and sleeps for the remaining time interval.
-         *
-         * @param periodMs Length of wait cycle in mSec.
-         */
         long remaining = periodMs - (long) period.milliseconds();
 
         // sleep for the remaining portion of the regular cycle period.
@@ -113,84 +131,88 @@ public class RobotHardware
         // Reset the cycle clock for the next pass.
         period.reset();
     }
+
+    //This function sets the motors to 0 stopping the Robot
     public void stopRobot()
     {
-        left.setPower(0);
-        right.setPower(0);
+        motorLeft.setPower(MOTOR_POWER * 0);
+        motorRight.setPower(MOTOR_POWER * 0);
     }
-    public void goStraight(double speed, long time) throws InterruptedException
+
+    //A basic go straight function that stops after a certain time
+    public void goStraight(double Speed, long Time) throws InterruptedException
     {
-        left.setPower(speed);
-        right.setPower(speed);
+        motorLeft.setPower(MOTOR_POWER * Speed);
+        motorRight.setPower(MOTOR_POWER * Speed);
 
-        Thread.sleep(time);
+        Thread.sleep(Time);
     }
 
+    //A basic go straight function that uses encoders to track its distance
     public void Drive(int Distance, double Speed) throws InterruptedException
     {
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        right.setPower(MOTOR_POWER * Speed);
-        left.setPower(MOTOR_POWER * Speed);
+        motorRight.setPower(MOTOR_POWER * Speed);
+        motorLeft.setPower(MOTOR_POWER * Speed);
 
-        right.setTargetPosition(Distance);
-        left.setTargetPosition(Distance);
+        motorRight.setTargetPosition(Distance);
+        motorLeft.setTargetPosition(Distance);
 
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (right.isBusy() && left.isBusy())
+        while (motorRight.isBusy() && motorLeft.isBusy())
         {
 
         }
         stopRobot();
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void Turn(String Direction, int angle, double Speed) throws InterruptedException {
+    //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
+    public void Turn(String Direction, int angle, double Speed) throws InterruptedException
+    {
         int MotorDirectionChange = 0;
 
-        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        if (Direction.equals("left"))
+        if (Direction.equals("Left"))
         {
             MotorDirectionChange = -1;
-        } else if (Direction.equals("right"))
+        } else if (Direction.equals("Right"))
         {
             MotorDirectionChange = 1;
         }
 
         while ((heading > angle + 5 || heading < angle - 2))
         {
-            right.setPower(Speed * MotorDirectionChange);
-            left.setPower(-1 * Speed * MotorDirectionChange);
+            motorRight.setPower(Speed * MotorDirectionChange);
+            motorLeft.setPower(-1 * Speed * MotorDirectionChange);
 
-            heading = gyro.getHeading();
+            heading = ModernRoboticsGyroSensor.getHeading();
         }
         stopRobot();
     }
 
+    //A basic Line Following function that uses the Lego Line Sensor
     public void goToLine(double speed) throws InterruptedException
     {
-        left.setPower(speed);
-        right.setPower(speed);
+        motorLeft.setPower(speed);
+        motorRight.setPower(speed);
 
-
-        while(light.getLightDetected() < avg)
+        while(LegoLineSensor.getLightDetected() < avg)
         {
             //do nothing
         }
+
         stopRobot();
     }
-
-
-
-
 }
 
