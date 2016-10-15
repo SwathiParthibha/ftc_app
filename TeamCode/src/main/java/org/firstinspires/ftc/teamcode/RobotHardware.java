@@ -123,50 +123,33 @@ public class RobotHardware
         left.setPower(speed);
         right.setPower(speed);
 
-
         Thread.sleep(time);
     }
 
     public void Drive(int Distance, double Speed) throws InterruptedException
     {
-
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        right.setTargetPosition(Distance);
-        left.setTargetPosition(Distance);
-
-        // Turn On RUN_TO_POSITION
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        right.setTargetPosition(10);
-        left.setTargetPosition(10);
+        right.setPower(MOTOR_POWER * Speed);
+        left.setPower(MOTOR_POWER * Speed);
+
+        right.setTargetPosition(Distance);
+        left.setTargetPosition(Distance);
 
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        right.setPower(Speed);
-        left.setPower(Speed);
-
-        while (left.isBusy())
+        while (right.isBusy() && left.isBusy())
         {
 
         }
-
         stopRobot();
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
 
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException {
