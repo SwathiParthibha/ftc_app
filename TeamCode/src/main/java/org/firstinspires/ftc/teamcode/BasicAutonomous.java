@@ -28,10 +28,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-
-//import org.firstinspires.ftc.teamcode.Functions7350;
-
-
 @TeleOp(name = "Basic Autonomous", group = "Sensor")
 //@Disabled
 public class BasicAutonomous extends LinearOpMode
@@ -52,7 +48,7 @@ public class BasicAutonomous extends LinearOpMode
 
           robot.Turn("right", 45, 0.5);
       }
-      
+
 
     while(true)
     {
