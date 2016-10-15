@@ -53,7 +53,6 @@ public class BasicAutonomous extends LinearOpMode
     while(true)
     {
       telemetry.addData("Light: %d", robot.light.getLightDetected());
-
       telemetry.update();
     }
 
