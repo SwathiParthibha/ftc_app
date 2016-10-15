@@ -22,9 +22,9 @@ public class RobotHardware
     int ROTATION = 1220;
     int MOTOR_POWER = 1;
 
-    double black=0.20;
-    double white=0.48;
-    double avg=(black+white)/2;
+    double black = 0.20;
+    double white = 0.48;
+    double avg = (black + white)/ 2;
 
     int heading = 0;
 
@@ -32,7 +32,7 @@ public class RobotHardware
     public DcMotor left = null;
     public DcMotor right = null;
     public GyroSensor gyro = null;
-    public LightSensor light =null;
+    public LightSensor light = null;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -99,10 +99,13 @@ public class RobotHardware
         long remaining = periodMs - (long) period.milliseconds();
 
         // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
+        if (remaining > 0)
+        {
+            try
+            {
                 Thread.sleep(remaining);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
             }
         }
@@ -126,6 +129,7 @@ public class RobotHardware
 
     public void Drive(int Distance, double Speed) throws InterruptedException
     {
+
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -164,6 +168,7 @@ public class RobotHardware
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
+
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException {
         int MotorDirectionChange = 0;
 
@@ -197,9 +202,7 @@ public class RobotHardware
         while(light.getLightDetected() < avg)
         {
             //do nothing
-
         }
-
         stopRobot();
     }
 
