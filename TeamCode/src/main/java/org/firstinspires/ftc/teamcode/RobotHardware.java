@@ -126,6 +126,7 @@ public class RobotHardware
 
     public void Drive(int Distance, double Speed) throws InterruptedException
     {
+
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -164,6 +165,7 @@ public class RobotHardware
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
+
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException {
         int MotorDirectionChange = 0;
 
@@ -197,9 +199,7 @@ public class RobotHardware
         while(light.getLightDetected() < avg)
         {
             //do nothing
-
         }
-
         stopRobot();
     }
 
