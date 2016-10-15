@@ -22,9 +22,9 @@ public class RobotHardware
     int ROTATION = 1220;
     int MOTOR_POWER = 1;
 
-    double black=0.20;
-    double white=0.48;
-    double avg=(black+white)/2;
+    double black = 0.20;
+    double white = 0.48;
+    double avg = (black + white)/ 2;
 
     int heading = 0;
 
@@ -32,7 +32,7 @@ public class RobotHardware
     public DcMotor left = null;
     public DcMotor right = null;
     public GyroSensor gyro = null;
-    public LightSensor light =null;
+    public LightSensor light = null;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
