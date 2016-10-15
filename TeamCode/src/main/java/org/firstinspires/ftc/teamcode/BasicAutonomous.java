@@ -52,10 +52,7 @@ public class BasicAutonomous extends LinearOpMode
 
           robot.Turn("right", 45, 0.5);
       }
-
-    //robot.goStraight(0.5,1000);
-    //robot.Drive(10, 0.5);
-    //robot.goToLine(0.5);
+      
 
     while(true)
     {
