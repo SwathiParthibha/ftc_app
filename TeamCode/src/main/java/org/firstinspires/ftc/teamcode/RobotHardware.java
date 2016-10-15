@@ -26,11 +26,11 @@ If you have accomplished something please tell us so we can implement into the c
 public class RobotHardware
 {
     //1000 Milliseconds
-    int SECOND = 1000;
+    public int SECOND = 1000;
 
     //Motor Variables
-    int ROTATION = 1220;
-    int MOTOR_POWER = 1;
+    public int ROTATION = 1220;
+    public int MOTOR_POWER = 1;
 
     //Lego Line Sensor Thresholds
     double black = 0.20;
