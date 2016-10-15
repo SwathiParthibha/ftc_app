@@ -1,20 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.os.CountDownTimer;
-
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import java.util.concurrent.TimeUnit;
 
 
 
@@ -25,10 +15,18 @@ import java.util.concurrent.TimeUnit;
  * In this case that robot is a our robot.
  * Our files for usage examples.
  */
-public class RobotHardware{
+public class RobotHardware
+{
+    int SECOND = 1000;
+
+    int ROTATION = 1220;
+    int MOTOR_POWER = 1;
+
     double black=0.20;
     double white=0.48;
     double avg=(black+white)/2;
+
+    int heading = 0;
 
     /* Public OpMode members. */
     public DcMotor left = null;
@@ -41,11 +39,14 @@ public class RobotHardware{
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
-    public RobotHardware() {
+    public RobotHardware()
+    {
 
     }
+
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap ahwMap) {
+    public void init(HardwareMap ahwMap)
+    {
         // Save reference to Hardware map
         hwMap = ahwMap;
 
@@ -74,7 +75,6 @@ public class RobotHardware{
         left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
     /*    while (gyro.isCalibrating()) {
             try {
                 Thread.sleep(50);
@@ -87,7 +87,8 @@ public class RobotHardware{
 */
 
     }
-    public void waitForTick(long periodMs) {
+    public void waitForTick(long periodMs)
+    {
         /***
          * waitForTick implements a periodic delay. However, this acts like a metronome with a regular
          * periodic tick.  This is used to compensate for varying processing times for each cycle.
@@ -109,7 +110,8 @@ public class RobotHardware{
         // Reset the cycle clock for the next pass.
         period.reset();
     }
-    public void stopRobot() {
+    public void stopRobot()
+    {
         left.setPower(0);
         right.setPower(0);
     }
@@ -121,63 +123,27 @@ public class RobotHardware{
 
         Thread.sleep(time);
     }
-    public void Drive(int Distance, double Speed, String Direction) throws InterruptedException {
-        int motordirectionchange = 0;
 
-        if (Direction.equals("forward")) {
-            motordirectionchange = 1;
-        }
-        if (Direction.equals("backward")) {
-            motordirectionchange = -1;
-        }
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        right.setPower(Speed);
-        left.setPower(Speed);
-
-        right.setTargetPosition(Distance * motordirectionchange);
-        left.setTargetPosition(Distance * motordirectionchange);
-
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while (left.isBusy() && right.isBusy()) {
-
-        }
-
-        stopRobot();
-        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-    }
     public void Drive(int Distance, double Speed) throws InterruptedException
-    {//overloaded function without direction
-     //uses plus/minus in Distance to specify direction  
-/*        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    {
+        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
 
         right.setTargetPosition(Distance);
         left.setTargetPosition(Distance);
 
         // Turn On RUN_TO_POSITION
         right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-       left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-*/
+        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
         right.setTargetPosition(10);
         left.setTargetPosition(10);
@@ -200,17 +166,20 @@ public class RobotHardware{
     }
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException {
         int MotorDirectionChange = 0;
-        int heading=0;
+
         right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        if (Direction.equals("left")) {
+        if (Direction.equals("left"))
+        {
             MotorDirectionChange = -1;
-        } else if (Direction.equals("right")) {
+        } else if (Direction.equals("right"))
+        {
             MotorDirectionChange = 1;
         }
 
-        while ((heading > angle + 5 || heading < angle - 2)) {
+        while ((heading > angle + 5 || heading < angle - 2))
+        {
             right.setPower(Speed * MotorDirectionChange);
             left.setPower(-1 * Speed * MotorDirectionChange);
 
@@ -218,20 +187,20 @@ public class RobotHardware{
         }
         stopRobot();
     }
+
     public void goToLine(double speed) throws InterruptedException
     {
         left.setPower(speed);
         right.setPower(speed);
 
 
-        while(light.getLightDetected()<avg)
+        while(light.getLightDetected() < avg)
         {
             //do nothing
 
         }
 
         stopRobot();
-
     }
 
 

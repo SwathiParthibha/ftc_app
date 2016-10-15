@@ -27,10 +27,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-
-import org.firstinspires.ftc.teamcode.RobotHardware;
 
 
 //import org.firstinspires.ftc.teamcode.Functions7350;
@@ -40,12 +36,6 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 //@Disabled
 public class BasicAutonomous extends LinearOpMode
 {
-
-
-  int ROTATION = 1220;
-  int heading = 0;
-  static int MOTOR_POWER = 1;
-
   @Override
   public void runOpMode() throws InterruptedException
   {
@@ -53,24 +43,25 @@ public class BasicAutonomous extends LinearOpMode
 
     robot.init(hardwareMap);
 
-    robot.Drive(120,0.5);
-
-
-
-
-
     // wait for the start button to be pressed.
-    waitForStart();
+      waitForStart();
+      {
+          robot.Drive(robot.ROTATION * 2, 0.5);
+
+          sleep(500);
+
+          robot.Turn("right", 45, 0.5);
+      }
 
     //robot.goStraight(0.5,1000);
     //robot.Drive(10, 0.5);
     //robot.goToLine(0.5);
+
     while(true)
     {
       telemetry.addData("Light: %d", robot.light.getLightDetected());
 
       telemetry.update();
-
     }
 
 
