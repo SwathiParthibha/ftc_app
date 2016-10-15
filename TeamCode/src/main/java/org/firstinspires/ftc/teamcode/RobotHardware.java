@@ -99,10 +99,13 @@ public class RobotHardware
         long remaining = periodMs - (long) period.milliseconds();
 
         // sleep for the remaining portion of the regular cycle period.
-        if (remaining > 0) {
-            try {
+        if (remaining > 0)
+        {
+            try
+            {
                 Thread.sleep(remaining);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
             }
         }
