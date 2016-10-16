@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 /**
@@ -25,6 +27,17 @@ If you have accomplished something please tell us so we can implement into the c
 */
 public class RobotHardware
 {
+    /* Public OpMode members. */
+
+    //Currently there are two motors defined. As the season progresses we may add additional motors
+    public DcMotor motorLeft = null;
+    public DcMotor motorRight = null;
+
+    //Where all Sensor are defined
+    //public GyroSensor ModernRoboticsGyroSensor = null;
+    //public LightSensor LegoLineSensor = null;
+    public BNO055IMU IMUSensor = null;
+
     //1000 Milliseconds
     public int SECOND = 1000;
 
@@ -40,15 +53,9 @@ public class RobotHardware
     //Z-Axis of the Modern Robotics Gyro Sensor
     int heading = 0;
 
-    /* Public OpMode members. */
-
-    //Currently there are two motors defined. As the season progresses we may add additional motors
-    public DcMotor motorLeft = null;
-    public DcMotor motorRight = null;
-
-    //Where all Sensor are defined
-    public GyroSensor ModernRoboticsGyroSensor = null;
-    public LightSensor LegoLineSensor = null;
+    //IMU Variables
+    public Orientation angles;
+    public Acceleration gravity;
 
     /* local OpMode members. */
     HardwareMap hwMap = null;
@@ -66,14 +73,22 @@ public class RobotHardware
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-
         // Define and Initialize Motors
         motorLeft = hwMap.dcMotor.get("motorLeft");
         motorRight = hwMap.dcMotor.get("motorRight");
 
         //Define and Initialize Sensors
-        ModernRoboticsGyroSensor = hwMap.gyroSensor.get("ModernRoboticsGyro");
-        LegoLineSensor = hwMap.lightSensor.get("LegoLineSensor");
+        //ModernRoboticsGyroSensor = hwMap.gyroSensor.get("ModernRoboticsGyro");
+        //LegoLineSensor = hwMap.lightSensor.get("LegoLineSensor");
+
+        //Define and Initialize the parameters of the IMUSensor
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
         //Configure the Direction of the Motors
         motorLeft.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
@@ -88,9 +103,16 @@ public class RobotHardware
         motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        //Calibrate the Modern Robotics Gyro Sensor
+        //ModernRoboticsGyroSensor.calibrate();
+
+        //Turn on the LED of the Lego Line Sensor
+        //LegoLineSensor.enableLed(true);
+
         /*This prevents the Modern Robotics Gyro Sensor from
           incorrectly calibrating before the start of Autonomous
         */
+        /*
         while (ModernRoboticsGyroSensor.isCalibrating())
         {
             try
@@ -103,6 +125,7 @@ public class RobotHardware
                 //do nothing
             }
         }
+    */
     }
 
     /***
@@ -174,7 +197,7 @@ public class RobotHardware
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
+    /*
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException
     {
@@ -200,7 +223,9 @@ public class RobotHardware
         }
         stopRobot();
     }
+    */
 
+    /*
     //A basic Line Following function that uses the Lego Line Sensor
     public void goToLine(double speed) throws InterruptedException
     {
@@ -214,5 +239,6 @@ public class RobotHardware
 
         stopRobot();
     }
+    */
 }
 
