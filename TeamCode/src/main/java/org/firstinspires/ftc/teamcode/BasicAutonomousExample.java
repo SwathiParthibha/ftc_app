@@ -55,7 +55,7 @@ public class BasicAutonomousExample extends LinearOpMode
           sleep(500);
 
           //An example of using the Turn function from the RobotHardware Class
-          robot.Turn("right", 45, 0.5);
+          //robot.Turn("right", 45, 0.5);
       }
 
 
