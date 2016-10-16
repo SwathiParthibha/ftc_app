@@ -29,7 +29,7 @@ public class RobotHardware
     public int SECOND = 1000;
 
     //Motor Variables
-    public int ROTATION = 1220;
+    public int ROTATION = 1220; // # of ticks
     public int MOTOR_POWER = 1;
 
     //Lego Line Sensor Thresholds
