@@ -23,11 +23,11 @@ public class DriveToBeaconsOpmodeRED extends OpMode {
     public void init() {
         rangeSensor = this.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
 
-        leftColorSensor  = hardwareMap.colorSensor.get("lcs");
-        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        leftColorSensor.setI2cAddress(i2cAddr);
+        leftColorSensor  = hardwareMap.colorSensor.get("rcs");
 
-        rightColorSensor = hardwareMap.colorSensor.get("rcs");
+        rightColorSensor = hardwareMap.colorSensor.get("lcs");
+        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
+        rightColorSensor.setI2cAddress(i2cAddr);
 
         leftMotor = hardwareMap.dcMotor.get("l");
         rightMotor = hardwareMap.dcMotor.get("r");
@@ -50,15 +50,15 @@ public class DriveToBeaconsOpmodeRED extends OpMode {
         double currentTime = this.time;
         if(leftRed > rightRed && !verify()){
             //write the code here to press the left button
-            leftMotor.setPower(0.5);
-            rightMotor.setPower(0.3);
+            leftMotor.setPower(0.3);
+            rightMotor.setPower(0.0);
 
             //wait three seconds
             verify();
         } else if(rightRed > leftRed && !verify()){
             //write the code here to press the right button
-            rightMotor.setPower(0.5);
-            leftMotor.setPower(0.3);
+            rightMotor.setPower(0.3);
+            leftMotor.setPower(0.0);
             verify();
         } else{
             leftMotor.setPower(0);
