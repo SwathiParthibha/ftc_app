@@ -32,10 +32,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.Mrinali;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.LightSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
@@ -70,7 +72,11 @@ public class DriveToBeacons extends LinearOpMode {
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cRangeSensor sideRangeSensor;
+    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
+    int angleZ = 0;
+
+    // get a reference to a Modern Robotics GyroSensor object.
 
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
@@ -79,6 +85,21 @@ public class DriveToBeacons extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+
+        // start calibrating the gyro.
+        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        telemetry.update();
+        gyro.calibrate();
+
+        // make sure the gyro is calibrated.
+        while (!isStopRequested() && gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
+
+        telemetry.addData(">", "Gyro Calibrated.  Press Start.");
+        telemetry.update();
 
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
@@ -93,6 +114,7 @@ public class DriveToBeacons extends LinearOpMode {
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
         sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
+        angleZ  = gyro.getIntegratedZValue();
         //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
 
         // turn on LED of light sensor.
@@ -116,10 +138,10 @@ public class DriveToBeacons extends LinearOpMode {
 
         // Turn right - to beacon
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
+        while (opModeIsActive() && (angleZ < 90)) {
 
             // Display the light level while we are looking for the line
-            telemetry.addData("Light Level", lightSensor.getLightDetected());
+            telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
@@ -136,7 +158,13 @@ public class DriveToBeacons extends LinearOpMode {
         // Turn left - parallel to wall
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
-        sleep(750); // REPLACE: Use gyro
+        while (opModeIsActive() && (angleZ > 0)) {
+
+            // Display the light level while we are looking for the line
+            telemetry.addData("Angle", angleZ);
+            telemetry.update();
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        }
 
         maintainDist();
 
@@ -148,10 +176,10 @@ public class DriveToBeacons extends LinearOpMode {
 
         //Turn right - to beacon
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
+        while (opModeIsActive() && (angleZ < 90)) {
 
             // Display the light level while we are looking for the line
-            telemetry.addData("Light Level", lightSensor.getLightDetected());
+            telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
