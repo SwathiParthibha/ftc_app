@@ -168,7 +168,8 @@ public class DriveToBeacons extends LinearOpMode
         robot.rightMotor.setPower(0);
     }
 
-    void approachBeacon() {
+    void approachBeacon()
+    {
         // Drive to set distance away, slow down, stop at set distance
         if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
             robot.leftMotor.setPower(APPROACH_SPEED);
