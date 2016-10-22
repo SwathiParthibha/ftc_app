@@ -54,7 +54,7 @@ public class RotationsPerSecTest extends LinearOpMode
       {
        // while (opModeIsActive() && (runtime.seconds() < 3.0))
           //An example of using the Drive function from the RobotHardware Class
-          robot.Drive(robot.ROTATION * 100, 0.8);
+          //robot.Drive(robot.ROTATION * 100, 0.8);
           while(x<1300)
           {
               speed=speed+0.1;
