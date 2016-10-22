@@ -36,7 +36,6 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
@@ -70,11 +69,13 @@ public class DriveToBeacons extends LinearOpMode {
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
+    ModernRoboticsI2cRangeSensor sideRangeSensor;
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
 
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
-    double DIST = 11;
+    double DIST = 8;
+    double SIDE_DIST = 10;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -91,6 +92,7 @@ public class DriveToBeacons extends LinearOpMode {
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
         //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
 
         // turn on LED of light sensor.
@@ -110,11 +112,17 @@ public class DriveToBeacons extends LinearOpMode {
             idle();
         }
 
-        toWhiteLine();
+        toWhiteLine(false);
 
-        // Turn right
+        // Turn right - to beacon
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(750);
+        while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
+
+            // Display the light level while we are looking for the line
+            telemetry.addData("Light Level", lightSensor.getLightDetected());
+            telemetry.update();
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        }
         robot.leftMotor.setPower(0); // REPLACE: Use gyro
 
         approachBeacon();
@@ -130,22 +138,30 @@ public class DriveToBeacons extends LinearOpMode {
         robot.leftMotor.setPower(APPROACH_SPEED);
         sleep(750); // REPLACE: Use gyro
 
+        maintainDist();
+
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
         sleep(750);
 
-        toWhiteLine();
+        toWhiteLine(true);
 
         //Turn right - to beacon
-        robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(750); //REPLACE: Use gyro
+        while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
+
+            // Display the light level while we are looking for the line
+            telemetry.addData("Light Level", lightSensor.getLightDetected());
+            telemetry.update();
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        }
+        robot.leftMotor.setPower(0);
 
         approachBeacon();
         pushButton();
     }
 
-    void toWhiteLine() throws InterruptedException {
+    void toWhiteLine(boolean wall) throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
@@ -156,6 +172,9 @@ public class DriveToBeacons extends LinearOpMode {
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.update();
+            if (wall) {
+                maintainDist();
+            }
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
@@ -213,5 +232,28 @@ public class DriveToBeacons extends LinearOpMode {
         sleep(500); // REPLACE: Use gyro
         robot.rightMotor.setPower(-APPROACH_SPEED * .5);
         sleep(500); // REPLACE: Use gyro
+    }
+
+    void maintainDist() {
+
+        telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
+        telemetry.update();
+
+        // If too close to wall, turn right
+        if (sideRangeSensor.getDistance(DistanceUnit.CM) < SIDE_DIST) {
+            robot.leftMotor.setPower(APPROACH_SPEED);
+            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+        }
+
+        // If too far from wall, turn left
+        else if (sideRangeSensor.getDistance(DistanceUnit.CM) > SIDE_DIST) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .5);
+            robot.rightMotor.setPower(APPROACH_SPEED);
+        }
+
+        else {
+            robot.leftMotor.setPower(APPROACH_SPEED);
+            robot.rightMotor.setPower(APPROACH_SPEED);
+        }
     }
 }
