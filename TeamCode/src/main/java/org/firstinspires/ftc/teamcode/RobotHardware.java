@@ -197,6 +197,8 @@ public class RobotHardware
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+
     /*
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
     public void Turn(String Direction, int angle, double Speed) throws InterruptedException

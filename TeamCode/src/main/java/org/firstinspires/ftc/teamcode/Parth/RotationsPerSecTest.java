@@ -46,17 +46,22 @@ public class RotationsPerSecTest extends LinearOpMode
     RobotHardware robot= new RobotHardware();
     //Use this command to initialize the robot in the RobotHardware Class
     robot.init(hardwareMap);
+      double speed=robot.MOTOR_POWER;
 
+      double x= (320*(robot.ROTATION))/240;
       // wait for the start button to be pressed.
       waitForStart();
       {
        // while (opModeIsActive() && (runtime.seconds() < 3.0))
           //An example of using the Drive function from the RobotHardware Class
-          robot.Drive(robot.ROTATION * 100, 0.99);
-          if(robot.motorLeft.getCurrentPosition()>250)
+          robot.Drive(robot.ROTATION * 100, 0.8);
+          while(x<1300)
           {
-
+              speed=speed+0.1;
+              robot.motorLeft.setPower(speed);
+              robot.motorLeft.setPower(speed);
           }
+
 
           //A little bit of settling time
           sleep(500);
@@ -69,7 +74,7 @@ public class RotationsPerSecTest extends LinearOpMode
     while(true)
     {
       //Getting the Lego Line Sensor Values
-      telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());
+      //telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());
       telemetry.update();
     }
 
