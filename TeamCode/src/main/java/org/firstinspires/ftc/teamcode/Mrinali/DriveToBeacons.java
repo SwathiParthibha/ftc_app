@@ -38,7 +38,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -62,7 +61,8 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 @Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
 //@Disabled
-public class DriveToBeacons extends LinearOpMode {
+public class DriveToBeacons extends LinearOpMode
+{
 
     /* Declare OpMode members. */
     org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
@@ -168,7 +168,8 @@ public class DriveToBeacons extends LinearOpMode {
         robot.rightMotor.setPower(0);
     }
 
-    void approachBeacon() {
+    void approachBeacon()
+    {
         // Drive to set distance away, slow down, stop at set distance
         if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
             robot.leftMotor.setPower(APPROACH_SPEED);
