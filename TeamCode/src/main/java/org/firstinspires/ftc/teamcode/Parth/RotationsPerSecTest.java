@@ -69,7 +69,7 @@ public class RotationsPerSecTest extends LinearOpMode
     while(true)
     {
       //Getting the Lego Line Sensor Values
-      telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());
+      //telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());
       telemetry.update();
     }
 

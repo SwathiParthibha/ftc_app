@@ -18,6 +18,7 @@ public class PressBeaconsAndVerifyOpmode extends OpMode {
     private ColorSensor rightColorSensor;
     private DcMotor leftMotor;
     private DcMotor rightMotor;
+    private ColorSensor sensor;
     private ModernRoboticsI2cRangeSensor rangeSensor;
 
     @Override
@@ -25,8 +26,12 @@ public class PressBeaconsAndVerifyOpmode extends OpMode {
         rangeSensor = this.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
 
         leftColorSensor  = hardwareMap.colorSensor.get("lcs");
+        //I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
+        //leftColorSensor.setI2cAddress(i2cAddr);
+
+        sensor = hardwareMap.colorSensor.get("sensor_name");
         I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        leftColorSensor.setI2cAddress(i2cAddr);
+        sensor.setI2cAddress(i2cAddr);
 
         rightColorSensor = hardwareMap.colorSensor.get("rcs");
 
