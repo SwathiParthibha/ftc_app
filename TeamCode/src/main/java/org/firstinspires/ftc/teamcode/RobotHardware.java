@@ -4,6 +4,7 @@ import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LightSensor;
@@ -42,6 +43,8 @@ public class RobotHardware
     public LightSensor legoLineSensor = null;
     public ModernRoboticsI2cRangeSensor rangeSensor = null;
     public BNO055IMU IMU = null;
+    public ColorSensor leftColorSensor = null;
+    public ColorSensor rightColorSensor = null;
 
     //1000 Milliseconds
     public int SECOND = 1000;
@@ -58,6 +61,11 @@ public class RobotHardware
 
     //Z-Axis of the Modern Robotics Gyro Sensor
     int heading = 0;
+
+    //Color Sensor Variables
+    int leftColorSensorRed = leftColorSensor.red();
+
+    int rightColorSensorRed = rightColorSensor.red();
 
     //IMU Variables
     public Orientation angles;
@@ -89,6 +97,8 @@ public class RobotHardware
         modernRoboticsGyroSensor = hwMap.get(ModernRoboticsI2cGyro.class, "modernRoboticsGyroSensor");
         legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
         rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+        leftColorSensor  = hwMap.colorSensor.get("leftColorSensor");
+        rightColorSensor = hwMap.colorSensor.get("rightColorSensor");
 
         //IMU Parameters
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -297,6 +307,28 @@ public class RobotHardware
         }
 
         stopRobot();
+    }
+
+    public void pushButtonRed()
+    {
+        if(leftColorSensorRed > rightColorSensorRed )
+        {
+            //write the code here to press the left button
+            motorLeft.setPower(MOTOR_POWER * 0.3);
+            motorRight.setPower(MOTOR_POWER * 0);
+
+        }
+        else if(rightColorSensorRed > leftColorSensorRed )
+        {
+            //write the code here to press the right button
+            motorRight.setPower(MOTOR_POWER * 0.3);
+            motorLeft.setPower(MOTOR_POWER * 0.0);
+
+        }
+        else
+        {
+            stopRobot();
+        }
     }
 }
 
