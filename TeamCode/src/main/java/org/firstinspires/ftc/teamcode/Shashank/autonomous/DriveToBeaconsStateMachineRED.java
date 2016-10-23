@@ -99,14 +99,18 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         telemetry.addData("Light Level", lightSensor.getLightDetected());
         telemetry.update();
 
+        //go to the white line
         try {
             toWhiteLine();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //overshoot the line and use the light sensor again to
+        //turn right and find the line again
         int targetAngleZ =  angleZ + 32;
-        while (angleZ < targetAngleZ){
-            leftMotor.setPower(0.3);
+        while (lightSensor.getLightDetected() < WHITE_THRESHOLD){
+            leftMotor.setPower(-0.1);
             rightMotor.setPower(-0.3);
         }
         sleep(750);
