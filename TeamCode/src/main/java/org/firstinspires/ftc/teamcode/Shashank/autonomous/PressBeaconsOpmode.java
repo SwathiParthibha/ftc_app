@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 
 /**
- * Created by spmeg on 10/15/2016.
+ * Created by spmeg on 10/21/2016.
  */
-@Autonomous(name = "DriveToBeaconsOpmodeRED", group = "Autonomous")
-public class DriveToBeaconsOpmodeRED extends OpMode {
+@Autonomous(name = "PressBeaconsOpmode", group = "AutonomousTests")
+public class PressBeaconsOpmode extends OpMode {
     private ColorSensor leftColorSensor;
     private ColorSensor rightColorSensor;
     private DcMotor leftMotor;
