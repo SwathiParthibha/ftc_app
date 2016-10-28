@@ -205,12 +205,12 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
     void approachBeacon()
     {
         // Drive to set distance away, slow down, stop at set distance
-        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 2) {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
         }
 
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST  * 2) {
 
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
@@ -235,6 +235,33 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
 
             idle();
         }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .25);
+            robot.rightMotor.setPower(APPROACH_SPEED * .25);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .1);
+            robot.rightMotor.setPower(APPROACH_SPEED * .1);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
