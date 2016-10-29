@@ -56,17 +56,5 @@ public class Mecanum_Go_Straight extends LinearOpMode
           //An example of using the Turn function from the RobotHardware Class
           //robot.Turn("right", 45, 0.5);
       }
-
-
-    while(true)
-    {
-      //Getting the Lego Line Sensor Values
-      //telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());*
-      telemetry.update();
-    }
-
-
-
-
   }
 }
