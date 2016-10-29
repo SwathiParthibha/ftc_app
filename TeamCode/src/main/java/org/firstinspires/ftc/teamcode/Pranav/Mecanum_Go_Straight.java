@@ -28,7 +28,7 @@ package org.firstinspires.ftc.teamcode.Pranav;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Basic Autonomous", group = "Sensor")
+@TeleOp(name = "Mecanum Autonomous", group = "Autonomous")
 //@Disabled
 
 /*

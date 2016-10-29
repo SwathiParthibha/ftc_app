@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Saransh on 10/14/2016.
  */
 
-@TeleOp(name="Basic Mecanum Code", group="MecanumBot")
+@TeleOp(name="Mecanum TeleOp", group="TeleOp")
 public class Mecanum_Drive_Code extends OpMode {
 
     /* Declare OpMode members. */
