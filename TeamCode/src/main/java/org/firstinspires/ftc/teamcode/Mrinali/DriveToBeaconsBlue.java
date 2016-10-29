@@ -36,6 +36,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
@@ -137,6 +138,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         toWhiteLine(false);
         turn90();
+        //turnGyro("right", 90, 1);
         approachBeacon();
         pushButton();
 
@@ -146,9 +148,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         sleep(200);
 
         // Turn left - parallel to wall
-        robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ > 0)) {
+
+        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
+        robot.leftMotor.setPower(APPROACH_SPEED * .5);
+        while (opModeIsActive() && (angleZ < 0)) {
 
             // Display the light level while we are looking for the line
             angleZ  = gyro.getIntegratedZValue();
@@ -156,13 +159,18 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
+        robot.rightMotor.setPower(0);
+        robot.leftMotor.setPower(0);
+
 
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
-        sleep(750);
+        sleep(500);
 
+        maintainDist();
         toWhiteLine(true);
 
+        //turnGyro("right", 90, 1);
         turn90();
         approachBeacon();
         pushButton();
@@ -170,18 +178,24 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void toWhiteLine(boolean wall) throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
+        if (!wall) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .8);
+            robot.rightMotor.setPower(APPROACH_SPEED * .8);
+        }
 
+        int i = 0;
         // run until the white line is seen OR the driver presses STOP;
         while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
 
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.update();
-            if (wall) {
-                maintainDist();
-            }
+            /*if (wall) {
+                if (i == 0) {
+                    maintainDist();
+                }
+                i = (i+1) % 10;
+            }*/
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
@@ -197,18 +211,44 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void turn90()
     {
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < -90)) {
+        robot.leftMotor.setPower(-APPROACH_SPEED * .5);
+        robot.rightMotor.setPower(APPROACH_SPEED * .5);
+        while (opModeIsActive() && (angleZ > -90)) {
 
             // Display the light level while we are looking for the line
-            angleZ  = gyro.getIntegratedZValue() % 360;
+            angleZ  = gyro.getIntegratedZValue();
             telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
+    }
+
+    public void turnGyro(String Direction, int angle, double Speed) throws InterruptedException
+    {
+        int MotorDirectionChange = 0;
+
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        if (Direction.equals("Left"))
+        {
+            MotorDirectionChange = -1;
+        } else if (Direction.equals("Right"))
+        {
+            MotorDirectionChange = 1;
+        }
+
+        while ((angleZ > angle + 5 || angleZ < angle - 2))
+        {
+            robot.rightMotor.setPower(APPROACH_SPEED * Speed * MotorDirectionChange);
+            robot.leftMotor.setPower(-APPROACH_SPEED * Speed * MotorDirectionChange);
+
+            angleZ = robot.gyro.getHeading();
+        }
+        robot.rightMotor.setPower(0);
+        robot.leftMotor.setPower(0);
     }
 
     void approachBeacon()
@@ -261,23 +301,34 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     void maintainDist() {
 
         telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
+        telemetry.addData("Angle", angleZ);
         telemetry.update();
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
 
-        // If too close to wall, turn right
-        if (sideRangeSensor.getDistance(DistanceUnit.CM) < SIDE_DIST) {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+        robot.leftMotor.setPower(APPROACH_SPEED + angleZ/10);
+        robot.rightMotor.setPower(APPROACH_SPEED - angleZ/10);
+
+        /*
+        // If too close to wall, turn left
+        if (angleZ < 0) {
+            //robot.leftMotor.setPower(0);
+            //robot.rightMotor.setPower(0);
+            robot.leftMotor.setPower(APPROACH_SPEED + angleZ/20);
+            robot.rightMotor.setPower(APPROACH_SPEED - angleZ/20);
         }
 
-        // If too far from wall, turn left
-        else if (sideRangeSensor.getDistance(DistanceUnit.CM) > SIDE_DIST) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(APPROACH_SPEED);
+        // If too far from wall, turn right
+        else if (angleZ > 0) {
+            //robot.leftMotor.setPower(0);
+            //robot.rightMotor.setPower(0);
+            robot.leftMotor.setPower(APPROACH_SPEED);
+            robot.rightMotor.setPower(APPROACH_SPEED * .7);
         }
 
         else {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
-        }
+        }*/
     }
 }
