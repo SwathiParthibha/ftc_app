@@ -20,18 +20,21 @@ public class CustomGyroTest extends OpMode {
     public void init() {
         gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         gyro.calibrate();
-        while (gyro.isCalibrating())  {
-            sleep(50);
-        }
     }
 
     @Override
     public void loop() {
+        while (gyro.isCalibrating())  {
+            sleep(50);
+        }
+
         xVal = gyro.rawX();
         yVal = gyro.rawY();
         zVal = gyro.rawZ();
 
-        telemetry.addData(">", "Press A & B to reset Heading.");
+        heading = gyro.getHeading();
+        angleZ  = gyro.getIntegratedZValue();
+
         telemetry.addData("0", "Heading %03d", heading);
         telemetry.addData("1", "Int. Ang. %03d", angleZ);
         telemetry.addData("2", "X av. %03d", xVal);
