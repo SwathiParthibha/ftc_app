@@ -137,7 +137,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         }
 
         toWhiteLine(false);
-        turn90();
+        turn(-90);
         //turnGyro("right", 90, 1);
         approachBeacon();
         pushButton();
@@ -149,6 +149,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         // Turn left - parallel to wall
 
+        turn(0);
+        /*
         robot.rightMotor.setPower(-APPROACH_SPEED * .5);
         robot.leftMotor.setPower(APPROACH_SPEED * .5);
         while (opModeIsActive() && (angleZ < 0)) {
@@ -160,7 +162,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
         robot.rightMotor.setPower(0);
-        robot.leftMotor.setPower(0);
+        robot.leftMotor.setPower(0);*/
 
 
         robot.leftMotor.setPower(APPROACH_SPEED);
@@ -171,9 +173,11 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         toWhiteLine(true);
 
         //turnGyro("right", 90, 1);
-        turn90();
+        turn(-90);
         approachBeacon();
         pushButton();
+        turn(210);
+
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -209,20 +213,47 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.rightMotor.setPower(0);
     }
 
-    void turn90()
+    void turn(int turnAngle)
     {
-        robot.leftMotor.setPower(-APPROACH_SPEED * .5);
-        robot.rightMotor.setPower(APPROACH_SPEED * .5);
-        while (opModeIsActive() && (angleZ > -90)) {
+        angleZ  = gyro.getIntegratedZValue();
 
-            // Display the light level while we are looking for the line
-            angleZ  = gyro.getIntegratedZValue();
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        if (turnAngle < angleZ) {
+            robot.leftMotor.setPower(-APPROACH_SPEED * .5);
+            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+
+            while (opModeIsActive() && (turnAngle < angleZ)) {
+
+                // Display the light level while we are looking for the line
+                angleZ  = gyro.getIntegratedZValue();
+                telemetry.addData("Angle", angleZ);
+                telemetry.update();
+                idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            }
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
         }
-        robot.leftMotor.setPower(0);
-        robot.rightMotor.setPower(0);
+
+        else if (turnAngle > angleZ) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .5);
+            robot.rightMotor.setPower(-APPROACH_SPEED * .5);
+
+            while (opModeIsActive() && (turnAngle > angleZ)) {
+
+                // Display the light level while we are looking for the line
+                angleZ  = gyro.getIntegratedZValue();
+                telemetry.addData("Angle", angleZ);
+                telemetry.update();
+                idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            }
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+        }
+        else {
+            return;
+        }
+
+
+
     }
 
     public void turnGyro(String Direction, int angle, double Speed) throws InterruptedException
