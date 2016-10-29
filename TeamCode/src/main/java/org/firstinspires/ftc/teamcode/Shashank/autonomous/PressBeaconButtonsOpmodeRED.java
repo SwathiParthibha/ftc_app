@@ -64,7 +64,7 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
+@Autonomous(name="PressBeaconButtonsOpmodeRED", group="Pushbot")
 //@Disabled
 public class PressBeaconButtonsOpmodeRED extends LinearOpMode
 {
@@ -138,6 +138,8 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
         //TODO: get close to beacon
         //approachBeacon();
 
+        waitForInSec(7);
+
         //KEY EVENT
         //TODO: push the correct button on the first beacon
         //push the red side of the beacons
@@ -154,6 +156,8 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
         /*robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
         sleep(750); //REPLACE: Use gyro*/
+
+        waitForInSec(7);
 
         /*robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
@@ -172,6 +176,8 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
         //MINOR EVENT
         //TODO: get close to beacon
         //approachBeacon();
+
+        waitForInSec(7);
 
         //KEY EVENT
         //TODO: pusb the correct beacon button on the second beacon
@@ -279,7 +285,7 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
             //wait three seconds
             verify();
         } else if(rightRed > leftRed && !verify()){
-            //write the code here to press the right button
+            //write the0 code here to press the right button
             robot.rightMotor.setPower(0.3);
             robot.leftMotor.setPower(0.0);
             verify();
@@ -290,9 +296,19 @@ public class PressBeaconButtonsOpmodeRED extends LinearOpMode
 
     }
 
-    private void sleep(int time) {
+    private void waitForInSec(int timeToWait) {
+        while(timeToWait >= 0){
+            telemetry.update();
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+            sleepThread(1000);
+            timeToWait--;
+        }
+    }
+
+    private void sleepThread(int ms) {
         try {
-            Thread.sleep(time);
+            Thread.sleep(ms);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

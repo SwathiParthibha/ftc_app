@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 /**
  * Created by spmeg on 10/21/2016.
  */
-@Autonomous(name = "PressBeaconsOpmode", group = "AutonomousTests")
+@Autonomous(name = "PressBeaconsAndVerifyOpmode", group = "AutonomousTests")
 public class PressBeaconsAndVerifyOpmode extends OpMode {
     private ColorSensor leftColorSensor;
     private ColorSensor rightColorSensor;
