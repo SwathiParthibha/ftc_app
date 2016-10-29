@@ -30,14 +30,16 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Mrinali;
+package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
@@ -64,42 +66,25 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 @Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
 //@Disabled
-public class DriveToBeacons extends LinearOpMode {
+public class PressBeaconButtonsOpmodeRED extends LinearOpMode
+{
+
+    private ColorSensor leftColorSensor;
+    private ColorSensor rightColorSensor;
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
+    HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
-    ModernRoboticsI2cRangeSensor sideRangeSensor;
-    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
-    int angleZ = 0;
-
-    // get a reference to a Modern Robotics GyroSensor object.
 
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
-    double DIST = 8;
-    double SIDE_DIST = 10;
+    double DIST = 11;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-
-        // start calibrating the gyro.
-        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
-        telemetry.update();
-        gyro.calibrate();
-
-        // make sure the gyro is calibrated.
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-
-        telemetry.addData(">", "Gyro Calibrated.  Press Start.");
-        telemetry.update();
 
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
@@ -113,8 +98,6 @@ public class DriveToBeacons extends LinearOpMode {
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
-        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
-        angleZ  = gyro.getIntegratedZValue();
         //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
 
         // turn on LED of light sensor.
@@ -123,6 +106,12 @@ public class DriveToBeacons extends LinearOpMode {
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
+
+        leftColorSensor  = hardwareMap.colorSensor.get("rcs");
+
+        rightColorSensor = hardwareMap.colorSensor.get("lcs");
+        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
+        rightColorSensor.setI2cAddress(i2cAddr);
 
         // Wait for the game to start (driver presses PLAY)
         while (!isStarted()) {
@@ -134,62 +123,62 @@ public class DriveToBeacons extends LinearOpMode {
             idle();
         }
 
-        toWhiteLine(false);
+        //KEY EVENT
+        //TODO: run to the first white line
+        //first go to the white line
+        toWhiteLine();
 
-        // Turn right - to beacon
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
+        //MINOR EVENT
+        //TODO: line up to beacon
+        /*robot.leftMotor.setPower(-APPROACH_SPEED);
+        sleep(750);
+        robot.leftMotor.setPower(0);*/
 
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0); // REPLACE: Use gyro
+        //MINOR EVENT
+        //TODO: get close to beacon
+        //approachBeacon();
 
-        approachBeacon();
+        //KEY EVENT
+        //TODO: push the correct button on the first beacon
+        //push the red side of the beacons
         pushButton();
 
-        // Go backwards slightly
-        robot.rightMotor.setPower(-APPROACH_SPEED);
+        //MINOR EVENT
+        //TODO: back away from beacon
+        /*robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(200);
+        sleep(200);*/
 
-        // Turn left - parallel to wall
-        robot.rightMotor.setPower(-APPROACH_SPEED);
+        //MINOR EVENT
+        //TODO: line up parallel to the wall
+        /*robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ > 0)) {
+        sleep(750); //REPLACE: Use gyro*/
 
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-
-        maintainDist();
-
-        robot.leftMotor.setPower(APPROACH_SPEED);
+        /*robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
-        sleep(750);
+        sleep(750);*/
 
-        toWhiteLine(true);
+        //KEY EVENT
+        //TODO: run to the second white line
+        toWhiteLine();
 
-        //Turn right - to beacon
+        //MINOR EVENT
+        //TODO: line up toward second beacon
+        /*robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
+        sleep(750); //REPLACE: Use gyro*/
 
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0);
+        //MINOR EVENT
+        //TODO: get close to beacon
+        //approachBeacon();
 
-        approachBeacon();
+        //KEY EVENT
+        //TODO: pusb the correct beacon button on the second beacon
         pushButton();
     }
 
-    void toWhiteLine(boolean wall) throws InterruptedException {
+    void toWhiteLine() throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
@@ -200,9 +189,6 @@ public class DriveToBeacons extends LinearOpMode {
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.update();
-            if (wall) {
-                maintainDist();
-            }
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
@@ -219,12 +205,12 @@ public class DriveToBeacons extends LinearOpMode {
     void approachBeacon()
     {
         // Drive to set distance away, slow down, stop at set distance
-        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 2) {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
         }
 
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST  * 2) {
 
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
@@ -249,40 +235,80 @@ public class DriveToBeacons extends LinearOpMode {
 
             idle();
         }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .25);
+            robot.rightMotor.setPower(APPROACH_SPEED * .25);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .1);
+            robot.rightMotor.setPower(APPROACH_SPEED * .1);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
 
     void pushButton() {
-        // Pushes button, then straightens
-        // REPLACE: Code to push button, use color sensor
-        sleep(250);
-        robot.rightMotor.setPower(APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
-        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
+
+        int leftRed = leftColorSensor.red();
+        int rightRed = rightColorSensor.red();
+
+        if(leftRed > rightRed && !verify()){
+            //write the code here to press the left button
+            robot.leftMotor.setPower(0.3);
+            robot.rightMotor.setPower(0.0);
+
+            //wait three seconds
+            verify();
+        } else if(rightRed > leftRed && !verify()){
+            //write the code here to press the right button
+            robot.rightMotor.setPower(0.3);
+            robot.leftMotor.setPower(0.0);
+            verify();
+        } else{
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+        }
+
     }
 
-    void maintainDist() {
+    private void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-        telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
-        telemetry.update();
+    private boolean verify() {
+        if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
+            return false;
 
-        // If too close to wall, turn right
-        if (sideRangeSensor.getDistance(DistanceUnit.CM) < SIDE_DIST) {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+        if(leftColorSensor.argb() == 255 || rightColorSensor.argb() == 255)
+            return false;
+
+        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+            return true;
         }
 
-        // If too far from wall, turn left
-        else if (sideRangeSensor.getDistance(DistanceUnit.CM) > SIDE_DIST) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(APPROACH_SPEED);
-        }
-
-        else {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED);
-        }
+        return false;
     }
 }
