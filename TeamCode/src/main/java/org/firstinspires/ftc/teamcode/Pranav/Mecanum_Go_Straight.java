@@ -40,13 +40,14 @@ public class Mecanum_Go_Straight extends LinearOpMode
 {
     DcMotor frontRight;
     DcMotor backRight;
-    DcMotor frontLeft ;
+    DcMotor frontLeft;
     DcMotor backLeft;
 
     int ROTATION = 1220;
     int SECOND = 1000;
-
     int MOTOR_POWER = 1;
+
+    int heading = 0;
 
     public void stopRobot()
     {
@@ -56,8 +57,11 @@ public class Mecanum_Go_Straight extends LinearOpMode
         backLeft.setPower(MOTOR_POWER * 0);
     }
 
+
     public void drive(int Distance, double Speed) throws InterruptedException
     {
+        telemetry.addData("Starting to Drive", frontRight.getCurrentPosition() / ROTATION);
+
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -94,38 +98,37 @@ public class Mecanum_Go_Straight extends LinearOpMode
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Finished Driving", frontRight.getCurrentPosition() / ROTATION);
     }
 
-  @Override
-  public void runOpMode() throws InterruptedException
-  {
-      frontRight = hardwareMap.dcMotor.get("motor_2");
-      backRight = hardwareMap.dcMotor.get("motor_4");
-      frontLeft = hardwareMap.dcMotor.get("motor_3");
-      backLeft = hardwareMap.dcMotor.get("motor_1");
+    @Override
+    public void runOpMode() throws InterruptedException
+    {
+        frontRight = hardwareMap.dcMotor.get("motor_2");
+        backRight = hardwareMap.dcMotor.get("motor_4");
+        frontLeft = hardwareMap.dcMotor.get("motor_3");
+        backLeft = hardwareMap.dcMotor.get("motor_1");
 
-      frontRight.setDirection(DcMotor.Direction.FORWARD);
-      backRight.setDirection(DcMotor.Direction.FORWARD);
-      frontLeft.setDirection(DcMotor.Direction.REVERSE);
-      backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
 
-      // Set all motors to zero power
-      frontRight.setPower(0);
-      backRight.setPower(0);
-      frontLeft.setPower(0);
-      backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
 
-      // Set all motors to run without encoders.
-      // May want to use RUN_USING_ENCODERS if encoders are installed.
-      frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-      backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-      frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-      backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-      waitForStart();
-      {
-          drive(ROTATION * 2, 1.0);
-      }
-  }
+        waitForStart();
+        {
+            drive(ROTATION * 2, MOTOR_POWER * 1);
+        }
+    }
 }
