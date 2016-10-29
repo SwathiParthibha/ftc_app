@@ -62,7 +62,7 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Blue", group="Pushbot")
 //@Disabled
 public class DriveToBeaconsBlue extends LinearOpMode {
 
@@ -130,23 +130,13 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             // Display the light level while we are waiting to start
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Angle", gyro.getIntegratedZValue());
             telemetry.update();
             idle();
         }
 
         toWhiteLine(false);
-
-        // Turn right - to beacon
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
-
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0); // REPLACE: Use gyro
-
+        turn90();
         approachBeacon();
         pushButton();
 
@@ -161,12 +151,11 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         while (opModeIsActive() && (angleZ > 0)) {
 
             // Display the light level while we are looking for the line
+            angleZ  = gyro.getIntegratedZValue();
             telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
-
-        maintainDist();
 
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
@@ -174,17 +163,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         toWhiteLine(true);
 
-        //Turn right - to beacon
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
-
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0);
-
+        turn90();
         approachBeacon();
         pushButton();
     }
@@ -212,6 +191,22 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         // Stop all motors
 
         sleep(100);
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+    }
+
+    void turn90()
+    {
+        robot.leftMotor.setPower(-APPROACH_SPEED);
+        robot.rightMotor.setPower(APPROACH_SPEED);
+        while (opModeIsActive() && (angleZ < -90)) {
+
+            // Display the light level while we are looking for the line
+            angleZ  = gyro.getIntegratedZValue() % 360;
+            telemetry.addData("Angle", angleZ);
+            telemetry.update();
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        }
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
