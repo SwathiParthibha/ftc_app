@@ -25,26 +25,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode.Pranav;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.RobotHardware;
-
 @TeleOp(name = "Basic Autonomous", group = "Sensor")
-@Disabled
+//@Disabled
 
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
-public class Autonomous1 extends LinearOpMode
+public class Mecanum_Go_Straight extends LinearOpMode
 {
   @Override
   public void runOpMode() throws InterruptedException
   {
     //Use this command to access the all the functions in the RobotHardware Class
-    RobotHardware robot= new RobotHardware();
-
+    MecanumHardware robot= new MecanumHardware();
     //Use this command to initialize the robot in the RobotHardware Class
     robot.init(hardwareMap);
 
@@ -58,14 +54,7 @@ public class Autonomous1 extends LinearOpMode
           sleep(500);
 
           //An example of using the Turn function from the RobotHardware Class
-          robot.turnGyro("Right", 90, 0.5);
-
-          robot.goToLine(robot.MOTOR_POWER * 0.5);
-
-          robot.approachBeacon(robot.MOTOR_POWER * 0.5);
-
-          robot.pushButtonRed();
-
+          //robot.Turn("right", 45, 0.5);
       }
 
 
