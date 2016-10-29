@@ -36,6 +36,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
@@ -62,19 +63,23 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
+@Autonomous(name="Pushbot: Beacons Autonomous Red", group="Pushbot")
 //@Disabled
-public class DriveToBeacons extends LinearOpMode {
+public class DriveToBeaconsRed extends LinearOpMode {
 
     /* Declare OpMode members. */
     org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
+
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cRangeSensor sideRangeSensor;
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    public ColorSensor leftColorSensor;
+    public ColorSensor rightColorSensor;
+
+
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
-    int angleZ = 0;
 
     // get a reference to a Modern Robotics GyroSensor object.
 
@@ -85,37 +90,46 @@ public class DriveToBeacons extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-
-        // start calibrating the gyro.
-        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
-        telemetry.update();
-        gyro.calibrate();
-
-        // make sure the gyro is calibrated.
-        while (!isStopRequested() && gyro.isCalibrating())  {
-            sleep(50);
-            idle();
-        }
-
-        telemetry.addData(">", "Gyro Calibrated.  Press Start.");
-        telemetry.update();
-
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
          */
+
+       /*try(nullpointerexception)
+
+           catch{*/
+
         robot.init(hardwareMap);
+        lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
+        leftColorSensor  = hardwareMap.colorSensor.get("rcs");
+        rightColorSensor = hardwareMap.colorSensor.get("lcs");
+        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
         // robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // get a reference to our Light Sensor object.
-        lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
-        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
-        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
-        angleZ  = gyro.getIntegratedZValue();
-        //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
+
+        // start calibrating the gyro.
+        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        telemetry.update();
+        robot.gyro.calibrate();
+
+        // make sure the gyro is calibrated.
+        while (!isStopRequested() && gyro.isCalibrating())  {
+            sleep(50);
+            idle();
+            //waitForTick(40);
+        }
+
+        telemetry.addData(">", "Gyro Calibrated.  Press Start.");
+        telemetry.update();
+
+        // wait for the start button to be pressed.
+        waitForStart();
 
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
@@ -136,17 +150,7 @@ public class DriveToBeacons extends LinearOpMode {
 
         toWhiteLine(false);
 
-        // Turn right - to beacon
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
-
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0); // REPLACE: Use gyro
-
+        turn90();
         approachBeacon();
         pushButton();
 
@@ -156,11 +160,13 @@ public class DriveToBeacons extends LinearOpMode {
         sleep(200);
 
         // Turn left - parallel to wall
-        robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ > 0)) {
+        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
+        robot.leftMotor.setPower(APPROACH_SPEED * .5);
+        int angleZ  = gyro.getIntegratedZValue();
+        while (opModeIsActive() && (angleZ > 0 || angleZ < 0)) {
 
             // Display the light level while we are looking for the line
+            angleZ  = gyro.getIntegratedZValue();
             telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -175,16 +181,7 @@ public class DriveToBeacons extends LinearOpMode {
         toWhiteLine(true);
 
         //Turn right - to beacon
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        while (opModeIsActive() && (angleZ < 90)) {
-
-            // Display the light level while we are looking for the line
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.leftMotor.setPower(0);
-
+        turn90();
         approachBeacon();
         pushButton();
     }
@@ -212,6 +209,22 @@ public class DriveToBeacons extends LinearOpMode {
         // Stop all motors
 
         sleep(100);
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+    }
+
+    void turn90() {
+        robot.leftMotor.setPower(-APPROACH_SPEED * .5);
+        robot.rightMotor.setPower(APPROACH_SPEED * .5);
+        int angleZ  = gyro.getIntegratedZValue();
+        while (opModeIsActive() && (angleZ > 90)) {
+
+            // Display the light level while we are looking for the line
+            angleZ  = gyro.getIntegratedZValue();
+            telemetry.addData("Angle", angleZ);
+            telemetry.update();
+            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+        }
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
@@ -256,11 +269,49 @@ public class DriveToBeacons extends LinearOpMode {
     void pushButton() {
         // Pushes button, then straightens
         // REPLACE: Code to push button, use color sensor
-        sleep(250);
+        /*sleep(250);
         robot.rightMotor.setPower(APPROACH_SPEED * .5);
         sleep(500); // REPLACE: Use gyro
         robot.rightMotor.setPower(-APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
+        sleep(500); // REPLACE: Use gyro*/
+        int leftRed = leftColorSensor.red();
+        int leftBlue = leftColorSensor.blue();
+        int leftGreen = leftColorSensor.green();
+
+        int rightRed = rightColorSensor.red();
+        int rightBlue = rightColorSensor.blue();
+        int rightGreen = rightColorSensor.green();
+
+        if(leftRed > rightRed && !verify()){
+            //write the code here to press the left button
+            robot.leftMotor.setPower(0.3);
+            robot.rightMotor.setPower(0.0);
+
+            //wait three seconds
+            verify();
+        } else if(rightRed > leftRed && !verify()){
+            //write the code here to press the right button
+            robot.rightMotor.setPower(0.3);
+            robot.leftMotor.setPower(0.0);
+            verify();
+        } else{
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+        }
+    }
+
+    private boolean verify() {
+        if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
+            return false;
+
+        if(leftColorSensor.argb() == 255 || rightColorSensor.argb() == 255)
+            return false;
+
+        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+            return true;
+        }
+
+        return false;
     }
 
     void maintainDist() {
@@ -284,5 +335,5 @@ public class DriveToBeacons extends LinearOpMode {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
         }
-    }
-}
+    }}
+

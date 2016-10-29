@@ -49,7 +49,7 @@ public class BasicAutonomousExample extends LinearOpMode
       waitForStart();
       {
           //An example of using the Drive function from the RobotHardware Class
-          //robot.Drive(robot.ROTATION * 2, 0.5);
+          robot.drive(robot.ROTATION * 2, 0.5);
 
           //A little bit of settling time
           sleep(500);

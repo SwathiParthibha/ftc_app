@@ -12,9 +12,9 @@ public class CustomGyroTest extends OpMode {
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     int xVal, yVal, zVal = 0;     // Gyro rate Values
     int heading = 0;              // Gyro integrated heading
-    int angleZ = 0;
     boolean lastResetState = false;
     boolean curResetState  = false;
+    int angleZ = 0;
 
     @Override
     public void init() {
@@ -37,6 +37,8 @@ public class CustomGyroTest extends OpMode {
         telemetry.addData("2", "X av. %03d", xVal);
         telemetry.addData("3", "Y av. %03d", yVal);
         telemetry.addData("4", "Z av. %03d", zVal);
+        telemetry.addData(">", "Press A & B to reset Heading.");
+        telemetry.addData("1", "Int. Ang. %03d", angleZ);
         telemetry.update();
     }
 
