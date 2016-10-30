@@ -25,48 +25,110 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode.Pranav;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "Basic Autonomous", group = "Sensor")
+@Autonomous(name = "Mecanum Autonomous", group = "Autonomous")
 //@Disabled
 
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
+
 public class Mecanum_Go_Straight extends LinearOpMode
 {
-  @Override
-  public void runOpMode() throws InterruptedException
-  {
-    //Use this command to access the all the functions in the RobotHardware Class
-    MecanumHardware robot= new MecanumHardware();
-    //Use this command to initialize the robot in the RobotHardware Class
-    robot.init(hardwareMap);
+    DcMotor frontRight;
+    DcMotor backRight;
+    DcMotor frontLeft;
+    DcMotor backLeft;
 
-      // wait for the start button to be pressed.
-      waitForStart();
-      {
-          //An example of using the Drive function from the RobotHardware Class
-          robot.drive(robot.ROTATION * 2, 0.5);
+    int ROTATION = 1220;
+    int SECOND = 1000;
+    int MOTOR_POWER = 1;
 
-          //A little bit of settling time
-          sleep(500);
+    int heading = 0;
 
-          //An example of using the Turn function from the RobotHardware Class
-          //robot.Turn("right", 45, 0.5);
-      }
-
-
-    while(true)
+    public void stopRobot()
     {
-      //Getting the Lego Line Sensor Values
-      //telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());*
-      telemetry.update();
+        frontRight.setPower(MOTOR_POWER * 0);
+        backRight.setPower(MOTOR_POWER * 0);
+        frontLeft.setPower(MOTOR_POWER * 0);
+        backLeft.setPower(MOTOR_POWER * 0);
     }
 
 
+    public void drive(int Distance, double Speed) throws InterruptedException
+    {
+        telemetry.addData("Starting to Drive", frontRight.getCurrentPosition() / ROTATION);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontRight.setPower(MOTOR_POWER * Speed);
+        backRight.setPower(MOTOR_POWER * Speed);
+        frontLeft.setPower(MOTOR_POWER * Speed);
+        backLeft.setPower(MOTOR_POWER * Speed);
+
+        frontRight.setTargetPosition(Distance);
+        backRight.setTargetPosition(Distance);
+        frontLeft.setTargetPosition(Distance);
+        backLeft.setTargetPosition(Distance);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy())
+        {
+
+        }
+
+        stopRobot();
+
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Finished Driving", frontRight.getCurrentPosition() / ROTATION);
+    }
+
+    @Override
+    public void runOpMode() throws InterruptedException
+    {
+        frontRight = hardwareMap.dcMotor.get("motor_2");
+        backRight = hardwareMap.dcMotor.get("motor_4");
+        frontLeft = hardwareMap.dcMotor.get("motor_3");
+        backLeft = hardwareMap.dcMotor.get("motor_1");
+
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        frontRight.setPower(0);
+        backRight.setPower(0);
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-  }
+        waitForStart();
+        {
+            drive(ROTATION * 2, MOTOR_POWER * 1);
+        }
+    }
 }

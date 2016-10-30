@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.Pranav;
+package org.firstinspires.ftc.teamcode.Sam;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * In this case that robot is a our robot.
  * Our files for usage examples.
  */
-
+//asdjnkasd
 /*
 
 This is our Class where all our functions are included that are used in the entire project
@@ -20,7 +21,7 @@ Please do not edit any of the functions as it will affect other programs in the 
 
 If you have accomplished something please tell us so we can implement into the class.
 */
-public class MecanumHardware
+public class RobotHardware
 {
     /* Public OpMode members. */
 
@@ -31,7 +32,7 @@ public class MecanumHardware
     DcMotor backLeft = null;
 
     //Where all Sensors are defined
-    //public ModernRoboticsI2cGyro modernRoboticsGyroSensor = null;
+    public ModernRoboticsI2cGyro modernRoboticsGyroSensor = null;
    // public LightSensor legoLineSensor = null;
    // public ModernRoboticsI2cRangeSensor rangeSensor = null;
 
@@ -53,7 +54,7 @@ public class MecanumHardware
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
-    public MecanumHardware()
+    public RobotHardware()
     {
 
     }
@@ -71,7 +72,7 @@ public class MecanumHardware
         backLeft = hwMap.dcMotor.get("motor_1");
 
         //Define and Initialize Sensors
-        //modernRoboticsGyroSensor = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        modernRoboticsGyroSensor = hwMap.get(ModernRoboticsI2cGyro.class, "modernRoboticsGyroSensor");
        // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
        // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
@@ -95,7 +96,7 @@ public class MecanumHardware
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //Calibrate the Modern Robotics Gyro Sensor
-        ///modernRoboticsGyroSensor.calibrate();
+        modernRoboticsGyroSensor.calibrate();
 
         //Turn on the LED of the Lego Line Sensor
         //legoLineSensor.enableLed(true);
@@ -103,7 +104,7 @@ public class MecanumHardware
         /*This prevents the Modern Robotics Gyro Sensor from
           incorrectly calibrating before the start of Autonomous
         */
-        /*
+
         while (modernRoboticsGyroSensor.isCalibrating())
         {
             try
@@ -116,7 +117,6 @@ public class MecanumHardware
                 //do nothing
             }
         }
-        */
 
     }
 
@@ -208,7 +208,6 @@ public class MecanumHardware
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    /*
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
     public void turnGyro(String Direction, int angle, double Speed) throws InterruptedException
     {
@@ -244,6 +243,5 @@ public class MecanumHardware
         stopRobot();
 
         }
-        */
     }
 
