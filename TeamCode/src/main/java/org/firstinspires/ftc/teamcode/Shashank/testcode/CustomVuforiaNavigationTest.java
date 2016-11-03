@@ -169,6 +169,7 @@ public class CustomVuforiaNavigationTest extends LinearOpMode {
         float mmPerInch        = 25.4f;
         float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
         float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+        float mmFTCFieldTileWidth  = (5.0f/8.0f) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 
         /**
          * In order for localization to work, we need to tell the system where each target we
@@ -226,34 +227,56 @@ public class CustomVuforiaNavigationTest extends LinearOpMode {
          * - Then we rotate it  90 around the field's Z access to face it away from the audience.
          * - Finally, we translate it back along the X axis towards the red audience wall.
          */
-        OpenGLMatrix redTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix gearsRedTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                .translation(-mmFTCFieldWidth/2, 0, 0)
+                .translation(-mmFTCFieldWidth/2, -mmFTCFieldTileWidth/2, 0)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 90, 0));
-        gears.setLocation(redTargetLocationOnField);
-        tools.setLocation(redTargetLocationOnField);
-        RobotLog.ii(TAG, "Red Target=%s", format(redTargetLocationOnField));
+        gears.setLocation(gearsRedTargetLocationOnField);
+
+        OpenGLMatrix toolsRedTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the RED WALL. Our translation here
+                is a negative translation in X.*/
+                .translation(-mmFTCFieldWidth/2, (mmFTCFieldTileWidth + (mmFTCFieldTileWidth/2)), 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 90, 90, 0));
+        tools.setLocation(toolsRedTargetLocationOnField);
+
+        RobotLog.ii(TAG, "Gears Red Target=%s", format(gearsRedTargetLocationOnField));
+        RobotLog.ii(TAG, "Tools Red Target=%s", format(toolsRedTargetLocationOnField));
 
        /*
         * To place the Stones Target on the Blue Audience wall:
         * - First we rotate it 90 around the field's X axis to flip it upright
         * - Finally, we translate it along the Y axis towards the blue audience wall.
         */
-        OpenGLMatrix blueTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix wheelsBlueTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the Blue Audience wall.
                 Our translation here is a positive translation in Y.*/
-                .translation(0, mmFTCFieldWidth/2, 0)
+                .translation(mmFTCFieldTileWidth/2, mmFTCFieldWidth/2, 0)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 0, 0));
-        wheels.setLocation(blueTargetLocationOnField);
-        legos.setLocation(blueTargetLocationOnField);
-        RobotLog.ii(TAG, "Blue Target=%s", format(blueTargetLocationOnField));
+        wheels.setLocation(wheelsBlueTargetLocationOnField);
+
+        OpenGLMatrix legosBlueTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation((-mmFTCFieldTileWidth-(mmFTCFieldTileWidth/2)), mmFTCFieldWidth/2, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 90, 0, 0));
+        legos.setLocation(legosBlueTargetLocationOnField);
+
+        RobotLog.ii(TAG, "Wheels Blue Target=%s", format(wheelsBlueTargetLocationOnField));
+        RobotLog.ii(TAG, "Legos Blue Target=%s", format(legosBlueTargetLocationOnField));
 
         /**
          * Create a transformation matrix describing where the phone is on the robot. Here, we
@@ -330,7 +353,7 @@ public class CustomVuforiaNavigationTest extends LinearOpMode {
              * Provide feedback as to where the robot was last located (if we know).
              */
             if (lastLocation != null) {
-                //  RobotLog.vv(TAG, "robot=%s", format(lastLocation));
+                RobotLog.vv(TAG, "robot=%s", format(lastLocation));
                 telemetry.addData("Pos", format(lastLocation));
             } else {
                 telemetry.addData("Pos", "Unknown");
@@ -344,6 +367,6 @@ public class CustomVuforiaNavigationTest extends LinearOpMode {
      * and formats it in a form palatable to a human being.
      */
     String format(OpenGLMatrix transformationMatrix) {
-        return transformationMatrix.formatAsTransform();
+        return transformationMatrix.formatAsTransform(AxesReference.EXTRINSIC, AxesOrder.XYX, AngleUnit.DEGREES);
     }
 }
