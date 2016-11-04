@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -7,14 +8,14 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.vuforia.Obb2D;
 
 /**
- * Created by spmeg on 10/21/2016.
+ * Created by spmeg on 10/28/2016.
  */
-@Autonomous(name = "PressBeaconsOpmode", group = "AutonomousTests")
-public class PressBeaconsOpmode extends OpMode {
-    private ColorSensor leftColorSensor;
-    private ColorSensor rightColorSensor;
+@Autonomous(name = "PressBeaconButtonsOneColor", group = "Auto")
+public class PressBeaconButtonsOneColor extends OpMode{
+    private ColorSensor colorSensor;
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private ModernRoboticsI2cRangeSensor rangeSensor;
@@ -23,43 +24,35 @@ public class PressBeaconsOpmode extends OpMode {
     public void init() {
         rangeSensor = this.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
 
-        rightColorSensor  = hardwareMap.colorSensor.get("rcs");
-
-        leftColorSensor = hardwareMap.colorSensor.get("lcs");
-        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        leftColorSensor.setI2cAddress(i2cAddr);
+        colorSensor  = hardwareMap.colorSensor.get("rcs");
 
         leftMotor = hardwareMap.dcMotor.get("l");
         rightMotor = hardwareMap.dcMotor.get("r");
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        DbgLog.msg("Finished INIT");
     }
 
     @Override
     public void loop() {
 
-        int leftRed = leftColorSensor.red();
-        int leftBlue = leftColorSensor.blue();
-        int leftGreen = leftColorSensor.green();
+        int leftRed = colorSensor.red();
+        int leftBlue = colorSensor.blue();
 
-        int rightRed = rightColorSensor.red();
-        int rightBlue = rightColorSensor.blue();
-        int rightGreen = rightColorSensor.green();
-
-        double currentTime = this.time;
-        if(leftRed > rightRed && !verify()){
+        double savedTime = this.time;
+        if(leftRed > leftBlue && !verify()){
             //write the code here to press the left button
             leftMotor.setPower(0.3);
             rightMotor.setPower(0.0);
-
-            //wait three seconds
-            verify();
-        } else if(rightRed > leftRed && !verify()){
+            DbgLog.msg("red is greater than blue");
+            telemetry.addData("", "red is greater than blue");
+        } else if(leftBlue > leftRed  && !verify()){
             //write the code here to press the right button
             rightMotor.setPower(0.3);
             leftMotor.setPower(0.0);
-            verify();
+            DbgLog.msg("blue is greater than red");
+            telemetry.addData("", "blue is greater than red");
         } else{
             leftMotor.setPower(0);
             rightMotor.setPower(0);
@@ -69,9 +62,7 @@ public class PressBeaconsOpmode extends OpMode {
         telemetry.addData("power of right motor", rightMotor.getPower());
         telemetry.addData("cm in ultrasonic", rangeSensor.cmUltrasonic());
         telemetry.addData("cm in optical", rangeSensor.cmOptical());
-        telemetry.addData("left", String.format("a=%d r=%d g=%d b=%d", leftColorSensor.alpha(), leftColorSensor.red(), leftColorSensor.green(), leftColorSensor.blue()));
-        telemetry.addData("right", String.format("a=%d r=%d g=%d b=%d", rightColorSensor.alpha(), rightColorSensor.red(), rightColorSensor.green(), rightColorSensor.blue()));
-        telemetry.addData("verify", verify());
+        telemetry.addData("left", String.format("a=%d r=%d g=%d b=%d", colorSensor.alpha(), colorSensor.red(), colorSensor.green(), colorSensor.blue()));
         this.updateTelemetry(telemetry);
 
     }
@@ -84,28 +75,12 @@ public class PressBeaconsOpmode extends OpMode {
         }
     }
 
-    private boolean verify() {
-        if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
-            return false;
-
-        if(leftColorSensor.argb() == 255 || rightColorSensor.argb() == 255)
-            return false;
-
-        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+    public boolean verify(){
+        if(colorSensor.red() > colorSensor.blue()){
             return true;
         }
-
         return false;
     }
 
-    private void moveBack() {
-        leftMotor.setPower(-0.5);
-        rightMotor.setPower(-0.5);
-        double currentTime = this.time;
-        //wait 2 seconds
-        sleep(2000);
-
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-    }
 }
+

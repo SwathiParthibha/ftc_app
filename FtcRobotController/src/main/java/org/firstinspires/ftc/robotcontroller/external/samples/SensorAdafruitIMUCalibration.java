@@ -104,7 +104,8 @@ import java.util.Locale;
 @TeleOp(name = "Sensor: Adafruit IMU Calibration", group = "Sensor")
 @Disabled                            // Uncomment this to add to the opmode list
 public class SensorAdafruitIMUCalibration extends LinearOpMode
-    {
+
+{
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
