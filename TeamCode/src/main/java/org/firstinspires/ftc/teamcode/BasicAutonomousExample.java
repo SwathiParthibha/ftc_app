@@ -41,7 +41,7 @@ public class BasicAutonomousExample extends LinearOpMode
   @Override
   public void runOpMode() throws InterruptedException
   {
-    //Use this command to access the all the functions in the RobotHardware Class
+    /*//Use this command to access the all the functions in the RobotHardware Class
     RobotHardware robot= new RobotHardware();
     //Use this command to initialize the robot in the RobotHardware Class
     robot.init(hardwareMap);
@@ -69,6 +69,6 @@ public class BasicAutonomousExample extends LinearOpMode
 
 
 
-
+*/
   }
 }

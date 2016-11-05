@@ -58,11 +58,12 @@ public class PressBeaconsAndVerifyOpmode extends OpMode {
             rightMotor.setPower(0);
         }
 
-        /*sleep(1000);
+        if(!verify())
+            sleep(5000);
 
         if(!verify()){
             adjust();
-        }*/
+        }
 
         telemetry.addData("power of left motor", leftMotor.getPower());
         telemetry.addData("power of right motor", rightMotor.getPower());
@@ -78,7 +79,7 @@ public class PressBeaconsAndVerifyOpmode extends OpMode {
     private void adjust() {
         leftMotor.setPower(-0.3);
         rightMotor.setPower(0.0);
-        sleep(1000);
+        sleep(500);
 
         leftMotor.setPower(-0.3);
         rightMotor.setPower(-0.3);
