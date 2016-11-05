@@ -28,13 +28,13 @@ public class MecanumHardware extends LinearOpMode
     /* Public OpMode members. */
 
     //Currently there are two motors defined. As the season progresses we may add additional motors
-    DcMotor frontRight;
-    DcMotor backRight;
-    DcMotor frontLeft;
-    DcMotor backLeft;
+    DcMotor frontRight = null;
+    DcMotor backRight = null;
+    DcMotor frontLeft = null;
+    DcMotor backLeft = null;
 
     //Where all Sensors are defined
-    public ModernRoboticsI2cGyro gyro;
+    public ModernRoboticsI2cGyro gyro = null;
     // public LightSensor legoLineSensor = null;
     // public ModernRoboticsI2cRangeSensor rangeSensor = null;
 
@@ -49,7 +49,7 @@ public class MecanumHardware extends LinearOpMode
     int heading = 0;
 
     /* local OpMode members. */
-    HardwareMap hwMap = null;
+    HardwareMap hwMap;
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
