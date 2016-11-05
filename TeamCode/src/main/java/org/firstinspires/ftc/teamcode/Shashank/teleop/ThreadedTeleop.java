@@ -20,7 +20,7 @@ public class ThreadedTeleop extends OpMode {
     @Override
     public void init() {
         leftMotor = this.hardwareMap.dcMotor.get("l");
-        leftMotor = this.hardwareMap.dcMotor.get("r");
+        rightMotor = this.hardwareMap.dcMotor.get("r");
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);

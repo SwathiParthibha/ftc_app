@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
+import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,8 +12,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
+
+import java.util.Locale;
 
 /**
  * Created by spmeg on 10/22/2016.
@@ -23,6 +33,12 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private ModernRoboticsI2cRangeSensor rangeSensor;
+
+    BNO055IMU imu;
+
+    // State used for updating telemetry
+    Orientation angles;
+    Acceleration gravity;
     // OpticalDistanceSensor
 
     /* Declare OpMode members. */
@@ -33,36 +49,35 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.4;
     double DIST = 11;
-    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
-    int xVal, yVal, zVal = 0;     // Gyro rate Values
-    int heading = 0;              // Gyro integrated heading
-    int angleZ = 0;
-    boolean lastResetState = false;
-    boolean curResetState  = false;
 
+    enum State{
+        TO_WHITE_LINE,
+        PUSH_BUTTON,
+        END
+    }
+
+    private State state;
 
     @Override
     public void init() {
         rangeSensor = this.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
 
-        leftColorSensor  = hardwareMap.colorSensor.get("rcs");
+        leftColorSensor  = hardwareMap.colorSensor.get("lcs");
 
-        rightColorSensor = hardwareMap.colorSensor.get("lcs");
+        rightColorSensor = hardwareMap.colorSensor.get("rcs");
         I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        rightColorSensor.setI2cAddress(i2cAddr);
+        leftColorSensor.setI2cAddress(i2cAddr);
 
         leftMotor = hardwareMap.dcMotor.get("l");
         rightMotor = hardwareMap.dcMotor.get("r");
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //gyro.calibrate();
 
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-        gyro.calibrate();
-
-        while (gyro.isCalibrating())  {
+        /*while (gyro.isCalibrating())  {
             sleep(50);
-        }
+        }*/
 
         robot.init(hardwareMap);
 
@@ -78,42 +93,83 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
+
+        composeTelemetry();
+
+        state = State.TO_WHITE_LINE;
     }
 
     @Override
-    public void loop() {
-        heading = gyro.getHeading();
-        angleZ  = gyro.getIntegratedZValue();
+    public void loop() {;
 
         telemetry.addData(">", "Press A & B to reset Heading.");
-        telemetry.addData("0", "Heading %03d", heading);
-        telemetry.addData("1", "Int. Ang. %03d", angleZ);
         telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
         telemetry.addData("cm in ultrasonic", rangeSensor.cmUltrasonic());
         telemetry.addData("left", String.format("a=%d r=%d g=%d b=%d", leftColorSensor.alpha(), leftColorSensor.red(), leftColorSensor.green(), leftColorSensor.blue()));
         telemetry.addData("right", String.format("a=%d r=%d g=%d b=%d", rightColorSensor.alpha(), rightColorSensor.red(), rightColorSensor.green(), rightColorSensor.blue()));
         telemetry.addData("verify", verify());
         telemetry.addData("Light Level", lightSensor.getLightDetected());
+        telemetry.addData("time", this.time);
         telemetry.update();
 
-        try {
-            toWhiteLine();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        switch (state){
+            case TO_WHITE_LINE:
+                try {
+                    toWhiteLine();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+                telemetry.update();
+                sleep(750);
+
+                state = State.PUSH_BUTTON;
+                break;
+            case PUSH_BUTTON:
+                sleep(750);
+
+                telemetry.update();
+                //approachBeacon();
+                pushButton();
+                telemetry.update();
+
+                sleep(740);
+
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+
+                state = State.END;
+                break;
+            case END:
+                stop();
+                break;
         }
-        int targetAngleZ =  angleZ + 32;
+
+        /*int targetAngleZ =  angleZ - 32;
         while (angleZ < targetAngleZ){
             leftMotor.setPower(0.3);
             rightMotor.setPower(-0.3);
-        }
-        sleep(750);
-        robot.leftMotor.setPower(0);
-        approachBeacon();
-        pushButton();
-
+            telemetry.update();
+        }*/
         /*telemetry.update();
         // Turn right
         robot.leftMotor.setPower(-APPROACH_SPEED);
@@ -218,30 +274,55 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         robot.rightMotor.setPower(0);
     }
 
+    void turn(int degrees){
+        //right is negative, left is positive
+        double targetDegrees = angles.secondAngle + degrees;
+        while((Math.abs(angles.secondAngle - targetDegrees)) > 2){
+            if(degrees < 0){
+                //if degrees is negative turn right
+                leftMotor.setPower(0.3);
+                rightMotor.setPower(-0.3);
+            } else {
+                leftMotor.setPower(-0.3);
+                rightMotor.setPower(0.3);
+            }
+        }
+    }
+
     void pushButton() {
         // Pushes button, then straightens
         // REPLACE: Code to push button, use color sensor
 
+        leftColorSensor.enableLed(true);
+        rightColorSensor.enableLed(true);
+
         int leftRed = leftColorSensor.red();
-
+        int leftBlue = leftColorSensor.blue();
         int rightRed = rightColorSensor.red();
+        int rightBlue = rightColorSensor.blue();
 
-        if(leftRed > rightRed && !verify()){
-            //write the code here to press the left button
-            leftMotor.setPower(0.3);
-            rightMotor.setPower(0.0);
+        while (!verify()){
 
-            //wait three seconds
-            verify();
-        } else if(rightRed > leftRed && !verify()){
-            //write the code here to press the right button
-            rightMotor.setPower(0.3);
-            leftMotor.setPower(0.0);
-            verify();
-        } else{
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
+            if(leftRed > rightRed && !verify()){
+                //write the code here to press the left button
+                leftMotor.setPower(0.3);
+                rightMotor.setPower(0.0);
+
+                //wait three seconds
+                verify();
+            } else if(rightRed > leftRed && !verify()){
+                //write the code here to press the right button
+                rightMotor.setPower(0.3);
+                leftMotor.setPower(0.0);
+                verify();
+            } else{
+                leftMotor.setPower(0);
+                rightMotor.setPower(0);
+            }
         }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
     }
 
     private boolean verify() {
@@ -266,4 +347,74 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         }
     }
 
+    void composeTelemetry() {
+
+        // At the beginning of each telemetry update, grab a bunch of data
+        // from the IMU that we will then display in separate lines.
+        telemetry.addAction(new Runnable() { @Override public void run()
+        {
+            // Acquiring the angles is relatively expensive; we don't want
+            // to do that in each of the three items that need that info, as that's
+            // three times the necessary expense.
+            angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+            gravity  = imu.getGravity();
+        }
+        });
+
+        telemetry.addLine()
+                .addData("status", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getSystemStatus().toShortString();
+                    }
+                })
+                .addData("calib", new Func<String>() {
+                    @Override public String value() {
+                        return imu.getCalibrationStatus().toString();
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("heading", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.firstAngle);
+                    }
+                })
+                .addData("roll", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.secondAngle);
+                    }
+                })
+                .addData("pitch", new Func<String>() {
+                    @Override public String value() {
+                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("grvty", new Func<String>() {
+                    @Override public String value() {
+                        return gravity.toString();
+                    }
+                })
+                .addData("mag", new Func<String>() {
+                    @Override public String value() {
+                        return String.format(Locale.getDefault(), "%.3f",
+                                Math.sqrt(gravity.xAccel*gravity.xAccel
+                                        + gravity.yAccel*gravity.yAccel
+                                        + gravity.zAccel*gravity.zAccel));
+                    }
+                });
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // Formatting
+    //----------------------------------------------------------------------------------------------
+
+    String formatAngle(AngleUnit angleUnit, double angle) {
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String formatDegrees(double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
 }
