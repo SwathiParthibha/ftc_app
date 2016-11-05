@@ -32,16 +32,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.Mrinali;
 
+import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -74,8 +79,14 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cRangeSensor sideRangeSensor;
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    ColorSensor leftColorSensor;
+    ColorSensor rightColorSensor;
+    BNO055IMU imu;
+    Orientation angles;
+    double origAngle;
+
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
-    int angleZ = 0;
+    double angleZ = 0;
 
     // get a reference to a Modern Robotics GyroSensor object.
 
@@ -86,10 +97,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
-
         // start calibrating the gyro.
-        telemetry.addData(">", "Gyro Calibrating. Do Not move!");
+        /*telemetry.addData(">", "Gyro Calibrating. Do Not move!");
         telemetry.update();
         gyro.calibrate();
 
@@ -101,6 +110,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         telemetry.addData(">", "Gyro Calibrated.  Press Start.");
         telemetry.update();
+        */
 
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
@@ -115,7 +125,16 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
         sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
-        angleZ  = gyro.getIntegratedZValue();
+        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        origAngle = angles.firstAngle;
+
+        leftColorSensor  = hardwareMap.colorSensor.get("lcs");
+        rightColorSensor = hardwareMap.colorSensor.get("rcs");
+        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
+        rightColorSensor.setI2cAddress(i2cAddr);
+
         //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
 
         // turn on LED of light sensor.
@@ -131,15 +150,17 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             // Display the light level while we are waiting to start
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
-            telemetry.addData("Angle", gyro.getIntegratedZValue());
+            telemetry.addData("Angle", angles.firstAngle);
             telemetry.update();
             idle();
         }
 
         toWhiteLine(false);
+        sleep(200);
         turn(-90);
         //turnGyro("right", 90, 1);
-        approachBeacon();
+        //approachBeacon();
+        sleep(4000);
         pushButton();
 
         // Go backwards slightly
@@ -171,13 +192,21 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         maintainDist();
         toWhiteLine(true);
+        sleep(200);
 
         //turnGyro("right", 90, 1);
         turn(-90);
         approachBeacon();
         pushButton();
-        turn(210);
 
+        robot.rightMotor.setPower(-APPROACH_SPEED);
+        robot.leftMotor.setPower(-APPROACH_SPEED);
+        sleep(200);
+
+        turn(-210);
+
+        robot.rightMotor.setPower(APPROACH_SPEED);
+        robot.leftMotor.setPower(APPROACH_SPEED);
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -215,16 +244,16 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void turn(int turnAngle)
     {
-        angleZ  = gyro.getIntegratedZValue();
+        angleZ = angles.firstAngle - origAngle;
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+            robot.leftMotor.setPower(-APPROACH_SPEED * .6);
+            robot.rightMotor.setPower(APPROACH_SPEED * .6);
 
             while (opModeIsActive() && (turnAngle < angleZ)) {
 
                 // Display the light level while we are looking for the line
-                angleZ  = gyro.getIntegratedZValue();
+                angleZ = angles.firstAngle - origAngle;
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -234,13 +263,13 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         }
 
         else if (turnAngle > angleZ) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(-APPROACH_SPEED * .5);
+            robot.leftMotor.setPower(APPROACH_SPEED * .6);
+            robot.rightMotor.setPower(APPROACH_SPEED * -.6);
 
             while (opModeIsActive() && (turnAngle > angleZ)) {
 
                 // Display the light level while we are looking for the line
-                angleZ  = gyro.getIntegratedZValue();
+                angleZ = angles.firstAngle - origAngle;
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -251,9 +280,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         else {
             return;
         }
-
-
-
     }
 
     public void turnGyro(String Direction, int angle, double Speed) throws InterruptedException
@@ -320,17 +346,58 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     }
 
     void pushButton() {
-        // Pushes button, then straightens
-        // REPLACE: Code to push button, use color sensor
-        sleep(250);
-        robot.rightMotor.setPower(APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
-        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
+        telemetry.update();
+
+        int leftBlue = 0;
+        int rightBlue = 0;
+
+        double savedTime = this.time;
+        int count = 20;
+        while(!verify() && count > 0) {
+            leftBlue = leftColorSensor.blue();
+            rightBlue = rightColorSensor.blue();
+
+            if(leftBlue > rightBlue && !verify()){
+                //write the code here to press the left button
+                robot.leftMotor.setPower(0.3);
+                robot.rightMotor.setPower(0.0);
+            } else if(rightBlue > leftBlue && !verify()){
+                //write the code here to press the right button
+                robot.rightMotor.setPower(0.3);
+                robot.leftMotor.setPower(0.0);
+                verify();
+            } else{
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0);
+            }
+
+            telemetry.update();
+            count--;
+        }
+
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+
+        telemetry.update();
+    }
+
+    private boolean verify() {
+        if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
+            return false;
+
+        if(leftColorSensor.argb() == 255 || rightColorSensor.argb() == 255)
+            return false;
+
+        if(Math.abs(leftColorSensor.blue() - rightColorSensor.blue()) < 4){
+            return true;
+        }
+
+        return false;
     }
 
     void maintainDist() {
 
+        angleZ = angles.firstAngle;
         telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
         telemetry.addData("Angle", angleZ);
         telemetry.update();
