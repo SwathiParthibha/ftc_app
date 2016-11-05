@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -53,6 +54,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
     enum State{
         TO_WHITE_LINE,
         PUSH_BUTTON,
+        TURN,
         END
     }
 
@@ -113,7 +115,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
 
         composeTelemetry();
 
-        state = State.TO_WHITE_LINE;
+        state = State.TURN;
     }
 
     @Override
@@ -157,6 +159,12 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
                 leftMotor.setPower(0);
                 rightMotor.setPower(0);
 
+                state = State.END;
+                break;
+            case TURN:
+                telemetry.update();
+                turn(-20);
+                telemetry.update();
                 state = State.END;
                 break;
             case END:
@@ -276,8 +284,11 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
 
     void turn(int degrees){
         //right is negative, left is positive
-        double targetDegrees = angles.secondAngle + degrees;
-        while((Math.abs(angles.secondAngle - targetDegrees)) > 2){
+        double targetDegrees = angles.firstAngle + degrees;
+        Telemetry.Item item = telemetry.addData("target Degrees", targetDegrees);
+        Telemetry.Item item2 = telemetry.addData("Degrees", angles.secondAngle);
+        telemetry.update();
+        while((Math.abs(angles.firstAngle) - targetDegrees) > 2){
             if(degrees < 0){
                 //if degrees is negative turn right
                 leftMotor.setPower(0.3);
@@ -286,7 +297,10 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
                 leftMotor.setPower(-0.3);
                 rightMotor.setPower(0.3);
             }
+            telemetry.update();
         }
+
+        telemetry.removeItem(item);
     }
 
     void pushButton() {
@@ -356,7 +370,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
             // Acquiring the angles is relatively expensive; we don't want
             // to do that in each of the three items that need that info, as that's
             // three times the necessary expense.
-            angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+            angles   = imu.getAngularOrientation().toAxesReference(AxesReference.EXTRINSIC).toAxesOrder(AxesOrder.ZYX);
             gravity  = imu.getGravity();
         }
         });
@@ -366,42 +380,12 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
                     @Override public String value() {
                         return imu.getSystemStatus().toShortString();
                     }
-                })
-                .addData("calib", new Func<String>() {
-                    @Override public String value() {
-                        return imu.getCalibrationStatus().toString();
-                    }
                 });
 
         telemetry.addLine()
                 .addData("heading", new Func<String>() {
                     @Override public String value() {
                         return formatAngle(angles.angleUnit, angles.firstAngle);
-                    }
-                })
-                .addData("roll", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.secondAngle);
-                    }
-                })
-                .addData("pitch", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.thirdAngle);
-                    }
-                });
-
-        telemetry.addLine()
-                .addData("grvty", new Func<String>() {
-                    @Override public String value() {
-                        return gravity.toString();
-                    }
-                })
-                .addData("mag", new Func<String>() {
-                    @Override public String value() {
-                        return String.format(Locale.getDefault(), "%.3f",
-                                Math.sqrt(gravity.xAccel*gravity.xAccel
-                                        + gravity.yAccel*gravity.yAccel
-                                        + gravity.zAccel*gravity.zAccel));
                     }
                 });
     }
