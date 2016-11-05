@@ -30,13 +30,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.vuforia.HINT;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.MatrixF;
@@ -84,9 +85,9 @@ import java.util.List;
  * is explained below.
  */
 
-@Autonomous(name="Concept: Vuforia Navigation", group ="Concept")
+@Autonomous(name="CustomVuforiaNavigationTest", group ="Tests")
 //@Disabled
-public class ConceptVuforiaNavigation extends LinearOpMode {
+public class CustomVuforiaNavigationTest extends LinearOpMode {
 
     public static final String TAG = "Vuforia Sample";
 
@@ -129,7 +130,9 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
                 "/kxWsVuF0eWwbBChLYngPsJqIE1g8noobXGCTs+u3mFI41GOwpkDskq7TU3YjdUxkTC6fKbESLQLh+0SpOYkiVLtb2" +
                 "0o3qU9OaCs7nCEJyko7Vxs/rSjO+IhMzo0M2PUhiFKNxpLwrlf4dE\n";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
 
         /**
          * Load the data sets that for the trackable objects we wish to track. These particular data
@@ -139,16 +142,22 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * example "StonesAndChips", datasets can be found in in this project in the
          * documentation directory.
          */
-        VuforiaTrackables stonesAndChips = this.vuforia.loadTrackablesFromAsset("StonesAndChips");
-        VuforiaTrackable redTarget = stonesAndChips.get(0);
-        redTarget.setName("RedTarget");  // Stones
+        VuforiaTrackables beaconImgs = this.vuforia.loadTrackablesFromAsset("FtcBeacons");
+        VuforiaTrackable wheels = beaconImgs.get(0);
+        wheels.setName("wheels");
 
-        VuforiaTrackable blueTarget  = stonesAndChips.get(1);
-        blueTarget.setName("BlueTarget");  // Chips
+        VuforiaTrackable tools  = beaconImgs.get(1);
+        tools.setName("tools");
+
+        VuforiaTrackable legos  = beaconImgs.get(2);
+        legos.setName("legos");
+
+        VuforiaTrackable gears = beaconImgs.get(3);
+        gears.setName("gears");
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(stonesAndChips);
+        allTrackables.addAll(beaconImgs);
 
         /**
          * We use units of mm here because that's the recommended units of measurement for the
@@ -160,6 +169,7 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
         float mmPerInch        = 25.4f;
         float mmBotWidth       = 18 * mmPerInch;            // ... or whatever is right for your robot
         float mmFTCFieldWidth  = (12*12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+        float mmFTCFieldTileWidth  = (5.0f/8.0f) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 
         /**
          * In order for localization to work, we need to tell the system where each target we
@@ -217,32 +227,56 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * - Then we rotate it  90 around the field's Z access to face it away from the audience.
          * - Finally, we translate it back along the X axis towards the red audience wall.
          */
-        OpenGLMatrix redTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix gearsRedTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                .translation(-mmFTCFieldWidth/2, 0, 0)
+                .translation(-mmFTCFieldWidth/2, -mmFTCFieldTileWidth/2, 0)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 90, 0));
-        redTarget.setLocation(redTargetLocationOnField);
-        RobotLog.ii(TAG, "Red Target=%s", format(redTargetLocationOnField));
+        gears.setLocation(gearsRedTargetLocationOnField);
+
+        OpenGLMatrix toolsRedTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the RED WALL. Our translation here
+                is a negative translation in X.*/
+                .translation(-mmFTCFieldWidth/2, (mmFTCFieldTileWidth + (mmFTCFieldTileWidth/2)), 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 90, 90, 0));
+        tools.setLocation(toolsRedTargetLocationOnField);
+
+        RobotLog.ii(TAG, "Gears Red Target=%s", format(gearsRedTargetLocationOnField));
+        RobotLog.ii(TAG, "Tools Red Target=%s", format(toolsRedTargetLocationOnField));
 
        /*
         * To place the Stones Target on the Blue Audience wall:
         * - First we rotate it 90 around the field's X axis to flip it upright
         * - Finally, we translate it along the Y axis towards the blue audience wall.
         */
-        OpenGLMatrix blueTargetLocationOnField = OpenGLMatrix
+        OpenGLMatrix wheelsBlueTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the Blue Audience wall.
                 Our translation here is a positive translation in Y.*/
-                .translation(0, mmFTCFieldWidth/2, 0)
+                .translation(mmFTCFieldTileWidth/2, mmFTCFieldWidth/2, 0)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90, 0, 0));
-        blueTarget.setLocation(blueTargetLocationOnField);
-        RobotLog.ii(TAG, "Blue Target=%s", format(blueTargetLocationOnField));
+        wheels.setLocation(wheelsBlueTargetLocationOnField);
+
+        OpenGLMatrix legosBlueTargetLocationOnField = OpenGLMatrix
+                /* Then we translate the target off to the Blue Audience wall.
+                Our translation here is a positive translation in Y.*/
+                .translation((-mmFTCFieldTileWidth-(mmFTCFieldTileWidth/2)), mmFTCFieldWidth/2, 0)
+                .multiplied(Orientation.getRotationMatrix(
+                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+                        AngleUnit.DEGREES, 90, 0, 0));
+        legos.setLocation(legosBlueTargetLocationOnField);
+
+        RobotLog.ii(TAG, "Wheels Blue Target=%s", format(wheelsBlueTargetLocationOnField));
+        RobotLog.ii(TAG, "Legos Blue Target=%s", format(legosBlueTargetLocationOnField));
 
         /**
          * Create a transformation matrix describing where the phone is on the robot. Here, we
@@ -268,8 +302,10 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
          * listener is a {@link VuforiaTrackableDefaultListener} and can so safely cast because
          * we have not ourselves installed a listener of a different type.
          */
-        ((VuforiaTrackableDefaultListener)redTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        ((VuforiaTrackableDefaultListener)blueTarget.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)gears.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)wheels.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)tools.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        ((VuforiaTrackableDefaultListener)legos.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
 
         /**
          * A brief tutorial: here's how all the math is going to work:
@@ -296,7 +332,7 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
         waitForStart();
 
         /** Start tracking the data sets we care about. */
-        stonesAndChips.activate();
+        beaconImgs.activate();
 
         while (opModeIsActive()) {
 
@@ -317,7 +353,7 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
              * Provide feedback as to where the robot was last located (if we know).
              */
             if (lastLocation != null) {
-                //  RobotLog.vv(TAG, "robot=%s", format(lastLocation));
+                RobotLog.vv(TAG, "robot=%s", format(lastLocation));
                 telemetry.addData("Pos", format(lastLocation));
             } else {
                 telemetry.addData("Pos", "Unknown");
@@ -331,6 +367,6 @@ public class ConceptVuforiaNavigation extends LinearOpMode {
      * and formats it in a form palatable to a human being.
      */
     String format(OpenGLMatrix transformationMatrix) {
-        return transformationMatrix.formatAsTransform();
+        return transformationMatrix.formatAsTransform(AxesReference.EXTRINSIC, AxesOrder.XYX, AngleUnit.DEGREES);
     }
 }

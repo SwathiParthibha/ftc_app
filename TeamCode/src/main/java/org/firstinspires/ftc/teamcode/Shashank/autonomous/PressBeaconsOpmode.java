@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 
 /**
- * Created by spmeg on 10/15/2016.
+ * Created by spmeg on 10/21/2016.
  */
-@Autonomous(name = "DriveToBeaconsOpmodeRED", group = "Autonomous")
-public class DriveToBeaconsOpmodeRED extends OpMode {
+@Autonomous(name = "PressBeaconsOpmode", group = "AutonomousTests")
+public class PressBeaconsOpmode extends OpMode {
     private ColorSensor leftColorSensor;
     private ColorSensor rightColorSensor;
     private DcMotor leftMotor;
@@ -23,11 +23,11 @@ public class DriveToBeaconsOpmodeRED extends OpMode {
     public void init() {
         rangeSensor = this.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
 
-        leftColorSensor  = hardwareMap.colorSensor.get("lcs");
+        rightColorSensor  = hardwareMap.colorSensor.get("rcs");
+
+        leftColorSensor = hardwareMap.colorSensor.get("lcs");
         I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
         leftColorSensor.setI2cAddress(i2cAddr);
-
-        rightColorSensor = hardwareMap.colorSensor.get("rcs");
 
         leftMotor = hardwareMap.dcMotor.get("l");
         rightMotor = hardwareMap.dcMotor.get("r");
@@ -50,15 +50,15 @@ public class DriveToBeaconsOpmodeRED extends OpMode {
         double currentTime = this.time;
         if(leftRed > rightRed && !verify()){
             //write the code here to press the left button
-            leftMotor.setPower(0.5);
-            rightMotor.setPower(0.3);
+            leftMotor.setPower(0.3);
+            rightMotor.setPower(0.0);
 
             //wait three seconds
             verify();
         } else if(rightRed > leftRed && !verify()){
             //write the code here to press the right button
-            rightMotor.setPower(0.5);
-            leftMotor.setPower(0.3);
+            rightMotor.setPower(0.3);
+            leftMotor.setPower(0.0);
             verify();
         } else{
             leftMotor.setPower(0);

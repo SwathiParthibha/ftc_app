@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * Created by spmeg on 10/21/2016.
  */
@@ -33,20 +35,26 @@ public class RangeSensorTest extends OpMode {
         boolean isPressed = gamepad1.x;
 
         if(isPressed){
-            moveback();
-        } else if(rangeSensor.cmUltrasonic() > 3){
+            //moveback();
+        } else if(rangeSensor.cmUltrasonic() < 5){
             //maintain the position
-            while(rangeSensor.cmUltrasonic() > 3){
-                leftMotor.setPower(0.2);
-                rightMotor.setPower(0.2);
-            }
+            leftMotor.setPower(-0.2);
+            rightMotor.setPower(-0.2);
         } else {
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
+            //leftMotor.setPower(0);
+            //rightMotor.setPower(0);
         }
 
         telemetry.addData("Range sensor cmUltrasonic", rangeSensor.cmUltrasonic());
         telemetry.update();
+    }
+
+    private void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void moveback() {

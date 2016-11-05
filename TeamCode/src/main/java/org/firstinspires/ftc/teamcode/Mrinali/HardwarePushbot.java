@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.Mrinali;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -29,6 +33,13 @@ public class HardwarePushbot
     public DcMotor armMotor    = null;
     public Servo leftClaw    = null;
     public Servo rightClaw   = null;
+    LightSensor lightSensor;      // Primary LEGO Light sensor,
+    ModernRoboticsI2cRangeSensor rangeSensor;
+    ModernRoboticsI2cRangeSensor sideRangeSensor;
+    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    private ColorSensor leftColorSensor;
+    private ColorSensor rightColorSensor;
+
 
     public static final double MID_SERVO       =  0.5 ;
     public static final double ARM_UP_POWER    =  0.45 ;
@@ -51,6 +62,12 @@ public class HardwarePushbot
         // Define and Initialize Motors
         leftMotor   = hwMap.dcMotor.get("l");
         rightMotor  = hwMap.dcMotor.get("r");
+        lightSensor = hwMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
+        rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        sideRangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
+        leftColorSensor  = hwMap.colorSensor.get("rcs");
+        rightColorSensor = hwMap.colorSensor.get("lcs");
+        gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
 
         //armMotor    = hwMap.dcMotor.get("left_arm");
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
@@ -83,6 +100,7 @@ public class HardwarePushbot
      * @param periodMs  Length of wait cycle in mSec.
      * @throws InterruptedException
      */
+
     public void waitForTick(long periodMs) throws InterruptedException {
 
         long  remaining = periodMs - (long)period.milliseconds();

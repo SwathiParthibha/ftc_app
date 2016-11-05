@@ -25,11 +25,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Basic Autonomous", group = "Sensor")
+@Autonomous(name = "Basic Autonomous", group = "Sensor")
 @Disabled
 
 /*
@@ -49,7 +50,7 @@ public class BasicAutonomousExample extends LinearOpMode
       waitForStart();
       {
           //An example of using the Drive function from the RobotHardware Class
-          robot.Drive(robot.ROTATION * 2, 0.5);
+          robot.drive(robot.ROTATION * 2, 0.5);
 
           //A little bit of settling time
           sleep(500);

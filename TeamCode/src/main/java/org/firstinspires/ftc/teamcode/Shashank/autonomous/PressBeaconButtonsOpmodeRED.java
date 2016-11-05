@@ -30,11 +30,17 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Mrinali;
+package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -60,12 +66,17 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Pushbot: Beacons Autonomous", group="Pushbot")
+@Autonomous(name="PressBeaconButtonsOpmodeRED", group="Pushbot")
 //@Disabled
-public class DriveToBeacons extends LinearOpMode {
+public class PressBeaconButtonsOpmodeRED extends LinearOpMode
+{
 
+    private ColorSensor leftColorSensor;
+    private ColorSensor rightColorSensor;
+
+    ModernRoboticsI2cGyro gyroSensor;   // Hardware Device Object
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
+    HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
@@ -99,6 +110,22 @@ public class DriveToBeacons extends LinearOpMode {
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
 
+        leftColorSensor  = hardwareMap.colorSensor.get("lcs");
+
+        rightColorSensor = hardwareMap.colorSensor.get("rcs");
+
+        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
+        leftColorSensor.setI2cAddress(i2cAddr);
+
+        gyroSensor = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        gyroSensor.calibrate();
+
+        while (!isStopRequested() && gyroSensor.isCalibrating())  {
+            sleep(50);
+            idle();
+        }
+
+
         // Wait for the game to start (driver presses PLAY)
         while (!isStarted()) {
 
@@ -109,39 +136,108 @@ public class DriveToBeacons extends LinearOpMode {
             idle();
         }
 
+        int heading = gyroSensor.getHeading();
+        int angleZ  = gyroSensor.getIntegratedZValue();
+
+        telemetry.addData(">", "Press A & B to reset Heading.");
+        telemetry.addData("0", "Heading %03d", heading);
+        telemetry.addData("1", "Int. Ang. %03d", angleZ);
+        telemetry.addData("power of left motor", robot.leftMotor.getPower());
+        telemetry.addData("power of right motor", robot.rightMotor.getPower());
+        telemetry.addData("cm in ultrasonic", rangeSensor.cmUltrasonic());
+        telemetry.addData("cm in optical", rangeSensor.cmOptical());
+        telemetry.addData("left", String.format("a=%d r=%d g=%d b=%d", leftColorSensor.alpha(), leftColorSensor.red(), leftColorSensor.green(), leftColorSensor.blue()));
+        telemetry.addData("right", String.format("a=%d r=%d g=%d b=%d", rightColorSensor.alpha(), rightColorSensor.red(), rightColorSensor.green(), rightColorSensor.blue()));
+        telemetry.addData("verify", verify());
+        telemetry.update();
+
+        //KEY EVENT
+        //TODO: run to the first white line
+        //first go to the white line
         toWhiteLine();
 
-        // Turn right
-        robot.leftMotor.setPower(-APPROACH_SPEED);
+        turn(-50);
+
+        telemetry.update();
+        //MINOR EVENT
+        //TODO: line up to beacon
+        /*robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(750);
+        robot.leftMotor.setPower(0);*/
+
+        //MINOR EVENT
+        //TODO: get close to beacon
+        //approachBeacon();
+
+        //waitForInSec(4);
+        sleepThread(5000);
+
+        telemetry.update();
+        //KEY EVENT
+        //TODO: push the correct button on the first beacon
+        //push the red side of the beacons
+        pushButton();
+
+        telemetry.update();
+        //MINOR EVENT
+        //TODO: back away from beacon
+        /*robot.rightMotor.setPower(-APPROACH_SPEED);
+        robot.leftMotor.setPower(-APPROACH_SPEED);
+        sleep(200);*/
+
+        //MINOR EVENT
+        //TODO: line up parallel to the wall
+        /*robot.rightMotor.setPower(-APPROACH_SPEED);
+        robot.leftMotor.setPower(APPROACH_SPEED);
+        sleep(750); //REPLACE: Use gyro*/
+
+        //waitForInSec(4);
+        sleepThread(5000);
+
+        telemetry.update();
+        /*robot.leftMotor.setPower(APPROACH_SPEED);
+        robot.rightMotor.setPower(APPROACH_SPEED);
+        sleep(750);*/
+
+        //KEY EVENT
+        //TODO: run to the second white line
+        toWhiteLine();
+
+        telemetry.update();
+        //MINOR EVENT
+        //TODO: line up toward second beacon
+        /*robot.rightMotor.setPower(APPROACH_SPEED);
+        robot.leftMotor.setPower(-APPROACH_SPEED);
+        sleep(750); //REPLACE: Use gyro*/
+
+        //MINOR EVENT
+        //TODO: get close to beacon
+        //approachBeacon();
+
+        //waitForInSec(4);
+
+        sleepThread(5000);
+
+        telemetry.update();
+        //KEY EVENT
+        //TODO: pusb the correct beacon button on the second beacon
+        pushButton();
+        telemetry.update();
+    }
+
+    private void turn(int degrees){
+        while(gyroSensor.getIntegratedZValue() == degrees){
+            if(degrees < 0){
+                this.robot.leftMotor.setPower(0.3);
+                this.robot.rightMotor.setPower(-0.3);
+            } else {
+                this.robot.leftMotor.setPower(-0.3);
+                this.robot.rightMotor.setPower(0.3);
+            }
+        }
+
         robot.leftMotor.setPower(0);
-
-        approachBeacon();
-        pushButton();
-
-        // Go backwards slightly
-        robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(200);
-
-        // Turn left - parallel to wall
-        robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        sleep(750); //REPLACE: Use gyro
-
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        sleep(750);
-
-        toWhiteLine();
-
-        //Turn right - to beacon
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(750); //REPLACE: Use gyro
-
-        approachBeacon();
-        pushButton();
+        robot.rightMotor.setPower(0);
     }
 
     void toWhiteLine() throws InterruptedException {
@@ -168,14 +264,15 @@ public class DriveToBeacons extends LinearOpMode {
         robot.rightMotor.setPower(0);
     }
 
-    void approachBeacon() {
+    void approachBeacon()
+    {
         // Drive to set distance away, slow down, stop at set distance
-        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST * 2) {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
         }
 
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST * 3) {
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST  * 2) {
 
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
@@ -200,17 +297,102 @@ public class DriveToBeacons extends LinearOpMode {
 
             idle();
         }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .25);
+            robot.rightMotor.setPower(APPROACH_SPEED * .25);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > DIST) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
+        if (rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+            robot.leftMotor.setPower(APPROACH_SPEED * .1);
+            robot.rightMotor.setPower(APPROACH_SPEED * .1);
+        }
+
+        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > (DIST-3)) {
+
+            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+            telemetry.update();
+
+            idle();
+        }
+
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
 
     void pushButton() {
-        // Pushes button, then straightens
-        // REPLACE: Code to push button, use color sensor
-        sleep(250);
-        robot.rightMotor.setPower(APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
-        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
-        sleep(500); // REPLACE: Use gyro
+
+        telemetry.update();
+
+        int leftRed = 0;
+        int rightRed = 0;
+
+        double savedTime = this.time;
+        int count = 20;
+        while(!verify() && count > 0) {
+            leftRed = leftColorSensor.red();
+            rightRed = rightColorSensor.red();
+
+            if(leftRed > rightRed && !verify()){
+                //write the code here to press the left button
+                robot.leftMotor.setPower(0.3);
+                robot.rightMotor.setPower(0.0);
+            } else if(rightRed > leftRed && !verify()){
+                //write the code here to press the right button
+                robot.rightMotor.setPower(0.3);
+                robot.leftMotor.setPower(0.0);
+                verify();
+            } else{
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0);
+            }
+
+            telemetry.update();
+        }
+
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+
+        telemetry.update();
+    }
+
+    private void waitForInSec(int timeToWait) {
+        while(timeToWait >= 0){
+            telemetry.update();
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+            sleepThread(1000);
+            timeToWait--;
+        }
+    }
+
+    private void sleepThread(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean verify() {
+        if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
+            return false;
+
+        if(leftColorSensor.argb() == 255 || rightColorSensor.argb() == 255)
+            return false;
+
+        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 4){
+            return true;
+        }
+
+        return false;
     }
 }
