@@ -41,6 +41,7 @@ public class BasicAutonomousExample extends LinearOpMode
   @Override
   public void runOpMode() throws InterruptedException
   {
+    /*
     //Use this command to access the all the functions in the RobotHardware Class
     RobotHardware robot= new RobotHardware();
     //Use this command to initialize the robot in the RobotHardware Class
@@ -57,7 +58,7 @@ public class BasicAutonomousExample extends LinearOpMode
 
           //An example of using the Turn function from the RobotHardware Class
           //robot.Turn("right", 45, 0.5);
-      }
+      }*/
 
 
     while(true)
