@@ -140,9 +140,11 @@ public class SensorAdafruitIMUCalibration extends LinearOpMode
 
         composeTelemetry();
         telemetry.log().add("Waiting for start...");
+        String head = formatAngle(angles.angleUnit, angles.firstAngle);
 
         // Wait until we're told to go
         while (!isStarted()) {
+            //telemetry.addData("Heading 2", head);
             telemetry.update();
             idle();
         }

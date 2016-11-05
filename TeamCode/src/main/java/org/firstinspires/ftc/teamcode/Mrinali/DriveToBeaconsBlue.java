@@ -72,12 +72,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 //@Disabled
 public class DriveToBeaconsBlue extends LinearOpMode {
 
+    //To change red to blue: negative angles, color sensors sense blue, right side range sensor
+
     /* Declare OpMode members. */
     org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cRangeSensor sideRangeSensor;
+    double sideRange;
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     ColorSensor leftColorSensor;
     ColorSensor rightColorSensor;
@@ -135,8 +138,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
         rightColorSensor.setI2cAddress(i2cAddr);
 
-        //  lightSensor = hardwareMap.opticalDistanceSensor.get("sensor_ods");  // Alternative MR ODS sensor.
-
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
 
@@ -144,13 +145,16 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
 
+        telemetry.addAction(run);
+
         // Wait for the game to start (driver presses PLAY)
         while (!isStarted()) {
 
             // Display the light level while we are waiting to start
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
-            telemetry.addData("Angle", angles.firstAngle);
+            //angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+            //telemetry.addData("Angle", angles.firstAngle);
             telemetry.update();
             idle();
         }
@@ -158,9 +162,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         toWhiteLine(false);
         sleep(200);
         turn(-90);
-        //turnGyro("right", 90, 1);
-        //approachBeacon();
-        sleep(4000);
+        approachBeacon();
         pushButton();
 
         // Go backwards slightly
@@ -168,8 +170,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(200);
 
-        // Turn left - parallel to wall
-
+        // Turn parallel to wall
         turn(0);
         /*
         robot.rightMotor.setPower(-APPROACH_SPEED * .5);
@@ -194,11 +195,12 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         toWhiteLine(true);
         sleep(200);
 
-        //turnGyro("right", 90, 1);
         turn(-90);
         approachBeacon();
         pushButton();
 
+
+        //Drives backward slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(200);
@@ -216,19 +218,12 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             robot.rightMotor.setPower(APPROACH_SPEED * .8);
         }
 
-        int i = 0;
         // run until the white line is seen OR the driver presses STOP;
         while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
 
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.update();
-            /*if (wall) {
-                if (i == 0) {
-                    maintainDist();
-                }
-                i = (i+1) % 10;
-            }*/
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
@@ -236,11 +231,19 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.update();
 
         // Stop all motors
-
-        sleep(100);
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
+
+    Runnable run = new Runnable(){ @Override public void run()
+        {
+            // Acquiring the angles is relatively expensive; we don't want
+            // to do that in each of the three items that need that info, as that's
+            // three times the necessary expense.
+            angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+            angleZ = angles.firstAngle;
+        }
+    };
 
     void turn(int turnAngle)
     {
@@ -276,9 +279,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             }
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);
-        }
-        else {
-            return;
         }
     }
 
@@ -397,15 +397,18 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void maintainDist() {
 
+        sideRange = sideRangeSensor.getDistance(DistanceUnit.CM);
         angleZ = angles.firstAngle;
         telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
         telemetry.addData("Angle", angleZ);
         telemetry.update();
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
+        double distCorrect = sideRange - SIDE_DIST;
 
-        robot.leftMotor.setPower(APPROACH_SPEED + angleZ/10);
-        robot.rightMotor.setPower(APPROACH_SPEED - angleZ/10);
+        //makes angle closer to 0
+        robot.leftMotor.setPower(APPROACH_SPEED + angleZ/10 + distCorrect/2);
+        robot.rightMotor.setPower(APPROACH_SPEED - angleZ/10 - distCorrect/2);
 
         /*
         // If too close to wall, turn left
