@@ -43,8 +43,10 @@ public class Mecanum_Drive_Code extends OpMode {
         //backRight.setDirection(DcMotor.Direction.REVERSE);
         frontLeft = hardwareMap.dcMotor.get("motor_3");
         backLeft = hardwareMap.dcMotor.get("motor_1");
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        backRight.setDirection(DcMotor.Direction.REVERSE); // Set to FORWARD if using AndyMark motors
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello Driver");    //
         telemetry.update();
@@ -93,10 +95,10 @@ public class Mecanum_Drive_Code extends OpMode {
         X2 = (float)Range.clip(X2, -1, 1);
 
         //Move the wheel Commands
-        frontRight.setPower((Y1 - X2 - X1)*speedRatio);
-        backRight.setPower((Y1 - X2 + X1)*speedRatio);
-        frontLeft.setPower((Y1 + X2 + X1)*speedRatio);
-        backLeft.setPower((Y1 + X2 - X1)*speedRatio);
+        frontRight.setPower(-(Y1 - X2 - X1)*speedRatio);
+        backRight.setPower(-(Y1 - X2 + X1)*speedRatio);
+        frontLeft.setPower(-(Y1 + X2 + X1)*speedRatio);
+        backLeft.setPower(-(Y1 + X2 - X1)*speedRatio);
 
         telemetry.addData("Left_Stick_Y: ", Math.abs(gamepad1.left_stick_y));
         telemetry.addData("Left_Stick_X: ", Math.abs(gamepad1.left_stick_x));
