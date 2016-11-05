@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -41,8 +42,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -81,12 +82,11 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     ModernRoboticsI2cRangeSensor rangeSensor;
     ModernRoboticsI2cRangeSensor sideRangeSensor;
     double sideRange;
-    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
+    //ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     ColorSensor leftColorSensor;
     ColorSensor rightColorSensor;
     BNO055IMU imu;
     Orientation angles;
-    double origAngle;
 
     // OpticalDistanceSensor   lightSensor;   // Alternative MR ODS sensor
     double angleZ = 0;
@@ -95,7 +95,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
-    double DIST = 8;
+    double DIST = 6;
     double SIDE_DIST = 10;
 
     @Override
@@ -115,6 +115,14 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.update();
         */
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
          */
@@ -127,11 +135,13 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
-        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
+        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "r side range");
+        //gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        origAngle = angles.firstAngle;
+        imu.initialize(parameters);
+
+        //angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        //origAngle = angles.firstAngle;
 
         leftColorSensor  = hardwareMap.colorSensor.get("lcs");
         rightColorSensor = hardwareMap.colorSensor.get("rcs");
@@ -142,10 +152,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         lightSensor.enableLed(true);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Ready to run");    //
+        telemetry.addData("Status", "Ready to runIMU");    //
         telemetry.update();
-
-        telemetry.addAction(run);
 
         // Wait for the game to start (driver presses PLAY)
         while (!isStarted()) {
@@ -153,8 +161,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             // Display the light level while we are waiting to start
             telemetry.addData("Light Level", lightSensor.getLightDetected());
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
-            //angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-            //telemetry.addData("Angle", angles.firstAngle);
+            angleZ = IMUheading();
+            telemetry.addData("Angle", angleZ);
             telemetry.update();
             idle();
         }
@@ -172,20 +180,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         // Turn parallel to wall
         turn(0);
-        /*
-        robot.rightMotor.setPower(-APPROACH_SPEED * .5);
-        robot.leftMotor.setPower(APPROACH_SPEED * .5);
-        while (opModeIsActive() && (angleZ < 0)) {
-
-            // Display the light level while we are looking for the line
-            angleZ  = gyro.getIntegratedZValue();
-            telemetry.addData("Angle", angleZ);
-            telemetry.update();
-            idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
-        }
-        robot.rightMotor.setPower(0);
-        robot.leftMotor.setPower(0);*/
-
 
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
@@ -205,7 +199,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(200);
 
-        turn(-210);
+        turn(140);
 
         robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
@@ -218,7 +212,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             robot.rightMotor.setPower(APPROACH_SPEED * .8);
         }
 
-        // run until the white line is seen OR the driver presses STOP;
+        // runIMU until the white line is seen OR the driver presses STOP;
         while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
 
             // Display the light level while we are looking for the line
@@ -235,19 +229,14 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.rightMotor.setPower(0);
     }
 
-    Runnable run = new Runnable(){ @Override public void run()
-        {
-            // Acquiring the angles is relatively expensive; we don't want
-            // to do that in each of the three items that need that info, as that's
-            // three times the necessary expense.
-            angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-            angleZ = angles.firstAngle;
-        }
-    };
+    double IMUheading() {
+        angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
+        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
+    }
 
     void turn(int turnAngle)
     {
-        angleZ = angles.firstAngle - origAngle;
+        angleZ = IMUheading();
 
         if (turnAngle < angleZ) {
             robot.leftMotor.setPower(-APPROACH_SPEED * .6);
@@ -256,7 +245,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             while (opModeIsActive() && (turnAngle < angleZ)) {
 
                 // Display the light level while we are looking for the line
-                angleZ = angles.firstAngle - origAngle;
+                angleZ = IMUheading();
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -272,7 +261,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             while (opModeIsActive() && (turnAngle > angleZ)) {
 
                 // Display the light level while we are looking for the line
-                angleZ = angles.firstAngle - origAngle;
+                angleZ = IMUheading();
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -280,32 +269,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);
         }
-    }
-
-    public void turnGyro(String Direction, int angle, double Speed) throws InterruptedException
-    {
-        int MotorDirectionChange = 0;
-
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        if (Direction.equals("Left"))
-        {
-            MotorDirectionChange = -1;
-        } else if (Direction.equals("Right"))
-        {
-            MotorDirectionChange = 1;
-        }
-
-        while ((angleZ > angle + 5 || angleZ < angle - 2))
-        {
-            robot.rightMotor.setPower(APPROACH_SPEED * Speed * MotorDirectionChange);
-            robot.leftMotor.setPower(-APPROACH_SPEED * Speed * MotorDirectionChange);
-
-            angleZ = robot.gyro.getHeading();
-        }
-        robot.rightMotor.setPower(0);
-        robot.leftMotor.setPower(0);
     }
 
     void approachBeacon()
@@ -397,39 +360,18 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void maintainDist() {
 
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
         sideRange = sideRangeSensor.getDistance(DistanceUnit.CM);
-        angleZ = angles.firstAngle;
+        angleZ = IMUheading();
         telemetry.addData("Side Range: ", sideRangeSensor.getDistance(DistanceUnit.CM) );
         telemetry.addData("Angle", angleZ);
         telemetry.update();
-        robot.leftMotor.setPower(0);
-        robot.rightMotor.setPower(0);
-        double distCorrect = sideRange - SIDE_DIST;
+        double distCorrect = SIDE_DIST - sideRange;
 
         //makes angle closer to 0
-        robot.leftMotor.setPower(APPROACH_SPEED + angleZ/10 + distCorrect/2);
-        robot.rightMotor.setPower(APPROACH_SPEED - angleZ/10 - distCorrect/2);
+        robot.leftMotor.setPower(APPROACH_SPEED + angleZ/50 + distCorrect/50);
+        robot.rightMotor.setPower(APPROACH_SPEED - angleZ/50 - distCorrect/50);
 
-        /*
-        // If too close to wall, turn left
-        if (angleZ < 0) {
-            //robot.leftMotor.setPower(0);
-            //robot.rightMotor.setPower(0);
-            robot.leftMotor.setPower(APPROACH_SPEED + angleZ/20);
-            robot.rightMotor.setPower(APPROACH_SPEED - angleZ/20);
-        }
-
-        // If too far from wall, turn right
-        else if (angleZ > 0) {
-            //robot.leftMotor.setPower(0);
-            //robot.rightMotor.setPower(0);
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED * .7);
-        }
-
-        else {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED);
-        }*/
     }
 }

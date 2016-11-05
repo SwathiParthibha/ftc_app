@@ -56,7 +56,7 @@ import java.util.Locale;
  * (which is not used by the default {@link BNO055IMU.SensorMode#IMU
  * SensorMode#IMU}), the BNO055 is internally self-calibrating and thus can be very successfully
  * used without manual intervention. That said, performing a one-time calibration, saving the
- * results persistently, then loading them again at each run can help reduce the time that automatic
+ * results persistently, then loading them again at each runIMU can help reduce the time that automatic
  * calibration requires.</p>
  *
  * <p>This summary of the calibration process, from <a href="http://iotdk.intel.com/docs/master/upm/classupm_1_1_b_n_o055.html">
@@ -84,7 +84,7 @@ import java.util.Locale;
  *              slowly moving the device though various axes until it does."</ol>
  * </li>
  *
- * <p>To calibrate the IMU, run this sample opmode with a gamepad attached to the driver station.
+ * <p>To calibrate the IMU, runIMU this sample opmode with a gamepad attached to the driver station.
  * Once the IMU has reached sufficient calibration as reported on telemetry, press the 'A'
  * button on the gamepad to write the calibration to a file. That file can then be indicated
  * later when running an opmode which uses the IMU.</p>
@@ -206,11 +206,15 @@ public class SensorAdafruitIMUCalibration extends LinearOpMode
                 });
 
         telemetry.addLine()
-            .addData("heading", new Func<String>() {
+            .addData("heading", /*new Func<String>() {
                 @Override public String value() {
                     return formatAngle(angles.angleUnit, angles.firstAngle);
                     }
-                })
+                }*/new Func<Double>() {
+                @Override public Double value() {
+                    return formatNum(angles.angleUnit, angles.firstAngle);//formatAngle(angles.angleUnit, angles.firstAngle);
+                }
+            })
             .addData("roll", new Func<String>() {
                 @Override public String value() {
                     return formatAngle(angles.angleUnit, angles.secondAngle);
@@ -231,7 +235,19 @@ public class SensorAdafruitIMUCalibration extends LinearOpMode
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 
+    double formatAngles(AngleUnit angleUnit, double angle) {
+        return formatDegree(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+    double formatDegree(double degrees){
+        return AngleUnit.DEGREES.normalize(degrees);
+    }
+
+    double formatNum(AngleUnit angleUnit, double angle) {
+        return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 }
