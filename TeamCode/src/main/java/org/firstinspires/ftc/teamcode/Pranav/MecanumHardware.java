@@ -187,10 +187,15 @@ public class MecanumHardware extends LinearOpMode
             backLeft.setPower(-MOTOR_POWER * speed * motorDirectionChange);
 
             heading = gyro.getHeading();
+
+            telemetry.addData("We Are Turning", heading);
+            telemetry.addData("Gyro Value", gyro.getHeading());
+            telemetry.update();
         }
 
         stopRobot();
 
+        telemetry.addData("We Are Done Turning", heading);
     }
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap)
@@ -205,7 +210,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft = hwMap.dcMotor.get("motor_1");
 
         //Define and Initialize Sensors
-        // gyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        gyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
         // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
         // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
 
@@ -216,10 +221,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft.setDirection(DcMotor.Direction.FORWARD);
 
         // Set all motors to zero power
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
+        stopRobot();
 
         // Set all motors to run using encoders.
         // May want to use RUN_WITHOUT_ENCODER if encoders are not installed.
@@ -230,19 +232,7 @@ public class MecanumHardware extends LinearOpMode
 
         //Turn on the LED of the Lego Line Sensor
         //legoLineSensor.enableLed(true);
-
-        /*This prevents the Modern Robotics Gyro Sensor from
-        incorrectly calibrating before the start of Autonomous*/
-        while (gyro.isCalibrating()) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                //do nothing
-            }
-        }
     }
-
-
 
     @Override
     public void runOpMode() throws InterruptedException

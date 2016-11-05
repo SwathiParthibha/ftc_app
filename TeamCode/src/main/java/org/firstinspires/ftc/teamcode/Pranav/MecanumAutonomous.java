@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name = "Basic Autonomous", group = "Sensor")
+@Autonomous(name = "Mecanum Autonomous", group = "Sensor")
 @Disabled
 
 /*
@@ -49,10 +49,19 @@ public class MecanumAutonomous extends LinearOpMode
       // wait for the start button to be pressed.
       waitForStart();
       {
+        while (mecanum.gyro.isCalibrating())
+        {
+          Thread.sleep(50);
+        }
+
           //An example of using the Drive function from the RobotHardware Class
           mecanum.drive(mecanum.ROTATION * 2, 0.5);
 
           //A little bit of settling time
+          sleep(500);
+
+          mecanum.turnGyro("right",45, 0.5);
+
           sleep(500);
       }
 
