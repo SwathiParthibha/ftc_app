@@ -28,7 +28,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Autonomous(name = "Basic Autonomous", group = "Sensor")
 @Disabled
@@ -41,7 +40,7 @@ public class BasicAutonomousExample extends LinearOpMode
   @Override
   public void runOpMode() throws InterruptedException
   {
-    /*
+
     //Use this command to access the all the functions in the RobotHardware Class
     RobotHardware robot= new RobotHardware();
     //Use this command to initialize the robot in the RobotHardware Class
@@ -58,7 +57,7 @@ public class BasicAutonomousExample extends LinearOpMode
 
           //An example of using the Turn function from the RobotHardware Class
           //robot.Turn("right", 45, 0.5);
-      }*/
+      }
 
 
     while(true)
