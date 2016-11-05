@@ -254,7 +254,7 @@ public class DriveToBeaconsRED extends LinearOpMode
         telemetry.update();
     }
 
-    private boolean verify() {
+    boolean verify() {
         if(leftColorSensor.argb() == 0 || rightColorSensor.argb() == 0)
             return false;
 
