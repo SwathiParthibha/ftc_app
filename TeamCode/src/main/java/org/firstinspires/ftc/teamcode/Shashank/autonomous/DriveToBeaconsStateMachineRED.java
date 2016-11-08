@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
+import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
 
 import java.util.Locale;
 
@@ -95,23 +96,15 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
+        imu = new IMUInitialization(hardwareMap).getIMU();
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
+
+        if(imu == null)
+            telemetry.log().add("Value of imu is null");
+
+        telemetry.log().add("Axes unit"+ angles.angleUnit.name());
 
         composeTelemetry();
 
@@ -130,6 +123,10 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         telemetry.addData("Light Level", lightSensor.getLightDetected());
         telemetry.addData("time", this.time);
         telemetry.update();
+
+        if(angles == null)
+            telemetry.log().add("Value of angle is null");
+
 
         switch (state){
             case TO_WHITE_LINE:
@@ -163,7 +160,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
                 break;
             case TURN:
                 telemetry.update();
-                turn(-20);
+                turn(-50);
                 telemetry.update();
                 state = State.END;
                 break;
@@ -285,11 +282,18 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
     void turn(int degrees){
         //right is negative, left is positive
         double targetDegrees = angles.firstAngle + degrees;
-        Telemetry.Item item = telemetry.addData("target Degrees", targetDegrees);
-        Telemetry.Item item2 = telemetry.addData("Degrees", angles.secondAngle);
+        telemetry.addData("target Degrees", targetDegrees);
+         if (targetDegrees > 360) {
+            targetDegrees -= 360;
+        } else if (targetDegrees < 0) {
+            targetDegrees += 360;
+        }
         telemetry.update();
-        while((Math.abs(angles.firstAngle) - targetDegrees) > 2){
-            if(degrees < 0){
+        Telemetry.Item item = telemetry.addData("target Degrees", targetDegrees);
+        Telemetry.Item item2 = telemetry.addData("Degrees", angles.firstAngle);
+        telemetry.update();
+        while(angles.firstAngle == targetDegrees){
+            if(targetDegrees < 0){
                 //if degrees is negative turn right
                 leftMotor.setPower(0.3);
                 rightMotor.setPower(-0.3);
@@ -300,7 +304,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
             telemetry.update();
         }
 
-        telemetry.removeItem(item);
+        //telemetry.removeItem(item);
     }
 
     void pushButton() {
