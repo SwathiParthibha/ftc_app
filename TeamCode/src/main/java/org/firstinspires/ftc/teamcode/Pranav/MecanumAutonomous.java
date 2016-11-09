@@ -25,10 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode.Pranav;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name = "Mecanum Autonomous", group = "Sensor")
 //@Disabled
@@ -36,58 +33,29 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
-public class MecanumAutonomous extends LinearOpMode
+public class MecanumAutonomous extends MecanumHardware
 {
-  MecanumHardware mecanum = new MecanumHardware();
-
   @Override
   public void runOpMode() throws InterruptedException
   {
-    // Define and Initialize Motors
-    mecanum.frontRight = hardwareMap.dcMotor.get("motor_2");
-    mecanum.backRight = hardwareMap.dcMotor.get("motor_4");
-    mecanum.frontLeft = hardwareMap.dcMotor.get("motor_3");
-    mecanum.backLeft = hardwareMap.dcMotor.get("motor_1");
-
-    //Define and Initialize Sensors
-    mecanum.gyro = hardwareMap.get(ModernRoboticsI2cGyro.class, "gyro");
-    // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
-    // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
-
-    //Configure the Direction of the Motors
-    mecanum.frontRight.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-    mecanum.backRight.setDirection(DcMotor.Direction.REVERSE); // Set to FORWARD if using AndyMark motors
-    mecanum.frontLeft.setDirection(DcMotor.Direction.FORWARD);
-    mecanum.backLeft.setDirection(DcMotor.Direction.FORWARD);
-
-    // Set all motors to zero power
-    mecanum.stopRobot();
-
-    // Set all motors to run using encoders.
-    // May want to use RUN_WITHOUT_ENCODER if encoders are not installed.
-    mecanum.runUsingEncoder();
-
-    //Calibrate the Modern Robotics Gyro Sensor
-    mecanum.gyro.calibrate();
-
-    //Turn on the LED of the Lego Line Sensor
-    //legoLineSensor.enableLed(true);
+    //This Initializes the Robot
+    init(hardwareMap);
 
     // wait for the start button to be pressed.
     waitForStart();
     {
-      while (mecanum.gyro.isCalibrating())
+      while (gyro.isCalibrating())
       {
         Thread.sleep(50);
       }
 
       //An example of using the Drive function from the RobotHardware Class
-      mecanum.drive(mecanum.ROTATION * 2, 0.5);
+      drive(ROTATION * 2, 0.5);
 
       //A little bit of settling time
       sleep(500);
 
-      //mecanum.turnGyro("right",45, 0.5);
+      turnGyro("right",45, 0.5);
 
       sleep(500);
     }
