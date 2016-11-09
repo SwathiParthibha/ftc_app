@@ -29,8 +29,14 @@ public class CustomTwoColorSensorLinearTest extends LinearOpMode
         {
             int left = leftColorSensor.argb();
             int right = rightColorSensor.argb();
-            telemetry.addData("left", String.format("a=%d r=%d g=%d b=%d", leftColorSensor.alpha(), leftColorSensor.red(), leftColorSensor.green(), leftColorSensor.blue()));
-            telemetry.addData("right", String.format("a=%d r=%d g=%d b=%d", rightColorSensor.alpha(), rightColorSensor.red(), rightColorSensor.green(), rightColorSensor.blue()));
+            telemetry.addData("left alpha", String.format("a=%d", leftColorSensor.alpha()));
+            telemetry.addData("left red", String.format("r=%d", leftColorSensor.red()));
+            telemetry.addData("left gree", String.format("g=%d", leftColorSensor.green()));
+            telemetry.addData("left blue", String.format("b=%d", leftColorSensor.blue()));
+            telemetry.addData("right alpha", String.format("a=%d", rightColorSensor.alpha()));
+            telemetry.addData("right red", String.format("r=%d", rightColorSensor.red()));
+            telemetry.addData("right green", String.format("g=%d", rightColorSensor.green()));
+            telemetry.addData("right blue", String.format("b=%d", rightColorSensor.blue()));
             this.updateTelemetry(telemetry);
 
             Thread.sleep(500);

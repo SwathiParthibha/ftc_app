@@ -30,25 +30,23 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Mrinali;
+package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -70,14 +68,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Blue", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Blue Shashank", group="Pushbot")
 //@Disabled
 public class DriveToBeaconsBlue extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
+    HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
@@ -175,11 +173,16 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         toWhiteLine(false);
         telemetry.update();
         sleep(200);
+        robot.leftMotor.setPower(0.3);
+        robot.rightMotor.setPower(0.3);
+        sleep(50);
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
         turn(-90);
         telemetry.update();
         approachBeacon();
-        sleep(4000);
         telemetry.update();
+        sleep(4000);
         pushButton();
         telemetry.update();
 
@@ -274,8 +277,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         angleZ = IMUheading();
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED * .6);
-            robot.rightMotor.setPower(APPROACH_SPEED * .6);
+            robot.leftMotor.setPower(-APPROACH_SPEED * .4);
+            robot.rightMotor.setPower(APPROACH_SPEED * .4);
 
             while (opModeIsActive() && (turnAngle < angleZ)) {
 
@@ -308,37 +311,28 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void approachBeacon()
     {
-        // Drive to set distance away, slow down, stop at set distance
-        if (rangeSensor.getDistance(DistanceUnit.CM) > 12) {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED);
-        }
-
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 12) {
-
-            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
-
-            idle();
-        }
 
         //Momentarily stop
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
         sleep(200);
 
-        if (rangeSensor.getDistance(DistanceUnit.CM) > 8) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .25);
-            robot.rightMotor.setPower(APPROACH_SPEED * .25);
-        }
+        telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+        telemetry.update();
 
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 8) {
+        while (opModeIsActive() && rangeSensor.cmUltrasonic() > 4) {
+
+            robot.leftMotor.setPower(APPROACH_SPEED * 0.5);
+            robot.rightMotor.setPower(APPROACH_SPEED * 0.5);
 
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
 
             idle();
         }
+
+        telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+        telemetry.update();
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
