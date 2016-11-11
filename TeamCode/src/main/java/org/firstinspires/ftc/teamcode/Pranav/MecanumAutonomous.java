@@ -48,23 +48,12 @@ public class MecanumAutonomous extends MecanumHardware
       {
         Thread.sleep(50);
       }
+      drive(ROTATION, MOTOR_POWER);
 
+      turnGyro("right", 45, 0.5);
       //An example of using the Drive function from the RobotHardware Class
-      drive(ROTATION * 2, 0.5);
+      drivePID(ROTATION * 10, 0.5, 45);
 
-      //A little bit of settling time
-      sleep(500);
-
-      turnGyro("right",45, 0.5);
-
-      sleep(500);
-    }
-
-    while(true)
-    {
-      //Getting the Lego Line Sensor Values
-      //telemetry.addData("Light: %d", robot.LegoLineSensor.getLightDetected());*
-      telemetry.update();
     }
   }
 }

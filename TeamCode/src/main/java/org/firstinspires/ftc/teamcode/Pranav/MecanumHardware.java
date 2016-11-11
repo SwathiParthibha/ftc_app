@@ -182,7 +182,7 @@ public class MecanumHardware extends LinearOpMode
 
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive())
         {
-
+            telemetry.addData("Heading", heading);
         }
 
         stopRobot();
@@ -224,8 +224,8 @@ public class MecanumHardware extends LinearOpMode
             correction = headingError * DRIVE_KP;
 
             // We will correct the direction by changing the motor speeds while the robot drives
-            steeringSpeedLeft = speed + correction;
-            steeringSpeedRight = speed - correction;
+            steeringSpeedLeft = (speed * MOTOR_POWER) - correction;
+            steeringSpeedRight = (speed * MOTOR_POWER) + correction;
 
             //Making sure that the Motors are not commanded to go greater than the maximum speed
             steeringSpeedLeft = Range.clip(steeringSpeedLeft,-1,1);
@@ -240,7 +240,7 @@ public class MecanumHardware extends LinearOpMode
 
             runToPosition();
 
-            sleep(50);
+            sleep(100);
 
             if ((frontRight.getCurrentPosition() > distance)) break;
             if ((frontLeft.getCurrentPosition() > distance)) break;
@@ -251,8 +251,6 @@ public class MecanumHardware extends LinearOpMode
             telemetry.addData("Current Heading:", currentHeading);
             telemetry.addData("Heading Error:", headingError);
             telemetry.addData("Correction:", correction);
-            telemetry.update();
-            telemetry.addLine();
 
             telemetry.addData("Motor Power Values", null);
             telemetry.addData("Steering Speed Right:", steeringSpeedRight);
