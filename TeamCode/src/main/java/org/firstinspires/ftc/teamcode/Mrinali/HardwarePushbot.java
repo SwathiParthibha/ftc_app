@@ -67,7 +67,7 @@ public class HardwarePushbot
         sideRangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
         leftColorSensor  = hwMap.colorSensor.get("rcs");
         rightColorSensor = hwMap.colorSensor.get("lcs");
-        gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        //gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
 
         //armMotor    = hwMap.dcMotor.get("left_arm");
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
