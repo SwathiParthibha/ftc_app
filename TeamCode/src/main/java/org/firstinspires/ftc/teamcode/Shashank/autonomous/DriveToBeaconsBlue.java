@@ -30,25 +30,23 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Mrinali;
+package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -70,14 +68,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Blue", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Blue Shashank", group="Pushbot")
 //@Disabled
 public class DriveToBeaconsBlue extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
 
     /* Declare OpMode members. */
-    org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
+    HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     ModernRoboticsI2cRangeSensor rangeSensor;
@@ -175,11 +173,16 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         toWhiteLine(false);
         telemetry.update();
         sleep(200);
+        robot.leftMotor.setPower(0.3);
+        robot.rightMotor.setPower(0.3);
+        sleep(50);
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
         turn(-90);
         telemetry.update();
         approachBeacon();
-        sleep(4000);
         telemetry.update();
+        sleep(4000);
         pushButton();
         telemetry.update();
 
@@ -238,6 +241,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             sleep(500);
             telemetry.update();
         }
+
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -308,37 +312,28 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
     void approachBeacon()
     {
-        // Drive to set distance away, slow down, stop at set distance
-        if (rangeSensor.getDistance(DistanceUnit.CM) > 12) {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(APPROACH_SPEED);
-        }
-
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 12) {
-
-            telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
-            telemetry.update();
-
-            idle();
-        }
 
         //Momentarily stop
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
         sleep(200);
 
-        if (rangeSensor.getDistance(DistanceUnit.CM) > 8) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .25);
-            robot.rightMotor.setPower(APPROACH_SPEED * .25);
-        }
+        telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+        telemetry.update();
 
-        while (opModeIsActive() && rangeSensor.getDistance(DistanceUnit.CM) > 8) {
+        while (opModeIsActive() && rangeSensor.cmUltrasonic() > 4) {
+
+            robot.leftMotor.setPower(APPROACH_SPEED * 0.5);
+            robot.rightMotor.setPower(APPROACH_SPEED * 0.5);
 
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             telemetry.update();
 
             idle();
         }
+
+        telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
+        telemetry.update();
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }
@@ -353,30 +348,41 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         rightColorSensor.enableLed(true);
 
         int leftRed = leftColorSensor.red();
-        int leftBlue = leftColorSensor.blue();
         int rightRed = rightColorSensor.red();
-        int rightBlue = rightColorSensor.blue();
 
-        while (!verify() && opModeIsActive()){
+        telemetry.addData("verify", verify());
+        telemetry.addData("left red", leftColorSensor.red());
+        telemetry.addData("right red", rightColorSensor.red());
+
+        do{
             telemetry.log().add("in the push button method while loop");
 
-            if(leftRed > rightRed && !verify()){
+            telemetry.update();
+
+            if(leftColorSensor.red() > rightColorSensor.red() && !verify()){
                 //write the code here to press the left button
                 robot.leftMotor.setPower(0.3);
                 robot.rightMotor.setPower(0.0);
 
                 //wait three seconds
                 verify();
-            } else if(rightRed > leftRed && !verify()){
+                telemetry.log().add("left is red "+ verify());
+                telemetry.update();
+            } else if(rightColorSensor.red() > leftColorSensor.red() && !verify()){
                 //write the code here to press the right button
                 robot.rightMotor.setPower(0.3);
                 robot.leftMotor.setPower(0.0);
                 verify();
+                telemetry.log().add("right is red "+ verify());
+                telemetry.update();
             } else{
                 robot.leftMotor.setPower(0);
                 robot.rightMotor.setPower(0);
+                telemetry.log().add("red is not detected "+ verify());
+                telemetry.update();
             }
-        }
+            telemetry.update();
+        } while  (!verify() && opModeIsActive());
 
         telemetry.log().add("end of the push button method");
 
@@ -385,14 +391,21 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     }
 
     private boolean verify() {
-        if(leftColorSensor.alpha() == 0 || rightColorSensor.alpha() == 0)
-            return false;
-        else if(leftColorSensor.alpha() == 255 || rightColorSensor.alpha() == 255)
+        if(leftColorSensor.alpha() == 255 || rightColorSensor.alpha() == 255)
+            throw new RuntimeException("Color Sensor problems");
+        /*else if (leftColorSensor.red() == rightColorSensor.red()
+                && leftColorSensor.blue() == rightColorSensor.blue()
+                && leftColorSensor.red() > 2
+                && rightColorSensor.red() > 2)
+            throw new RuntimeException("Color Sensor problems");*/
+
+        if(leftColorSensor.red() < 3 && rightColorSensor.red() < 3)
             return false;
 
-        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
-            return true;
-        }
+        if(leftColorSensor.red() > 3 || rightColorSensor.red() > 3)
+            if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+                return true;
+            }
 
         return false;
     }

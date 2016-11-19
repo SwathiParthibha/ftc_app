@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.qualcomm.robotcore.util.Range;
 
 
 /**
@@ -28,10 +28,10 @@ public class MecanumHardware extends LinearOpMode
     /* Public OpMode members. */
 
     //Currently there are two motors defined. As the season progresses we may add additional motors
-    DcMotor frontRight = null;
-    DcMotor backRight = null;
-    DcMotor frontLeft = null;
-    DcMotor backLeft = null;
+    public DcMotor frontRight = null;
+    public DcMotor backRight = null;
+    public DcMotor frontLeft = null;
+    public DcMotor backLeft = null;
 
     //Where all Sensors are defined
     public ModernRoboticsI2cGyro gyro = null;
@@ -83,6 +83,39 @@ public class MecanumHardware extends LinearOpMode
         period.reset();
     }
 
+    public void defineMotors()
+    {
+        frontRight = hwMap.dcMotor.get("motor_2");
+        backRight = hwMap.dcMotor.get("motor_4");
+        frontLeft = hwMap.dcMotor.get("motor_3");
+        backLeft = hwMap.dcMotor.get("motor_1");
+    }
+
+    public void defineSenors()
+    {
+        gyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
+        // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+    }
+
+    //Configure the Direction of the Motors
+    public void setDirectionMotors()
+    {
+
+        frontRight.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        backRight.setDirection(DcMotor.Direction.REVERSE); // Set to FORWARD if using AndyMark motors
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+    }
+
+    public void initializeSensors()
+    {
+        //Calibrate the Modern Robotics Gyro Sensor
+        gyro.calibrate();
+
+        //Turn on the LED of the Lego Line Sensor
+        //legoLineSensor.enableLed(true);
+    }
 
     //This function sets the motors to 0 stopping the Robot
     public void stopRobot()
@@ -147,9 +180,9 @@ public class MecanumHardware extends LinearOpMode
 
         runToPosition();
 
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() /*&& opModeIsActive()*/ )
+        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive())
         {
-
+            telemetry.addData("Heading", heading);
         }
 
         stopRobot();
@@ -160,6 +193,81 @@ public class MecanumHardware extends LinearOpMode
         telemetry.update();
     }
 
+    public void drivePID(int distance, double speed, double angle)
+    {
+        double currentHeading, headingError;
+        double DRIVE_KP = 0.1; // This value relates the degree of error to percentage of motor speed
+        double correction, steeringSpeedRight, steeringSpeedLeft;
+
+        telemetry.addData("Starting to Drive Straight", frontRight.getCurrentPosition() / ROTATION);
+
+        runUsingEncoder();
+
+        stopAndResetEncoder();
+
+        frontRight.setPower(speed);
+        backRight.setPower(speed);
+        frontLeft.setPower(speed);
+        backLeft.setPower(speed);
+
+        frontRight.setTargetPosition(distance);
+        backRight.setTargetPosition(distance);
+        frontLeft.setTargetPosition(distance);
+        backLeft.setTargetPosition(distance);
+
+        runToPosition();
+
+        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive())
+        {
+            currentHeading = gyro.getHeading();
+            headingError = currentHeading - angle;
+            correction = headingError * DRIVE_KP;
+
+            // We will correct the direction by changing the motor speeds while the robot drives
+            steeringSpeedLeft = (speed * MOTOR_POWER) - correction;
+            steeringSpeedRight = (speed * MOTOR_POWER) + correction;
+
+            //Making sure that the Motors are not commanded to go greater than the maximum speed
+            steeringSpeedLeft = Range.clip(steeringSpeedLeft,-1,1);
+            steeringSpeedRight = Range.clip(steeringSpeedRight,-1,1);
+
+            runUsingEncoder();
+
+            frontRight.setPower(steeringSpeedRight);
+            backRight.setPower(steeringSpeedRight);
+            frontLeft.setPower(steeringSpeedLeft);
+            backLeft.setPower(steeringSpeedLeft);
+
+            runToPosition();
+
+            sleep(100);
+
+            if ((frontRight.getCurrentPosition() > distance)) break;
+            if ((frontLeft.getCurrentPosition() > distance)) break;
+            if ((backRight.getCurrentPosition() > distance)) break;
+            if ((backLeft.getCurrentPosition() > distance)) break;
+
+            telemetry.addData("PID Values", null);
+            telemetry.addData("Current Heading:", currentHeading);
+            telemetry.addData("Heading Error:", headingError);
+            telemetry.addData("Correction:", correction);
+
+            telemetry.addData("Motor Power Values", null);
+            telemetry.addData("Steering Speed Right:", steeringSpeedRight);
+            telemetry.addData("Steering Speed Left:", steeringSpeedLeft);
+            telemetry.addData("Front Right Power:", frontRight.getPower());
+            telemetry.addData("Front Left Power:", frontLeft.getPower());
+            telemetry.addData("Back Right Power:", backRight.getPower());
+            telemetry.update();
+        }
+
+        stopRobot();
+
+        runUsingEncoder();
+
+        telemetry.addData("Finished Driving", frontRight.getCurrentPosition() / ROTATION);
+
+    }
 
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
     public void turnGyro(String direction, int angle, double speed) throws InterruptedException
@@ -170,15 +278,15 @@ public class MecanumHardware extends LinearOpMode
 
         if (direction.equals("left"))
         {
-            motorDirectionChange = -1;
+            motorDirectionChange = 1;
         }
         else
         if (direction.equals("right"))
         {
-            motorDirectionChange = 1;
+            motorDirectionChange = -1;
         }
 
-        while ((heading > angle + 5 || heading < angle - 2))
+        while ((heading > angle + 5 || heading < angle - 2 && opModeIsActive()))
         {
             frontRight.setPower(MOTOR_POWER * speed * motorDirectionChange);
             backRight.setPower(MOTOR_POWER * speed * motorDirectionChange);
@@ -197,43 +305,24 @@ public class MecanumHardware extends LinearOpMode
 
         telemetry.addData("We Are Done Turning", heading);
     }
-    /* Initialize standard Hardware interfaces */
+
     public void init(HardwareMap ahwMap)
     {
-        // Save reference to Hardware map
+        //Save reference to Hardware Map
         hwMap = ahwMap;
 
-        // Define and Initialize Motors
-        frontRight = hwMap.dcMotor.get("motor_2");
-        backRight = hwMap.dcMotor.get("motor_4");
-        frontLeft = hwMap.dcMotor.get("motor_3");
-        backLeft = hwMap.dcMotor.get("motor_1");
+        defineMotors();
 
-        //Define and Initialize Sensors
-        gyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
-        // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
-        // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+        defineSenors();
 
-        //Configure the Direction of the Motors
-        frontRight.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        backRight.setDirection(DcMotor.Direction.REVERSE); // Set to FORWARD if using AndyMark motors
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        setDirectionMotors();
 
-        // Set all motors to zero power
         stopRobot();
 
-        // Set all motors to run using encoders.
-        // May want to use RUN_WITHOUT_ENCODER if encoders are not installed.
         runUsingEncoder();
 
-        //Calibrate the Modern Robotics Gyro Sensor
-        gyro.calibrate();
-
-        //Turn on the LED of the Lego Line Sensor
-        //legoLineSensor.enableLed(true);
+        initializeSensors();
     }
-
     @Override
     public void runOpMode() throws InterruptedException
     {
