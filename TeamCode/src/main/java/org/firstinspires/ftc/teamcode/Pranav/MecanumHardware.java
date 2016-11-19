@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode.Pranav;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.LightSensor;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -34,9 +40,14 @@ public class MecanumHardware extends LinearOpMode
     public DcMotor backLeft = null;
 
     //Where all Sensors are defined
-    public ModernRoboticsI2cGyro gyro = null;
-    // public LightSensor legoLineSensor = null;
-    // public ModernRoboticsI2cRangeSensor rangeSensor = null;
+    public ModernRoboticsI2cGyro sensorGyro = null;
+    public LightSensor sensorLine = null;
+    public UltrasonicSensor sensorUltra = null;
+    public ModernRoboticsI2cRangeSensor sensorRange = null;
+    public ColorSensor sensorColorRight = null;
+    public ColorSensor sensorColorLeft = null;
+    //public ModernRoboticsI2cRangeSensor rangeSensor = null;
+
 
     //1000 Milliseconds
     public int SECOND = 1000;
@@ -44,6 +55,10 @@ public class MecanumHardware extends LinearOpMode
     //Motor Variables
     public int ROTATION = 1220; // # of ticks
     public int MOTOR_POWER = 1;
+
+    //Line Sensor Thresholds
+    double WHITE_LINE = 0.56;
+    double BLACK_MAT = 0.36;
 
     //Z-Axis of the Modern Robotics Gyro Sensor
     int heading = 0;
@@ -93,9 +108,12 @@ public class MecanumHardware extends LinearOpMode
 
     public void defineSenors()
     {
-        gyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
-        // legoLineSensor = hwMap.lightSensor.get("legoLineSensor");
-        // rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "rangeSensor");
+        sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        sensorLine = hwMap.lightSensor.get("line");
+        sensorUltra = hwMap.ultrasonicSensor.get("ultra");
+        sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
+        sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
+        sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
     }
 
     //Configure the Direction of the Motors
@@ -111,12 +129,26 @@ public class MecanumHardware extends LinearOpMode
     public void initializeSensors()
     {
         //Calibrate the Modern Robotics Gyro Sensor
-        gyro.calibrate();
+        sensorGyro.calibrate();
 
         //Turn on the LED of the Lego Line Sensor
-        //legoLineSensor.enableLed(true);
+        sensorLine.enableLed(true);
+
+        //Set the i2c address of one of the color sensors.
+        sensorColorLeft.setI2cAddress(new I2cAddr(0x4c));
+
+        //Turn off the LED on the Modern Robotics Color Sensor
+        sensorColorLeft.enableLed(false);
+        sensorColorRight.enableLed(false);
     }
 
+    public void setMotorPower(double power)
+    {
+        frontRight.setPower(power);
+        backRight.setPower(power);
+        frontLeft.setPower(power);
+        backLeft.setPower(power);
+    }
     //This function sets the motors to 0 stopping the Robot
     public void stopRobot()
     {
@@ -168,10 +200,7 @@ public class MecanumHardware extends LinearOpMode
 
         stopAndResetEncoder();
 
-        frontRight.setPower(speed);
-        backRight.setPower(speed);
-        frontLeft.setPower(speed);
-        backLeft.setPower(speed);
+        setMotorPower(speed);
 
         frontRight.setTargetPosition(distance);
         backRight.setTargetPosition(distance);
@@ -182,7 +211,7 @@ public class MecanumHardware extends LinearOpMode
 
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive())
         {
-            telemetry.addData("Heading", heading);
+
         }
 
         stopRobot();
@@ -196,7 +225,7 @@ public class MecanumHardware extends LinearOpMode
     public void drivePID(int distance, double speed, double angle)
     {
         double currentHeading, headingError;
-        double DRIVE_KP = 0.1; // This value relates the degree of error to percentage of motor speed
+        double DRIVE_KP = 0.05; // This value relates the degree of error to percentage of motor speed
         double correction, steeringSpeedRight, steeringSpeedLeft;
 
         telemetry.addData("Starting to Drive Straight", frontRight.getCurrentPosition() / ROTATION);
@@ -205,21 +234,18 @@ public class MecanumHardware extends LinearOpMode
 
         stopAndResetEncoder();
 
-        frontRight.setPower(speed);
-        backRight.setPower(speed);
-        frontLeft.setPower(speed);
-        backLeft.setPower(speed);
-
         frontRight.setTargetPosition(distance);
         backRight.setTargetPosition(distance);
         frontLeft.setTargetPosition(distance);
         backLeft.setTargetPosition(distance);
 
+        setMotorPower(speed);
+
         runToPosition();
 
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive())
         {
-            currentHeading = gyro.getHeading();
+            currentHeading = sensorGyro.getHeading();
             headingError = currentHeading - angle;
             correction = headingError * DRIVE_KP;
 
@@ -269,6 +295,66 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
+    public void pushButton()
+    {
+        boolean atBeacon = false;
+
+        while(!atBeacon)
+        {
+            telemetry.addData("Right Color Sensor Values", null);
+            telemetry.addData("Right Red:", sensorColorRight.red());
+            telemetry.addData("Right Blue:", sensorColorRight.blue());
+            telemetry.addData("Right Green:", sensorColorRight.green());
+            telemetry.addData("Left Color Sensor Values", null);
+            telemetry.addData("Left Red:", sensorColorLeft.red());
+            telemetry.addData("Left Blue:", sensorColorLeft.blue());
+            telemetry.addData("Left Green:", sensorColorLeft.green());
+            telemetry.update();
+        }
+
+    }
+
+    public void lineFollower(double speed)
+    {
+        runWithoutEncoder();
+
+        double currentLight, lineError, lineCorrection;
+        double LINE_FOLLOW_KP = 0.1;
+        double steeringSpeedLeft, steeringSpeedRight;
+
+        while(opModeIsActive())
+        {
+            currentLight = sensorLine.getLightDetected();
+            lineError = currentLight - WHITE_LINE;
+            lineCorrection = LINE_FOLLOW_KP * lineError;
+
+            steeringSpeedLeft = -(speed - lineCorrection);
+            steeringSpeedRight = -(speed + lineCorrection);
+
+            steeringSpeedLeft = Range.clip(steeringSpeedLeft, -1, 1);
+            steeringSpeedRight= Range.clip(steeringSpeedRight, -1, 1);
+
+            frontRight.setPower(steeringSpeedRight);
+            backRight.setPower(steeringSpeedRight);
+            frontLeft.setPower(steeringSpeedLeft);
+            backLeft.setPower(steeringSpeedLeft);
+
+            sleep(1);
+
+            telemetry.addData("Line Sensor Values", null);
+            telemetry.addData("Current Light:", currentLight);
+            telemetry.addData("Line Error:", lineError);
+            telemetry.addData("Line Correction:", lineCorrection);
+
+            telemetry.addData("Motor Powers", null);
+            telemetry.addData("Front Right:",frontRight.getPower());
+            telemetry.addData("Back Right:", backRight.getPower());
+            telemetry.addData("Front Left:", frontLeft.getPower());
+            telemetry.addData("Back Left;", backLeft.getPower());
+            telemetry.update();
+        }
+    }
+
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
     public void turnGyro(String direction, int angle, double speed) throws InterruptedException
     {
@@ -294,10 +380,10 @@ public class MecanumHardware extends LinearOpMode
             frontLeft.setPower(-MOTOR_POWER * speed * motorDirectionChange);
             backLeft.setPower(-MOTOR_POWER * speed * motorDirectionChange);
 
-            heading = gyro.getHeading();
+            heading = sensorGyro.getHeading();
 
             telemetry.addData("We Are Turning", heading);
-            telemetry.addData("Gyro Value", gyro.getHeading());
+            telemetry.addData("Gyro Value", sensorGyro.getHeading());
             telemetry.update();
         }
 
