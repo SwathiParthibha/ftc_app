@@ -154,7 +154,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         }
 
         toWhiteLine(false);
-        sleep(200);
+        //sleep(200);
         turn(90);
         approachBeacon();
         pushButton();
@@ -187,8 +187,11 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
         turn(-140);
 
+        robot.rightMotor.setPower(0);
+        robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
+        while (opModeIsActive()) {}
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -290,6 +293,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
             idle();
         }
+
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
     }

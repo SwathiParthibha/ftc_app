@@ -64,10 +64,10 @@ public class HardwarePushbot
         rightMotor  = hwMap.dcMotor.get("r");
         lightSensor = hwMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
-        sideRangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
+        //sideRangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
         leftColorSensor  = hwMap.colorSensor.get("rcs");
         rightColorSensor = hwMap.colorSensor.get("lcs");
-        gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        //gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
 
         //armMotor    = hwMap.dcMotor.get("left_arm");
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
