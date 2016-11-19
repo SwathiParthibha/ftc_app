@@ -241,6 +241,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             sleep(500);
             telemetry.update();
         }
+
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -277,8 +278,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         angleZ = IMUheading();
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED * .4);
-            robot.rightMotor.setPower(APPROACH_SPEED * .4);
+            robot.leftMotor.setPower(-APPROACH_SPEED * .6);
+            robot.rightMotor.setPower(APPROACH_SPEED * .6);
 
             while (opModeIsActive() && (turnAngle < angleZ)) {
 
@@ -347,30 +348,41 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         rightColorSensor.enableLed(true);
 
         int leftRed = leftColorSensor.red();
-        int leftBlue = leftColorSensor.blue();
         int rightRed = rightColorSensor.red();
-        int rightBlue = rightColorSensor.blue();
 
-        while (!verify() && opModeIsActive()){
+        telemetry.addData("verify", verify());
+        telemetry.addData("left red", leftColorSensor.red());
+        telemetry.addData("right red", rightColorSensor.red());
+
+        do{
             telemetry.log().add("in the push button method while loop");
 
-            if(leftRed > rightRed && !verify()){
+            telemetry.update();
+
+            if(leftColorSensor.red() > rightColorSensor.red() && !verify()){
                 //write the code here to press the left button
                 robot.leftMotor.setPower(0.3);
                 robot.rightMotor.setPower(0.0);
 
                 //wait three seconds
                 verify();
-            } else if(rightRed > leftRed && !verify()){
+                telemetry.log().add("left is red "+ verify());
+                telemetry.update();
+            } else if(rightColorSensor.red() > leftColorSensor.red() && !verify()){
                 //write the code here to press the right button
                 robot.rightMotor.setPower(0.3);
                 robot.leftMotor.setPower(0.0);
                 verify();
+                telemetry.log().add("right is red "+ verify());
+                telemetry.update();
             } else{
                 robot.leftMotor.setPower(0);
                 robot.rightMotor.setPower(0);
+                telemetry.log().add("red is not detected "+ verify());
+                telemetry.update();
             }
-        }
+            telemetry.update();
+        } while  (!verify() && opModeIsActive());
 
         telemetry.log().add("end of the push button method");
 
@@ -379,14 +391,21 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     }
 
     private boolean verify() {
-        if(leftColorSensor.alpha() == 0 || rightColorSensor.alpha() == 0)
-            return false;
-        else if(leftColorSensor.alpha() == 255 || rightColorSensor.alpha() == 255)
+        if(leftColorSensor.alpha() == 255 || rightColorSensor.alpha() == 255)
+            throw new RuntimeException("Color Sensor problems");
+        /*else if (leftColorSensor.red() == rightColorSensor.red()
+                && leftColorSensor.blue() == rightColorSensor.blue()
+                && leftColorSensor.red() > 2
+                && rightColorSensor.red() > 2)
+            throw new RuntimeException("Color Sensor problems");*/
+
+        if(leftColorSensor.red() < 3 && rightColorSensor.red() < 3)
             return false;
 
-        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
-            return true;
-        }
+        if(leftColorSensor.red() > 3 || rightColorSensor.red() > 3)
+            if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+                return true;
+            }
 
         return false;
     }
