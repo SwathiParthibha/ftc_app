@@ -145,7 +145,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         lightSensor = hardwareMap.lightSensor.get("light sensor");
         rangeA = hardwareMap.i2cDevice.get("r1");// Primary LEGO Light Sensor
         rangeSensor = new I2cDeviceSynchImpl(rangeA, I2cAddr.create8bit(0x2a), false);
-        rangeA = hardwareMap.i2cDevice.get("r2");// Primary LEGO Light Sensor
+        rangeB = hardwareMap.i2cDevice.get("r2");// Primary LEGO Light Sensor
         sideRangeSensor = new I2cDeviceSynchImpl(rangeB, I2cAddr.create8bit(0x38), false);
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
