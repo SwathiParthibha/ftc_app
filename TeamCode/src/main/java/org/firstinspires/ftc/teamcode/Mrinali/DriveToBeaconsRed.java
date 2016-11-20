@@ -121,7 +121,13 @@ public class DriveToBeaconsRed extends LinearOpMode {
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        I2cAddr fRange = I2cAddr.create8bit(0x24);
+        rangeSensor.setI2cAddress(fRange);
+
         sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "l side range");
+        I2cAddr lRange = I2cAddr.create8bit(0x28);
+        sideRangeSensor.setI2cAddress(lRange);
+
         //gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get("gyro");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
