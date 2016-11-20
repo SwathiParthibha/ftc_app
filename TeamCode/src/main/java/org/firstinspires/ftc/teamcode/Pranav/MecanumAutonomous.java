@@ -44,15 +44,11 @@ public class MecanumAutonomous extends MecanumHardware
     // wait for the start button to be pressed.
     waitForStart();
     {
-      while (gyro.isCalibrating())
+      while (sensorGyro.isCalibrating())
       {
         Thread.sleep(50);
       }
-      drive(ROTATION, MOTOR_POWER);
 
-      turnGyro("right", 45, 0.5);
-      //An example of using the Drive function from the RobotHardware Class
-      drivePID(ROTATION * 10, 0.5, 45);
 
     }
   }
