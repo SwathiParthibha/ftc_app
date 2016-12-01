@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Sam;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -29,7 +28,7 @@ Please do not edit any of the functions as it will affect other programs in the 
 
 If you have accomplished something please tell us so we can implement into the class.
 */
-public class MecanumHardware extends LinearOpMode
+public class SixWheelHardware extends LinearOpMode
 {
     /* Public OpMode members. */
 
@@ -68,7 +67,7 @@ public class MecanumHardware extends LinearOpMode
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
-    public MecanumHardware()
+    public SixWheelHardware()
     {
 
     }
