@@ -49,7 +49,6 @@ public class MecanumAutonomous extends MecanumHardware
         Thread.sleep(50);
       }
 
-      pushButton();
 
     }
   }
