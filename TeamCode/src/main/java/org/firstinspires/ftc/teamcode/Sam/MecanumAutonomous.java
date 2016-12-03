@@ -44,12 +44,12 @@ public class MecanumAutonomous extends MecanumHardware
     // wait for the start button to be pressed.
     waitForStart();
 
-      while (sensorGyro.isCalibrating())
-      {
-        Thread.sleep(50);
-      }
+     // while (sensorGyro.isCalibrating())
+     // {
+     //   Thread.sleep(50);
+     // }
 
-      godirection(1000,0);
+      godirectionGyro(-2000,0.5);
 
 
   }
