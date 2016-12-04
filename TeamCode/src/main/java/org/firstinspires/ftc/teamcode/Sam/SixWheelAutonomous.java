@@ -23,17 +23,17 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-package org.firstinspires.ftc.teamcode.Pranav;
+package org.firstinspires.ftc.teamcode.Sam;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Mecanum Autonomous", group = "Sensor")
+@Autonomous(name = "SixWheelAuto", group = "SixWheelRobot")
 //@Disabled
 
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
-public class MecanumAutonomous extends MecanumHardware
+public class SixWheelAutonomous extends SixWheelHardware
 {
   @Override
   public void runOpMode() throws InterruptedException
@@ -43,13 +43,14 @@ public class MecanumAutonomous extends MecanumHardware
 
     // wait for the start button to be pressed.
     waitForStart();
-    {
+
       while (sensorGyro.isCalibrating())
       {
         Thread.sleep(50);
       }
 
+      godirection(1000,0);
 
-    }
+
   }
 }

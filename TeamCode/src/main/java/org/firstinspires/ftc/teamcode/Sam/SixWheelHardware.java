@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.Pranav;
+package org.firstinspires.ftc.teamcode.Sam;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -29,7 +28,7 @@ Please do not edit any of the functions as it will affect other programs in the 
 
 If you have accomplished something please tell us so we can implement into the class.
 */
-public class MecanumHardware extends LinearOpMode
+public class SixWheelHardware extends LinearOpMode
 {
     /* Public OpMode members. */
 
@@ -68,7 +67,7 @@ public class MecanumHardware extends LinearOpMode
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
-    public MecanumHardware()
+    public SixWheelHardware()
     {
 
     }
@@ -108,12 +107,12 @@ public class MecanumHardware extends LinearOpMode
 
     public void defineSenors()
     {
-        sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
-        sensorLine = hwMap.lightSensor.get("line");
-        sensorUltra = hwMap.ultrasonicSensor.get("ultra");
+        //sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        //sensorLine = hwMap.lightSensor.get("line");
+        //sensorUltra = hwMap.ultrasonicSensor.get("ultra");
         //sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
-        sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
-        sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
+        //sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
+        //sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
     }
 
     //Configure the Direction of the Motors
@@ -135,8 +134,7 @@ public class MecanumHardware extends LinearOpMode
         sensorLine.enableLed(true);
 
         //Set the i2c address of one of the color sensors.
-        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        sensorColorLeft.setI2cAddress(i2cAddr);
+        sensorColorLeft.setI2cAddress(new I2cAddr(0x4c));
 
         //Turn off the LED on the Modern Robotics Color Sensor
         sensorColorLeft.enableLed(false);
@@ -223,98 +221,6 @@ public class MecanumHardware extends LinearOpMode
         telemetry.update();
     }
 
-    public void driveIndividualMotor(String motor, int distance, double speed)
-    {
-        if (motor == "frontRight")
-        {
-            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            frontRight.setPower(speed);
-
-            frontRight.setTargetPosition(distance);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (frontRight.isBusy())
-            {
-
-            }
-
-            frontRight.setPower(0);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "frontLeft")
-        {
-            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            frontLeft.setPower(speed);
-
-            frontLeft.setTargetPosition(distance);
-
-            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (frontLeft.isBusy())
-            {
-
-            }
-
-            frontLeft.setPower(0);
-
-            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "backRight")
-        {
-            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            backRight.setPower(speed);
-
-            backRight.setTargetPosition(distance);
-
-            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (backRight.isBusy())
-            {
-
-            }
-
-            backRight.setPower(0);
-
-            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "backLeft")
-        {
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            backLeft.setPower(speed);
-
-            backLeft.setTargetPosition(distance);
-
-            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (backLeft.isBusy())
-            {
-
-            }
-
-            backLeft.setPower(0);
-
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-    }
-
     public void drivePID(int distance, double speed, double angle)
     {
         double currentHeading, headingError;
@@ -388,68 +294,20 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
-    public void pushButton(String color)
+    public void pushButton()
     {
-        runWithoutEncoder();
-
         boolean atBeacon = false;
-        int THRESHOLD_COLOR = 3;
 
-        while(opModeIsActive())
+        while(!atBeacon)
         {
-            while (!atBeacon)
-            {
-                if (sensorColorLeft.red() >= THRESHOLD_COLOR || sensorColorLeft.blue() >= THRESHOLD_COLOR || sensorColorRight.red() >= THRESHOLD_COLOR || sensorColorRight.blue() >= THRESHOLD_COLOR)
-                {
-                    atBeacon = true;
-                }
-            }
-
-            if(atBeacon)
-            {
-                stopRobot();
-            }
-
-            while(atBeacon)
-            {
-                if (color == "red")
-                {
-                    if (sensorColorLeft.red() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
-                    }
-                    else if (sensorColorRight.red() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
-                    }
-                }
-
-                if (color == "blue")
-                {
-                    if (sensorColorLeft.blue() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
-                    }
-                    else if (sensorColorRight.blue() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
-                    }
-
-                }
-            }
-
-
             telemetry.addData("Right Color Sensor Values", null);
             telemetry.addData("Right Red:", sensorColorRight.red());
             telemetry.addData("Right Blue:", sensorColorRight.blue());
-
+            telemetry.addData("Right Green:", sensorColorRight.green());
             telemetry.addData("Left Color Sensor Values", null);
             telemetry.addData("Left Red:", sensorColorLeft.red());
             telemetry.addData("Left Blue:", sensorColorLeft.blue());
+            telemetry.addData("Left Green:", sensorColorLeft.green());
             telemetry.update();
         }
 
@@ -531,6 +389,68 @@ public class MecanumHardware extends LinearOpMode
         stopRobot();
 
         telemetry.addData("We Are Done Turning", heading);
+    }
+
+    public void godirection(float distance, float angle)
+    {
+        float x=0,y=0, LF, RF, LB, RB;
+
+            x = (float)(distance *Math.cos((double)angle));
+            y = (float)(distance *Math.sin((double)angle));
+
+
+        runUsingEncoder();
+
+        stopAndResetEncoder();
+
+
+        LF = 0;RF = 0;LB = 0;RB = 0;
+
+        // Handle Strafing Movement
+        LF += x;RF -= x;LB -= x;RB += x;
+        // Handle Regular Movement
+        LF += y;RF += y;LB += y;RB += y;
+
+
+        // Apply Finished values to motors.
+
+        int distancefr=(int)((y - x)/2);
+        int distancebr=(int)((-y - x)/2);
+        int distancefl=(int)((-y - x)/2);
+        int distancebl=(int)((y - x)/2);
+
+
+        frontRight.setPower((int)RF);
+        backRight.setPower((int)RB);
+        frontLeft.setPower((int)LF);
+        backLeft.setPower((int)LB);
+
+
+        frontRight.setTargetPosition((int)RF);
+        backRight.setTargetPosition((int)RB);
+        frontLeft.setTargetPosition((int)LF);
+        backLeft.setTargetPosition((int)LB);
+
+        runToPosition();
+
+        while ((frontRight.isBusy() || backRight.isBusy() || frontLeft.isBusy() || backLeft.isBusy()) && opModeIsActive())
+        {
+            //do nothing
+        }
+
+        stopRobot();
+
+        runUsingEncoder();
+
+
+
+
+        //motor[FR] = (y - x)/2;
+        //motor[FL] = (-y - x)/2;
+        //motor[BR] = (-y - x)/2;
+        //motor[BL] = (y - x)/2;
+
+
     }
 
     public void init(HardwareMap ahwMap)

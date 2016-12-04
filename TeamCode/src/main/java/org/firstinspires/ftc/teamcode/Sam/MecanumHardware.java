@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Pranav;
+package org.firstinspires.ftc.teamcode.Sam;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
@@ -6,6 +6,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
@@ -109,11 +110,11 @@ public class MecanumHardware extends LinearOpMode
     public void defineSenors()
     {
         sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
-        sensorLine = hwMap.lightSensor.get("line");
-        sensorUltra = hwMap.ultrasonicSensor.get("ultra");
+        //sensorLine = hwMap.lightSensor.get("line");
+        //sensorUltra = hwMap.ultrasonicSensor.get("ultra");
         //sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
-        sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
-        sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
+        //sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
+        //sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
     }
 
     //Configure the Direction of the Motors
@@ -125,6 +126,14 @@ public class MecanumHardware extends LinearOpMode
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
     }
+    public void ReverseMotors()
+    {
+
+        frontRight.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        backRight.setDirection(DcMotor.Direction.FORWARD); // Set to FORWARD if using AndyMark motors
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+    }
 
     public void initializeSensors()
     {
@@ -132,15 +141,14 @@ public class MecanumHardware extends LinearOpMode
         sensorGyro.calibrate();
 
         //Turn on the LED of the Lego Line Sensor
-        sensorLine.enableLed(true);
+        //sensorLine.enableLed(true);
 
         //Set the i2c address of one of the color sensors.
-        I2cAddr i2cAddr = I2cAddr.create8bit(0x4c);
-        sensorColorLeft.setI2cAddress(i2cAddr);
+        //sensorColorLeft.setI2cAddress(new I2cAddr(0x4c));
 
         //Turn off the LED on the Modern Robotics Color Sensor
-        sensorColorLeft.enableLed(false);
-        sensorColorRight.enableLed(false);
+        //sensorColorLeft.enableLed(false);
+        //sensorColorRight.enableLed(false);
     }
 
     public void setMotorPower(double power)
@@ -223,98 +231,6 @@ public class MecanumHardware extends LinearOpMode
         telemetry.update();
     }
 
-    public void driveIndividualMotor(String motor, int distance, double speed)
-    {
-        if (motor == "frontRight")
-        {
-            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            frontRight.setPower(speed);
-
-            frontRight.setTargetPosition(distance);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (frontRight.isBusy())
-            {
-
-            }
-
-            frontRight.setPower(0);
-
-            frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "frontLeft")
-        {
-            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            frontLeft.setPower(speed);
-
-            frontLeft.setTargetPosition(distance);
-
-            frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (frontLeft.isBusy())
-            {
-
-            }
-
-            frontLeft.setPower(0);
-
-            frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "backRight")
-        {
-            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            backRight.setPower(speed);
-
-            backRight.setTargetPosition(distance);
-
-            backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (backRight.isBusy())
-            {
-
-            }
-
-            backRight.setPower(0);
-
-            backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-        if (motor == "backLeft")
-        {
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            backLeft.setPower(speed);
-
-            backLeft.setTargetPosition(distance);
-
-            backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while (backLeft.isBusy())
-            {
-
-            }
-
-            backLeft.setPower(0);
-
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-
-    }
-
     public void drivePID(int distance, double speed, double angle)
     {
         double currentHeading, headingError;
@@ -388,68 +304,20 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
-    public void pushButton(String color)
+    public void pushButton()
     {
-        runWithoutEncoder();
-
         boolean atBeacon = false;
-        int THRESHOLD_COLOR = 3;
 
-        while(opModeIsActive())
+        while(!atBeacon)
         {
-            while (!atBeacon)
-            {
-                if (sensorColorLeft.red() >= THRESHOLD_COLOR || sensorColorLeft.blue() >= THRESHOLD_COLOR || sensorColorRight.red() >= THRESHOLD_COLOR || sensorColorRight.blue() >= THRESHOLD_COLOR)
-                {
-                    atBeacon = true;
-                }
-            }
-
-            if(atBeacon)
-            {
-                stopRobot();
-            }
-
-            while(atBeacon)
-            {
-                if (color == "red")
-                {
-                    if (sensorColorLeft.red() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
-                    }
-                    else if (sensorColorRight.red() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
-                    }
-                }
-
-                if (color == "blue")
-                {
-                    if (sensorColorLeft.blue() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
-                    }
-                    else if (sensorColorRight.blue() >= THRESHOLD_COLOR)
-                    {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
-                    }
-
-                }
-            }
-
-
             telemetry.addData("Right Color Sensor Values", null);
             telemetry.addData("Right Red:", sensorColorRight.red());
             telemetry.addData("Right Blue:", sensorColorRight.blue());
-
+            telemetry.addData("Right Green:", sensorColorRight.green());
             telemetry.addData("Left Color Sensor Values", null);
             telemetry.addData("Left Red:", sensorColorLeft.red());
             telemetry.addData("Left Blue:", sensorColorLeft.blue());
+            telemetry.addData("Left Green:", sensorColorLeft.green());
             telemetry.update();
         }
 
@@ -531,6 +399,135 @@ public class MecanumHardware extends LinearOpMode
         stopRobot();
 
         telemetry.addData("We Are Done Turning", heading);
+    }
+
+    public void godirection(float distance,double power)
+    {//if positive distance, go right; if negative distance, go left
+
+        runUsingEncoder();
+        stopAndResetEncoder();
+        float direction=distance/Math.abs(distance);
+        distance=Math.abs(distance);
+        power=Math.abs(power);
+
+        frontRight.setPower(-direction*power);
+        backRight.setPower(direction*power);
+        frontLeft.setPower(direction*power);
+        backLeft.setPower(-direction*power);
+
+
+        frontRight.setTargetPosition((int)(-direction*distance));
+        backRight.setTargetPosition((int)(direction*distance));
+        frontLeft.setTargetPosition((int)(direction*distance));
+        backLeft.setTargetPosition((int)(-direction*distance));
+
+        runToPosition();
+
+        while ((frontRight.isBusy()) && opModeIsActive())
+        {
+            //do nothing
+        }
+
+        stopRobot();
+
+        runUsingEncoder();
+
+
+
+
+
+
+    }
+
+    public void godirectionGyro(float distance,double power)
+    {//if positive distance, go right; if negative distance, go left
+        double currentHeading, headingError;
+        double DRIVE_KP = 0.05; // This value relates the degree of error to percentage of motor speed
+        double correction, steeringSpeedRight, steeringSpeedLeft;
+        double angle=sensorGyro.getHeading();
+        power=Math.abs(power);
+        double speed=power;
+
+
+        runUsingEncoder();
+        stopAndResetEncoder();
+        float direction=distance/Math.abs(distance);
+        distance=Math.abs(distance);
+        if(direction<0)
+        {
+            ReverseMotors();
+        }
+
+
+        frontRight.setPower(-direction*power);
+        backRight.setPower(direction*power);
+        frontLeft.setPower(direction*power);
+        backLeft.setPower(-direction*power);
+
+
+        frontRight.setTargetPosition((int)(-direction*distance));
+        backRight.setTargetPosition((int)(direction*distance));
+        frontLeft.setTargetPosition((int)(direction*distance));
+        backLeft.setTargetPosition((int)(-direction*distance));
+        //initial power
+
+        runToPosition();
+
+            while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive()) {
+                currentHeading = sensorGyro.getHeading();
+                headingError = currentHeading - angle;
+                correction = headingError * DRIVE_KP;
+                // We will correct the direction by changing the motor speeds while the robot drives
+                steeringSpeedLeft = (speed * MOTOR_POWER) + correction;
+                steeringSpeedRight = (speed * MOTOR_POWER) - correction;
+
+                //Making sure that the Motors are not commanded to go greater than the maximum speed
+                steeringSpeedLeft = Range.clip(steeringSpeedLeft, -1, 1);
+                steeringSpeedRight = Range.clip(steeringSpeedRight, -1, 1);
+
+                runUsingEncoder();
+
+                if(direction>0) {//going right
+                    frontRight.setPower(-steeringSpeedRight);
+                    backRight.setPower(steeringSpeedRight);
+                    frontLeft.setPower(steeringSpeedRight);
+                    backLeft.setPower(-steeringSpeedRight);
+                }
+                else
+                {//going left
+
+                    frontRight.setPower(-steeringSpeedLeft);
+                    backRight.setPower(-steeringSpeedRight);
+                    frontLeft.setPower(-steeringSpeedLeft);
+                    backLeft.setPower(-steeringSpeedRight);
+                }
+
+                runToPosition();
+
+                sleep(100);
+
+                if ((frontRight.getCurrentPosition() > distance)) break;
+                if ((frontLeft.getCurrentPosition() > distance)) break;
+                if ((backRight.getCurrentPosition() > distance)) break;
+                if ((backLeft.getCurrentPosition() > distance)) break;
+
+                telemetry.addData("PID Values", null);
+                telemetry.addData("Current Heading:", currentHeading);
+                telemetry.addData("Heading Error:", headingError);
+                telemetry.addData("Correction:", correction);
+
+                telemetry.addData("Motor Power Values", null);
+                telemetry.addData("Steering Speed Right:", steeringSpeedRight);
+                telemetry.addData("Steering Speed Left:", steeringSpeedLeft);
+                telemetry.addData("Front Right Power:", frontRight.getPower());
+                telemetry.addData("Front Left Power:", frontLeft.getPower());
+                telemetry.addData("Back Right Power:", backRight.getPower());
+                telemetry.update();
+            }
+
+        stopRobot();
+        setDirectionMotors();
+        runUsingEncoder();
     }
 
     public void init(HardwareMap ahwMap)
