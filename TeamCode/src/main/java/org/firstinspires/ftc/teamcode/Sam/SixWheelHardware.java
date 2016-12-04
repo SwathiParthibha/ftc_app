@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Sam;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LightSensor;
@@ -30,7 +28,7 @@ Please do not edit any of the functions as it will affect other programs in the 
 
 If you have accomplished something please tell us so we can implement into the class.
 */
-public class MecanumHardware extends LinearOpMode
+public class SixWheelHardware extends LinearOpMode
 {
     /* Public OpMode members. */
 
@@ -69,7 +67,7 @@ public class MecanumHardware extends LinearOpMode
     private ElapsedTime period = new ElapsedTime();
 
     /* Constructor *///Empty Constructor
-    public MecanumHardware()
+    public SixWheelHardware()
     {
 
     }
@@ -109,7 +107,7 @@ public class MecanumHardware extends LinearOpMode
 
     public void defineSenors()
     {
-        sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
+        //sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
         //sensorLine = hwMap.lightSensor.get("line");
         //sensorUltra = hwMap.ultrasonicSensor.get("ultra");
         //sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
@@ -126,14 +124,6 @@ public class MecanumHardware extends LinearOpMode
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
     }
-    public void ReverseMotors()
-    {
-
-        frontRight.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        backRight.setDirection(DcMotor.Direction.FORWARD); // Set to FORWARD if using AndyMark motors
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-    }
 
     public void initializeSensors()
     {
@@ -141,14 +131,14 @@ public class MecanumHardware extends LinearOpMode
         sensorGyro.calibrate();
 
         //Turn on the LED of the Lego Line Sensor
-        //sensorLine.enableLed(true);
+        sensorLine.enableLed(true);
 
         //Set the i2c address of one of the color sensors.
-        //sensorColorLeft.setI2cAddress(new I2cAddr(0x4c));
+        sensorColorLeft.setI2cAddress(new I2cAddr(0x4c));
 
         //Turn off the LED on the Modern Robotics Color Sensor
-        //sensorColorLeft.enableLed(false);
-        //sensorColorRight.enableLed(false);
+        sensorColorLeft.enableLed(false);
+        sensorColorRight.enableLed(false);
     }
 
     public void setMotorPower(double power)
@@ -401,29 +391,49 @@ public class MecanumHardware extends LinearOpMode
         telemetry.addData("We Are Done Turning", heading);
     }
 
-    public void godirection(float distance,double power)
-    {//if positive distance, go right; if negative distance, go left
+    public void godirection(float distance, float angle)
+    {
+        float x=0,y=0, LF, RF, LB, RB;
+
+            x = (float)(distance *Math.cos((double)angle));
+            y = (float)(distance *Math.sin((double)angle));
+
 
         runUsingEncoder();
+
         stopAndResetEncoder();
-        float direction=distance/Math.abs(distance);
-        distance=Math.abs(distance);
-        power=Math.abs(power);
-
-        frontRight.setPower(-direction*power);
-        backRight.setPower(direction*power);
-        frontLeft.setPower(direction*power);
-        backLeft.setPower(-direction*power);
 
 
-        frontRight.setTargetPosition((int)(-direction*distance));
-        backRight.setTargetPosition((int)(direction*distance));
-        frontLeft.setTargetPosition((int)(direction*distance));
-        backLeft.setTargetPosition((int)(-direction*distance));
+        LF = 0;RF = 0;LB = 0;RB = 0;
+
+        // Handle Strafing Movement
+        LF += x;RF -= x;LB -= x;RB += x;
+        // Handle Regular Movement
+        LF += y;RF += y;LB += y;RB += y;
+
+
+        // Apply Finished values to motors.
+
+        int distancefr=(int)((y - x)/2);
+        int distancebr=(int)((-y - x)/2);
+        int distancefl=(int)((-y - x)/2);
+        int distancebl=(int)((y - x)/2);
+
+
+        frontRight.setPower((int)RF);
+        backRight.setPower((int)RB);
+        frontLeft.setPower((int)LF);
+        backLeft.setPower((int)LB);
+
+
+        frontRight.setTargetPosition((int)RF);
+        backRight.setTargetPosition((int)RB);
+        frontLeft.setTargetPosition((int)LF);
+        backLeft.setTargetPosition((int)LB);
 
         runToPosition();
 
-        while ((frontRight.isBusy()) && opModeIsActive())
+        while ((frontRight.isBusy() || backRight.isBusy() || frontLeft.isBusy() || backLeft.isBusy()) && opModeIsActive())
         {
             //do nothing
         }
@@ -435,99 +445,12 @@ public class MecanumHardware extends LinearOpMode
 
 
 
+        //motor[FR] = (y - x)/2;
+        //motor[FL] = (-y - x)/2;
+        //motor[BR] = (-y - x)/2;
+        //motor[BL] = (y - x)/2;
 
 
-    }
-
-    public void godirectionGyro(float distance,double power)
-    {//if positive distance, go right; if negative distance, go left
-        double currentHeading, headingError;
-        double DRIVE_KP = 0.05; // This value relates the degree of error to percentage of motor speed
-        double correction, steeringSpeedRight, steeringSpeedLeft;
-        double angle=sensorGyro.getHeading();
-        power=Math.abs(power);
-        double speed=power;
-
-
-        runUsingEncoder();
-        stopAndResetEncoder();
-        float direction=distance/Math.abs(distance);
-        distance=Math.abs(distance);
-        if(direction<0)
-        {
-            ReverseMotors();
-        }
-
-
-        frontRight.setPower(-direction*power);
-        backRight.setPower(direction*power);
-        frontLeft.setPower(direction*power);
-        backLeft.setPower(-direction*power);
-
-
-        frontRight.setTargetPosition((int)(-direction*distance));
-        backRight.setTargetPosition((int)(direction*distance));
-        frontLeft.setTargetPosition((int)(direction*distance));
-        backLeft.setTargetPosition((int)(-direction*distance));
-        //initial power
-
-        runToPosition();
-
-            while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy() && opModeIsActive()) {
-                currentHeading = sensorGyro.getHeading();
-                headingError = currentHeading - angle;
-                correction = headingError * DRIVE_KP;
-                // We will correct the direction by changing the motor speeds while the robot drives
-                steeringSpeedLeft = (speed * MOTOR_POWER) + correction;
-                steeringSpeedRight = (speed * MOTOR_POWER) - correction;
-
-                //Making sure that the Motors are not commanded to go greater than the maximum speed
-                steeringSpeedLeft = Range.clip(steeringSpeedLeft, -1, 1);
-                steeringSpeedRight = Range.clip(steeringSpeedRight, -1, 1);
-
-                runUsingEncoder();
-
-                if(direction>0) {//going right
-                    frontRight.setPower(-steeringSpeedRight);
-                    backRight.setPower(steeringSpeedRight);
-                    frontLeft.setPower(steeringSpeedRight);
-                    backLeft.setPower(-steeringSpeedRight);
-                }
-                else
-                {//going left
-
-                    frontRight.setPower(-steeringSpeedLeft);
-                    backRight.setPower(-steeringSpeedRight);
-                    frontLeft.setPower(-steeringSpeedLeft);
-                    backLeft.setPower(-steeringSpeedRight);
-                }
-
-                runToPosition();
-
-                sleep(100);
-
-                if ((frontRight.getCurrentPosition() > distance)) break;
-                if ((frontLeft.getCurrentPosition() > distance)) break;
-                if ((backRight.getCurrentPosition() > distance)) break;
-                if ((backLeft.getCurrentPosition() > distance)) break;
-
-                telemetry.addData("PID Values", null);
-                telemetry.addData("Current Heading:", currentHeading);
-                telemetry.addData("Heading Error:", headingError);
-                telemetry.addData("Correction:", correction);
-
-                telemetry.addData("Motor Power Values", null);
-                telemetry.addData("Steering Speed Right:", steeringSpeedRight);
-                telemetry.addData("Steering Speed Left:", steeringSpeedLeft);
-                telemetry.addData("Front Right Power:", frontRight.getPower());
-                telemetry.addData("Front Left Power:", frontLeft.getPower());
-                telemetry.addData("Back Right Power:", backRight.getPower());
-                telemetry.update();
-            }
-
-        stopRobot();
-        setDirectionMotors();
-        runUsingEncoder();
     }
 
     public void init(HardwareMap ahwMap)

@@ -27,13 +27,13 @@ package org.firstinspires.ftc.teamcode.Sam;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "MecanumAuto", group = "Mecanum")
+@Autonomous(name = "SixWheelAuto", group = "SixWheelRobot")
 //@Disabled
 
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
-public class MecanumAutonomous extends MecanumHardware
+public class SixWheelAutonomous extends SixWheelHardware
 {
   @Override
   public void runOpMode() throws InterruptedException
@@ -44,12 +44,12 @@ public class MecanumAutonomous extends MecanumHardware
     // wait for the start button to be pressed.
     waitForStart();
 
-     // while (sensorGyro.isCalibrating())
-     // {
-     //   Thread.sleep(50);
-     // }
+      while (sensorGyro.isCalibrating())
+      {
+        Thread.sleep(50);
+      }
 
-      godirectionGyro(-2000,0.5);
+      godirection(1000,0);
 
 
   }
