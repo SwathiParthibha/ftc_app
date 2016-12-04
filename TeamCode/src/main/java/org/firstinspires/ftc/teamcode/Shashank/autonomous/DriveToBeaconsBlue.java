@@ -37,18 +37,21 @@ import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
+import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
 
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -124,14 +127,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.update();
         */
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
          */
@@ -147,14 +142,26 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         rangeSensor = new I2cDeviceSynchImpl(rangeA, I2cAddr.create8bit(0x2a), false);
         rangeB = hardwareMap.i2cDevice.get("r2");// Primary LEGO Light Sensor
         sideRangeSensor = new I2cDeviceSynchImpl(rangeB, I2cAddr.create8bit(0x38), false);
+
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
         rangeSensor.engage();
         sideRangeSensor.engage();
 
-        //angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
-        //origAngle = angles.firstAngle;
+        angles   = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
 
         leftColorSensor  = hardwareMap.colorSensor.get("lcs");
         rightColorSensor = hardwareMap.colorSensor.get("rcs");
@@ -176,10 +183,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             telemetry.addData("Distance", getOpticalDistance(rangeSensor));
             telemetry.addData("Distance sonic", getcmUltrasonic(rangeSensor));
             angleZ = IMUheading();
-            telemetry.addData("Angle", angleZ);
             telemetry.addData("Side Range Sensor", getOpticalDistance(sideRangeSensor));
             telemetry.addData("Side Range Sensor sonic", getcmUltrasonic(sideRangeSensor));
             telemetry.addData("Angle", angleZ);
+            telemetry.addData("Angle not formatted", imu.getAngularOrientation().firstAngle);
             telemetry.addData("verify", verify());
             telemetry.addData("leftColorSensor", leftColorSensor.argb());
             telemetry.addData("rightColorSensor", rightColorSensor.argb());
@@ -187,6 +194,13 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle();
         }
 
+        robot.leftMotor.setPower(0.3);
+        robot.rightMotor.setPower(0.3);
+        sleep(700);
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+        turn(-60);
+        sleep(100);
         toWhiteLine(false);
         telemetry.update();
         sleep(200);
@@ -195,33 +209,34 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         sleep(50);
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
-        turn(-90);
+        turn(-88);
         telemetry.update();
         approachBeacon();
         telemetry.update();
-        sleep(4000);
+        sleep(100);
+        turn(-90);
         pushButton();
         telemetry.update();
 
         telemetry.log().add("Finished pressing first button");
-        sleep(2000);
+        sleep(100);
 
         // Go backwards slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(200);
+        sleep(350);
         telemetry.update();
 
         telemetry.log().add("Backed up");
 
         // Turn parallel to wall
-        turn(10);
+        turn(-5);
         telemetry.update();
         telemetry.log().add("Turn parallel to the wall");
-        sleep(2000);
+        sleep(100);
 
-        robot.leftMotor.setPower(APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
+        robot.leftMotor.setPower(0.2);
+        robot.rightMotor.setPower(0.2);
         telemetry.update();
         sleep(500);
         telemetry.update();
@@ -236,23 +251,28 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         telemetry.log().add("Turn to second beacon");
 
-        turn(-90);
+        turn(-85);
         approachBeacon();
-        sleep(4000);
+        sleep(100);
+        turn(-90);
         pushButton();
 
+        telemetry.log().add("Drives backward slightly");
         //Drives backward slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(200);
+        sleep(500);
 
-        turn(140);
+        turn(-37);
 
         robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
 
+        sleep(1700);
+
         robot.rightMotor.setPower(0);
         robot.leftMotor.setPower(0);
+
 
         while ((opModeIsActive())){
             sleep(500);
@@ -271,8 +291,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     void toWhiteLine(boolean wall) throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
         if (!wall) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .8);
-            robot.rightMotor.setPower(APPROACH_SPEED * .8);
+            robot.leftMotor.setPower(0.2);
+            robot.rightMotor.setPower(0.2);
         }
 
         // runIMU until the white line is seen OR the driver presses STOP;
@@ -302,8 +322,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         angleZ = IMUheading();
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(APPROACH_SPEED * .5);
+            robot.leftMotor.setPower(-APPROACH_SPEED * .4);
+            robot.rightMotor.setPower(APPROACH_SPEED * .4);
 
             while (opModeIsActive() && (turnAngle < angleZ)) {
 
@@ -318,8 +338,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         }
 
         else if (turnAngle > angleZ) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .5);
-            robot.rightMotor.setPower(APPROACH_SPEED * -.5);
+            robot.leftMotor.setPower(APPROACH_SPEED * .4);
+            robot.rightMotor.setPower(APPROACH_SPEED * -.4);
 
             while (opModeIsActive() && (turnAngle > angleZ)) {
 
@@ -345,16 +365,52 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
         telemetry.update();
 
-        while (opModeIsActive() && getcmUltrasonic(rangeSensor) > 4) {
+        telemetry.log().add("30 cm");
+        while (opModeIsActive() && getcmUltrasonic(rangeSensor) > 15) {
 
-            robot.leftMotor.setPower(APPROACH_SPEED * 0.5);
-            robot.rightMotor.setPower(APPROACH_SPEED * 0.5);
+            telemetry.log().add("in 30 cm loop");
+            robot.leftMotor.setPower(0.2);
+            robot.rightMotor.setPower(0.2);
+
+            sleep(150);
+
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+            telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
+            telemetry.update();
+
+            idle();
+        }
+
+        telemetry.log().add("end 25 cm");
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+
+        sleep(500);
+
+        telemetry.log().add("15 cm");
+        while (opModeIsActive() && getcmUltrasonic(rangeSensor) > 7) {
+
+            telemetry.log().add("in 15 cm loop");
+            robot.leftMotor.setPower(0.3);
+            robot.rightMotor.setPower(0.3);
+
+            sleep(20);
+
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
 
             telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
             telemetry.update();
 
             idle();
         }
+
+        telemetry.log().add("end 15 cm");
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+
+        sleep(500);
 
         telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
         telemetry.update();
@@ -376,12 +432,22 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         int leftRed = leftColorSensor.red();
         int rightRed = rightColorSensor.red();
 
+        double startTime = this.time;
+
+        telemetry.addData("saved time", startTime);
+        telemetry.addData("current time", this.time);
+
         do{
             telemetry.log().add("in the push button method while loop");
 
+            telemetry.addData("saved time", startTime);
+            telemetry.addData("current time", this.time);
             telemetry.update();
 
-            if(leftColorSensor.red() > rightColorSensor.red() && !verify()){
+            if((this.time - startTime) > 5)
+                break;
+
+            if(leftColorSensor.blue() > rightColorSensor.blue() && !verify()){
                 //write the code here to press the left button
                 robot.leftMotor.setPower(0.0);
                 robot.rightMotor.setPower(0.3);
@@ -390,7 +456,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
                 verify();
                 telemetry.log().add("left is red "+ verify());
                 telemetry.update();
-            } else if(rightColorSensor.red() > leftColorSensor.red() && !verify()){
+            } else if(rightColorSensor.blue() > leftColorSensor.blue() && !verify()){
                 //write the code here to press the right button
                 robot.rightMotor.setPower(0);
                 robot.leftMotor.setPower(0.3);
@@ -415,13 +481,12 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     private boolean verify() {
         if(leftColorSensor.alpha() == 255 || rightColorSensor.alpha() == 255)
             throw new RuntimeException("Color Sensor problems");
-        /*else if (leftColorSensor.red() == rightColorSensor.red()
-                && leftColorSensor.blue() == rightColorSensor.blue()
-                && leftColorSensor.red() > 2
-                && rightColorSensor.red() > 2)
-            throw new RuntimeException("Color Sensor problems");*/
 
-        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
+        if(leftColorSensor.alpha() < 2 && rightColorSensor.alpha() < 2){
+            return false;
+        }
+
+        if(Math.abs(leftColorSensor.blue() - rightColorSensor.blue()) <= 2){
             return true;
         }
 
