@@ -37,10 +37,13 @@ import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -135,15 +138,18 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
+        sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "r siderange");
+
         /*
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
         I2cAddr fRange = I2cAddr.create8bit(0x24);
         rangeSensor.setI2cAddress(fRange);
-        */
 
         sideRangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "r side range");
         I2cAddr rRange = I2cAddr.create8bit(0x26);
         sideRangeSensor.setI2cAddress(rRange);
+        */
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -171,7 +177,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             telemetry.addData("Distance", rangeSensor.getDistance(DistanceUnit.CM));
             angleZ = IMUheading();
             telemetry.addData("Angle", angleZ);
-            telemetry.addData("Side Range Sensor", sideRangeSensor.cmUltrasonic());
+            telemetry.addData("Side Range Sensor", sideRangeSensor.getDistance(DistanceUnit.CM));
 
             //telemetry.addData("Angle", angleZ);
             //telemetry.addData("verify", verify());
@@ -181,56 +187,35 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle();
         }
 
-        /*
+
+
         toWhiteLine(false);
-        //telemetry.update();
         sleep(100);
         turn(-90);
-        //telemetry.update();
-        */
-        approachBeacon();
-        //sleep(4000);
-        //telemetry.update();
-        /*
-        pushButton();
-        //telemetry.update();
 
-        //telemetry.log().add("Finished pressing first button");
-        //sleep(2000);
+        approachBeacon();
+
+        pushButton();
 
         // Go backwards slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(200);
-        //telemetry.update();
-
-        //telemetry.log().add("Backed up");
 
         // Turn parallel to wall
         turn(0);
-        //telemetry.update();
-        //telemetry.log().add("Turn parallel to the wall");
         sleep(2000);
 
         robot.leftMotor.setPower(APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
-        //telemetry.update();
         sleep(500);
-        //telemetry.update();
-
-        //telemetry.log().add("Run parallel to the wall");
 
         maintainDist();
-        //telemetry.update();
         toWhiteLine(true);
-        //telemetry.update();
         sleep(100);
-
-        //telemetry.log().add("Turn to second beacon");
 
         turn(-90);
         approachBeacon();
-        //sleep(4000);
         pushButton();
 
         //Drives backward slightly
@@ -243,14 +228,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
 
-        robot.rightMotor.setPower(0);
-        robot.leftMotor.setPower(0);
-
         while ((opModeIsActive())){
             sleep(500);
             telemetry.update();
         }
-        */
     }
 
     void toWhiteLine(boolean wall) throws InterruptedException {
@@ -281,6 +262,21 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         angles = imu.getAngularOrientation().toAxesReference(AxesReference.INTRINSIC).toAxesOrder(AxesOrder.ZYX);
         return AngleUnit.DEGREES.normalize(AngleUnit.DEGREES.fromUnit(angles.angleUnit, angles.firstAngle));
     }
+
+    double getOpticalDistance(I2cDeviceSynchImpl rangeSensor) {
+        return rangeSensor.read(0x04, 2)[1]  & 0xFF;
+    }
+
+    double getcmUltrasonic(I2cDeviceSynchImpl rangeSensor){
+        return rangeSensor.read(0x04, 2)[0]  & 0xFF;
+    }
+
+    /*
+    double getDistanceRange(DistanceUnit unit) {
+        double measure =
+        return unit.fromUnit(DistanceUnit.CM, )
+    }
+    */
 
     void turn(int turnAngle)
     {
