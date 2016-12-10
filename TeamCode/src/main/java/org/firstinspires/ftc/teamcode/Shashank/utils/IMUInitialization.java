@@ -8,6 +8,8 @@ import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,15 +22,19 @@ import java.io.InputStreamReader;
 public class IMUInitialization {
     private HardwareMap hardwareMap;
     private BNO055IMU imu;
+    private Telemetry telemetry;
 
-    public IMUInitialization(HardwareMap hardwareMap) {
+    public IMUInitialization(HardwareMap hardwareMap, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
+        this.telemetry = telemetry;
     }
 
     public BNO055IMU getIMU(){
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(hardwareMap.appContext.openFileInput("AdafruitIMUCalibration.json")));
+            telemetry.log().add("File exists");
+            telemetry.update();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -36,7 +42,13 @@ public class IMUInitialization {
         BNO055IMU.CalibrationData calibrationData = new BNO055IMU.CalibrationData();
         JsonParser jsonParser = new JsonParser();
         try {
+            telemetry.log().add("Parsing file");
+            telemetry.update();
             String line = reader.readLine();
+            if(line.equals(null))
+                telemetry.log().add("LINE IS NULL");
+            telemetry.log().add("line is: " + line);
+            telemetry.update();
             JsonElement element = jsonParser.parse(line);
             if(element.isJsonObject()){
                 JsonObject object = element.getAsJsonObject();
@@ -73,9 +85,14 @@ public class IMUInitialization {
                 JsonElement radiusMagJson = object.get("radiusMag");
                 calibrationData.radiusMag = radiusMagJson.getAsShort();
             }
+            telemetry.log().add("Done Parsing file");
+            telemetry.update();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        telemetry.log().add("Finished output: "+ calibrationData.serialize());
+        telemetry.update();
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -89,6 +106,11 @@ public class IMUInitialization {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+        telemetry.log().add("Finished initialization");
+        telemetry.update();
+        if(imu.equals(null))
+            telemetry.log().add("IMU IS NULL");
+        telemetry.update();
         return imu;
     }
 }
