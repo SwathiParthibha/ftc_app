@@ -34,28 +34,19 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
-import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
-import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
-
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -77,9 +68,9 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Blue Shashank", group="Pushbot")
+@Autonomous(name="Beacons Autonomous RED Shashank", group="Pushbot")
 //@Disabled
-public class DriveToBeaconsBlue extends LinearOpMode {
+public class DriveToBeaconsRed extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
 
@@ -195,8 +186,6 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         }
 
         sleep(100);
-        turn(-60);
-        sleep(100);
         toWhiteLine(false);
         telemetry.update();
         sleep(200);
@@ -205,12 +194,12 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         sleep(50);
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
-        turn(-88);
+        turn(88);
         telemetry.update();
         approachBeacon();
         telemetry.update();
         sleep(100);
-        turn(-90);
+        turn(90);
         pushButton();
         telemetry.update();
 
@@ -247,10 +236,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         telemetry.log().add("Turn to second beacon");
 
-        turn(-85);
+        turn(85);
         approachBeacon();
         sleep(100);
-        turn(-90);
+        turn(90);
         pushButton();
 
         telemetry.log().add("Drives backward slightly");
@@ -259,7 +248,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(500);
 
-        turn(-37);
+        turn(37);
 
         robot.rightMotor.setPower(APPROACH_SPEED);
         robot.leftMotor.setPower(APPROACH_SPEED);
@@ -443,7 +432,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             if((this.time - startTime) > 5)
                 break;
 
-            if(leftColorSensor.blue() > rightColorSensor.blue() && !verify()){
+            if(leftColorSensor.red() > rightColorSensor.red() && !verify()){
                 //write the code here to press the left button
                 robot.leftMotor.setPower(0.0);
                 robot.rightMotor.setPower(0.3);
@@ -452,7 +441,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
                 verify();
                 telemetry.log().add("left is red "+ verify());
                 telemetry.update();
-            } else if(rightColorSensor.blue() > leftColorSensor.blue() && !verify()){
+            } else if(rightColorSensor.red() > leftColorSensor.red() && !verify()){
                 //write the code here to press the right button
                 robot.rightMotor.setPower(0);
                 robot.leftMotor.setPower(0.3);
@@ -482,7 +471,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             return false;
         }
 
-        if(Math.abs(leftColorSensor.blue() - rightColorSensor.blue()) <= 2){
+        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) <= 2){
             return true;
         }
 
