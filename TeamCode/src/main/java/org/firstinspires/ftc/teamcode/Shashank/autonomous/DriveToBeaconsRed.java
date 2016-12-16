@@ -34,19 +34,28 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
+import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
+
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -185,22 +194,18 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle();
         }
 
+        /*sleep(100);
+        turn(-40);*/
         sleep(100);
         toWhiteLine(false);
         telemetry.update();
-        sleep(200);
-        robot.leftMotor.setPower(0.3);
-        robot.rightMotor.setPower(0.3);
-        sleep(50);
-        robot.leftMotor.setPower(0);
-        robot.rightMotor.setPower(0);
+        sleep(100);
         turn(88);
         telemetry.update();
         approachBeacon();
         telemetry.update();
         sleep(100);
-        turn(90);
-        pushButton();
+        /*pushButton();
         telemetry.update();
 
         telemetry.log().add("Finished pressing first button");
@@ -215,7 +220,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         telemetry.log().add("Backed up");
 
         // Turn parallel to wall
-        turn(-5);
+        turn(5);
         telemetry.update();
         telemetry.log().add("Turn parallel to the wall");
         sleep(100);
@@ -248,15 +253,15 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(500);
 
-        turn(37);
+        turn(40);
 
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        robot.leftMotor.setPower(APPROACH_SPEED);
+        robot.rightMotor.setPower(-APPROACH_SPEED);
+        robot.leftMotor.setPower(-APPROACH_SPEED);
 
         sleep(1700);
 
         robot.rightMotor.setPower(0);
-        robot.leftMotor.setPower(0);
+        robot.leftMotor.setPower(0);*/
 
 
         while ((opModeIsActive())){
@@ -371,7 +376,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
 
-        sleep(500);
+        sleep(200);
 
         telemetry.log().add("15 cm");
         while (opModeIsActive() && getcmUltrasonic(rangeSensor) > 7) {
@@ -395,7 +400,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
 
-        sleep(500);
+        sleep(200);
 
         telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
         telemetry.update();
