@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 
 /**
  * This is NOT an opmode.
@@ -29,6 +31,7 @@ Please do not edit any of the functions as it will affect other programs in the 
 
 If you have accomplished something please tell us so we can implement into the class.
 */
+
 public class MecanumHardware extends LinearOpMode
 {
     /* Public OpMode members. */
@@ -48,7 +51,6 @@ public class MecanumHardware extends LinearOpMode
     public ColorSensor sensorColorLeft = null;
     //public ModernRoboticsI2cRangeSensor rangeSensor = null;
 
-
     //1000 Milliseconds
     public int SECOND = 1000;
 
@@ -57,8 +59,7 @@ public class MecanumHardware extends LinearOpMode
     public int MOTOR_POWER = 1;
 
     //Line Sensor Thresholds
-    double WHITE_LINE = 0.56;
-    double BLACK_MAT = 0.36;
+    double WHITE_THRESHOLD = 0.3;
 
     //Z-Axis of the Modern Robotics Gyro Sensor
     int heading = 0;
@@ -98,6 +99,7 @@ public class MecanumHardware extends LinearOpMode
         period.reset();
     }
 
+    //This function defines the motors so that the robot controller looks for
     public void defineMotors()
     {
         frontRight = hwMap.dcMotor.get("motor_2");
@@ -106,12 +108,13 @@ public class MecanumHardware extends LinearOpMode
         backLeft = hwMap.dcMotor.get("motor_1");
     }
 
-    public void defineSenors()
+    //This function defines the sensors so that the robot controller looks for
+    public void defineSensors()
     {
         sensorGyro = hwMap.get(ModernRoboticsI2cGyro.class, "gyro");
         sensorLine = hwMap.lightSensor.get("line");
         sensorUltra = hwMap.ultrasonicSensor.get("ultra");
-        //sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
+        sensorRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range");
         sensorColorLeft = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorLeft");
         sensorColorRight = hwMap.get(ModernRoboticsI2cColorSensor.class, "colorRight");
     }
@@ -119,13 +122,13 @@ public class MecanumHardware extends LinearOpMode
     //Configure the Direction of the Motors
     public void setDirectionMotors()
     {
-
         frontRight.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         backRight.setDirection(DcMotor.Direction.REVERSE); // Set to FORWARD if using AndyMark motors
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
     }
 
+    //Initializes the sensors with certain configuartions
     public void initializeSensors()
     {
         //Calibrate the Modern Robotics Gyro Sensor
@@ -143,6 +146,7 @@ public class MecanumHardware extends LinearOpMode
         sensorColorRight.enableLed(false);
     }
 
+    //Set the all the motors to a set power
     public void setMotorPower(double power)
     {
         frontRight.setPower(power);
@@ -150,6 +154,7 @@ public class MecanumHardware extends LinearOpMode
         frontLeft.setPower(power);
         backLeft.setPower(power);
     }
+
     //This function sets the motors to 0 stopping the Robot
     public void stopRobot()
     {
@@ -159,6 +164,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft.setPower(0);
     }
 
+    //Sets all the motors to the STOP_AND_RESET_ENCODER Mode
     public void stopAndResetEncoder()
     {
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -167,6 +173,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    //Sets all the motors to the RUN_TO_POSITION
     public void runToPosition()
     {
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -175,6 +182,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    //Sets all the motors to the RUN_USING_ENCODER
     public void runUsingEncoder()
     {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -183,6 +191,7 @@ public class MecanumHardware extends LinearOpMode
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    //Sets all the motors to the RUN_WITHOUT_ENCODER
     public void runWithoutEncoder()
     {
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -223,10 +232,11 @@ public class MecanumHardware extends LinearOpMode
         telemetry.update();
     }
 
+    //Runs an individual motor to a set distance using encoders
     public void driveIndividualMotor(String motor, int distance, double speed)
     {
         if (motor == "frontRight")
-        {
+            {
             frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -315,6 +325,17 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
+    //Reverses the configuration of the motor directions
+    public void ReverseMotors()
+    {
+
+        frontRight.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        backRight.setDirection(DcMotor.Direction.FORWARD); // Set to FORWARD if using AndyMark motors
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+    }
+
+    //A go straight program that utilizes PID using the gyro sensor to stay accurate
     public void drivePID(int distance, double speed, double angle)
     {
         double currentHeading, headingError;
@@ -388,6 +409,7 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
+    //Pushes a button on the beacon to a color
     public void pushButton(String color)
     {
         runWithoutEncoder();
@@ -397,7 +419,7 @@ public class MecanumHardware extends LinearOpMode
 
         while(opModeIsActive())
         {
-            while (!atBeacon)
+            while (!atBeacon && opModeIsActive())
             {
                 if (sensorColorLeft.red() >= THRESHOLD_COLOR || sensorColorLeft.blue() >= THRESHOLD_COLOR || sensorColorRight.red() >= THRESHOLD_COLOR || sensorColorRight.blue() >= THRESHOLD_COLOR)
                 {
@@ -410,19 +432,20 @@ public class MecanumHardware extends LinearOpMode
                 stopRobot();
             }
 
-            while(atBeacon)
+            while(atBeacon && opModeIsActive())
             {
                 if (color == "red")
                 {
                     if (sensorColorLeft.red() >= THRESHOLD_COLOR)
                     {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
+                        driveIndividualMotor("frontRight", -ROTATION/2, 0.4);
+                        driveIndividualMotor("backRight", -ROTATION/2, 0.4);
                     }
+
                     else if (sensorColorRight.red() >= THRESHOLD_COLOR)
                     {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
+                        driveIndividualMotor("frontLeft", -ROTATION/2, 0.4);
+                        driveIndividualMotor("backLeft", -ROTATION/2, 0.4);
                     }
                 }
 
@@ -430,13 +453,13 @@ public class MecanumHardware extends LinearOpMode
                 {
                     if (sensorColorLeft.blue() >= THRESHOLD_COLOR)
                     {
-                        driveIndividualMotor("frontRight", ROTATION/2, -0.4);
-                        driveIndividualMotor("backRight", ROTATION/2, -0.4);
+                        driveIndividualMotor("frontRight", -ROTATION/2, 0.4);
+                        driveIndividualMotor("backRight", -ROTATION/2, 0.4);
                     }
                     else if (sensorColorRight.blue() >= THRESHOLD_COLOR)
                     {
-                        driveIndividualMotor("frontLeft", ROTATION/2, -0.4);
-                        driveIndividualMotor("backLeft", ROTATION/2, -0.4);
+                        driveIndividualMotor("frontLeft", -ROTATION/2, 0.4);
+                        driveIndividualMotor("backLeft", -ROTATION/2, 0.4);
                     }
 
                 }
@@ -455,45 +478,28 @@ public class MecanumHardware extends LinearOpMode
 
     }
 
-    public void lineFollower(double speed)
+    //Detects the white line
+    public void approachWhiteLine(boolean wall) throws InterruptedException
     {
-        runWithoutEncoder();
 
-        double currentLight, lineError, lineCorrection;
-        double LINE_FOLLOW_KP = 0.1;
-        double steeringSpeedLeft, steeringSpeedRight;
-
-        while(opModeIsActive())
+        if (!wall)
         {
-            currentLight = sensorLine.getLightDetected();
-            lineError = currentLight - WHITE_LINE;
-            lineCorrection = LINE_FOLLOW_KP * lineError;
-
-            steeringSpeedLeft = -(speed - lineCorrection);
-            steeringSpeedRight = -(speed + lineCorrection);
-
-            steeringSpeedLeft = Range.clip(steeringSpeedLeft, -1, 1);
-            steeringSpeedRight= Range.clip(steeringSpeedRight, -1, 1);
-
-            frontRight.setPower(steeringSpeedRight);
-            backRight.setPower(steeringSpeedRight);
-            frontLeft.setPower(steeringSpeedLeft);
-            backLeft.setPower(steeringSpeedLeft);
-
-            sleep(1);
-
-            telemetry.addData("Line Sensor Values", null);
-            telemetry.addData("Current Light:", currentLight);
-            telemetry.addData("Line Error:", lineError);
-            telemetry.addData("Line Correction:", lineCorrection);
-
-            telemetry.addData("Motor Powers", null);
-            telemetry.addData("Front Right:",frontRight.getPower());
-            telemetry.addData("Back Right:", backRight.getPower());
-            telemetry.addData("Front Left:", frontLeft.getPower());
-            telemetry.addData("Back Left;", backLeft.getPower());
-            telemetry.update();
+            setMotorPower(0.4);
         }
+
+        while (opModeIsActive() && (sensorLine.getLightDetected() < WHITE_THRESHOLD))
+        {
+
+            // Display the light level while we are looking for the line
+            telemetry.addData("Light Level", sensorLine.getLightDetected());
+            telemetry.update();
+            idle();
+        }
+
+        telemetry.addData("Distance", sensorRange.getDistance(DistanceUnit.CM));
+        telemetry.update();
+
+        stopRobot();
     }
 
     //A basic Turn function that uses the Modern Robotics Gyro Sensor to calculate the angle
@@ -533,6 +539,7 @@ public class MecanumHardware extends LinearOpMode
         telemetry.addData("We Are Done Turning", heading);
     }
 
+    //The init cycle of the robot
     public void init(HardwareMap ahwMap)
     {
         //Save reference to Hardware Map
@@ -540,7 +547,7 @@ public class MecanumHardware extends LinearOpMode
 
         defineMotors();
 
-        defineSenors();
+        defineSensors();
 
         setDirectionMotors();
 
