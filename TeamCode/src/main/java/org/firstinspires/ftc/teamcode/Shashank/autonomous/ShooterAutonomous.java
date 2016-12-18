@@ -82,6 +82,11 @@ public class ShooterAutonomous extends LinearOpMode {
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
+
+        while ((opModeIsActive())){
+            sleep(500);
+            telemetry.update();
+        }
     }
 
     /*
