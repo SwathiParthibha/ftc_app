@@ -6,9 +6,13 @@ package org.firstinspires.ftc.teamcode.Shashank.utils;
 
 public class StateMachine {
     private static String name = "";
-    private StateMachineCallback callback;
+    private Thread thread = null;
 
-    public StateMachine(String name, StateMachineCallback callBack) {
+    public StateMachine(String name, Runnable callBack) {
+        thread = new Thread(callBack);
+    }
 
+    public StateMachine(String name, Thread thread) {
+        this.thread = thread;
     }
 }

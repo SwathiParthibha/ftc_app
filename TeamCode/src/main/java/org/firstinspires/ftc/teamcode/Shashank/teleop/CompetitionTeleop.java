@@ -63,7 +63,10 @@ public class CompetitionTeleop extends OpMode {
 
         if(gamepad1.a){
             shooter.setPower(0.9);
-        } else {
+        }
+        else if(gamepad1.b){
+            shooter.setPower(0.6);
+        } else{
             shooter.setPower(0);
         }
 

@@ -25,11 +25,19 @@ public class ThreadedTeleop extends OpMode {
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        motorThread = new MotorThread(threadMsger, leftMotor, rightMotor);
-        motorThread.start();
+        telemetry.log().add("Finished init of motors");
 
+        telemetry.log().add("Init motor thread");
+        motorThread = new MotorThread(threadMsger, leftMotor, rightMotor);
+        telemetry.log().add("Starting motor thread");
+        //motorThread.start();
+        telemetry.log().add("Started motor thread");
+
+        telemetry.log().add("Init joystick thread");
         joyStickThread = new JoyStickThread(this.gamepad1, threadMsger);
-        joyStickThread.start();
+        telemetry.log().add("Starting joystick thread");
+        //joyStickThread.start();
+        telemetry.log().add("Started joystick thread");
     }
 
     @Override
@@ -46,6 +54,7 @@ public class ThreadedTeleop extends OpMode {
     @Override
     public void stop() {
         super.stop();
+        threadMsger.setRequestStop(true);
         joyStickThread.requestStop();
         motorThread.requestStop();
     }

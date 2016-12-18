@@ -7,6 +7,7 @@ package org.firstinspires.ftc.teamcode.Shashank.teleop;
 public class ThreadMsger {
     private double leftJoystickValue = 0;
     private double rightJoystickValue = 0;
+    private volatile boolean requestStop = false;
 
     private boolean testValue = false;
 
@@ -32,5 +33,13 @@ public class ThreadMsger {
 
     public boolean getTestValue(){
         return testValue;
+    }
+
+    public synchronized boolean isRequestStop() {
+        return requestStop;
+    }
+
+    public synchronized void setRequestStop(boolean requestStop) {
+        this.requestStop = requestStop;
     }
 }

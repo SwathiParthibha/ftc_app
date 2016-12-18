@@ -21,6 +21,7 @@ public class MotorThread extends Thread{
     @Override
     public void run() {
         while(!requestedStop){
+            requestedStop = msger.isRequestStop();
             leftMotor.setPower(-msger.getLeftJoystickValue());
             rightMotor.setPower(-msger.getRightJoystickValue());
         }

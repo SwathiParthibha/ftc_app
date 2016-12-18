@@ -20,6 +20,7 @@ public class JoyStickThread extends Thread {
     public void run() {
         msger.setTestValue(true);
         while(!requestedStop){
+            requestedStop = msger.isRequestStop();
             msger.setLeftJoystickValue(gamepad.left_stick_y);
             msger.setRightJoystickValue(gamepad.right_stick_y);
         }
