@@ -23,48 +23,36 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-package org.firstinspires.ftc.teamcode.Pranav;
+package org.firstinspires.ftc.teamcode.Parth;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Mecanum Autonomous", group = "Sensor")
+@Autonomous(name = "DefensiveAutoFinal", group = "Defensive")
 //@Disabled
 
 /*
 This is an example of a Basic Autonomous utilizing the functions from RobotHardware Class
  */
-public class MecanumAutonomous extends MecanumHardware
+public class DefensiveAutoFinal extends RobotHardware
 {
-  @Override
-  public void runOpMode() throws InterruptedException
-  {
-    //This Initializes the Robot
-    init(hardwareMap);
-
-    // wait for the start button to be pressed.
-    waitForStart();
+    @Override
+    public void runOpMode() throws InterruptedException
     {
+        RobotHardware robot=new RobotHardware();
+        //This Initializes the Robot
+        init(hardwareMap);
 
-      while (sensorGyro.isCalibrating())
-      {
-        Thread.sleep(50);
-      }
+        // wait for the start button to be pressed.
+        waitForStart();
 
-      /*
-      drive((ROTATION/2)/2, 0.5);
+        drive(10000,0.75);
+        // while (sensorGyro.isCalibrating())
+        // {
+        //   Thread.sleep(50);
+        // }
 
-      turnGyro("left", 315, 0.2);
+       // godirectionGyro(-2000,0.5);
 
-      drive((ROTATION * 3) + (ROTATION/4 * 3), 1);
 
-      turnGyro("right", 72, 0.2);
-
-      approachWhiteLine(false);
-
-      drive((ROTATION/2)/2, 0.5);
-
-      pushButton("red");
-      */
     }
-  }
 }

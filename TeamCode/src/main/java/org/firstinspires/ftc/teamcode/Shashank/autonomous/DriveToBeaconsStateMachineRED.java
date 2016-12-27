@@ -96,7 +96,7 @@ public class DriveToBeaconsStateMachineRED extends OpMode {
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
 
-        imu = new IMUInitialization(hardwareMap).getIMU();
+        imu = new IMUInitialization(hardwareMap, telemetry).getIMU();
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
         telemetry.update();
