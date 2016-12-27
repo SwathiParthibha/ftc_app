@@ -45,6 +45,7 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -96,8 +97,10 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
-    double WHEEL_SIZE_CM = 5;
+    double WHEEL_SIZE_IN = 4;
     public int ROTATION = 1220; // # of ticks
+    double     COUNTS_PER_INCH         = ROTATION /
+            (WHEEL_SIZE_IN * Math.PI);
     double DIST = 12;
     double SIDE_DIST = 15;
     byte[] rangeSensorCache;
@@ -160,14 +163,16 @@ public class DriveToBeaconsRed extends LinearOpMode {
             angleZ = IMUheading();
             telemetry.addData("Side Ultrasonic", getcmUltrasonic(sideRangeSensor));
             telemetry.addData("Angle", angleZ);
-            telemetry.addData("verify", verify());
+            //telemetry.addData("verify", verify());
             telemetry.addData("leftColorSensor", leftColorSensor.argb());
             telemetry.addData("rightColorSensor", rightColorSensor.argb());
             telemetry.update();
             idle();
         }
 
-        turn(45);
+
+        turn(35);
+        encoderDrive(APPROACH_SPEED, 35/2, 35/2, 8);
         toWhiteLine(false);
         turn(90);
         sleep(100);
@@ -200,15 +205,11 @@ public class DriveToBeaconsRed extends LinearOpMode {
         //Drives backward slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(400);
+        sleep(200);
         stopRobot();
 
         turn(50);
-
-        robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(3000);
-        stopRobot();
+        encoderDrive(-APPROACH_SPEED, -65/2, -65/2, 4);
     }
 
     double IMUheading() {
@@ -227,8 +228,12 @@ public class DriveToBeaconsRed extends LinearOpMode {
     void toWhiteLine(boolean wall) throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
         if (!wall) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .7);
-            robot.rightMotor.setPower(APPROACH_SPEED * .7);
+            double newSpeed = APPROACH_SPEED * .4;
+            robot.leftMotor.setPower(newSpeed);
+            robot.rightMotor.setPower(newSpeed);
+            telemetry.addData("New Speed", robot.leftMotor.getPower());
+            telemetry.update();
+            sleep(100);
         }
 
         while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
@@ -251,10 +256,10 @@ public class DriveToBeaconsRed extends LinearOpMode {
         angleZ = IMUheading();
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED * .6);
-            robot.rightMotor.setPower(APPROACH_SPEED * .6);
+            robot.leftMotor.setPower(-APPROACH_SPEED);
+            robot.rightMotor.setPower(APPROACH_SPEED);
 
-            while (opModeIsActive() && (turnAngle < angleZ)) {
+            while (opModeIsActive() && (turnAngle + 4 < angleZ)) {
 
                 // Display the light level while we are looking for the line
                 angleZ = IMUheading();
@@ -267,10 +272,10 @@ public class DriveToBeaconsRed extends LinearOpMode {
         }
 
         else if (turnAngle > angleZ) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .6);
-            robot.rightMotor.setPower(APPROACH_SPEED * -.6);
+            robot.leftMotor.setPower(APPROACH_SPEED);
+            robot.rightMotor.setPower(-APPROACH_SPEED);
 
-            while (opModeIsActive() && (turnAngle > angleZ)) {
+            while (opModeIsActive() && (turnAngle - 4 > angleZ)) {
 
                 // Display the light level while we are looking for the line
                 angleZ = IMUheading();
@@ -299,6 +304,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
             while (opModeIsActive() && getcmUltrasonic(rangeSensor) > DIST * 3) {
 
+                telemetry.log().add("Left power" + robot.leftMotor.getPower());
+                telemetry.log().add("Right power" + robot.rightMotor.getPower());
                 telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
                 telemetry.update();
 
@@ -311,10 +318,12 @@ public class DriveToBeaconsRed extends LinearOpMode {
         }
 
         if (getcmUltrasonic(rangeSensor) > DIST) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .25);
-            robot.rightMotor.setPower(APPROACH_SPEED * .25);
+            robot.leftMotor.setPower(APPROACH_SPEED * .6);
+            robot.rightMotor.setPower(APPROACH_SPEED * .6);
             while (opModeIsActive() && getcmUltrasonic(rangeSensor) > DIST) {
 
+                telemetry.log().add("Left power"+ robot.leftMotor.getPower());
+                telemetry.log().add("Right power"+ robot.rightMotor.getPower());
                 telemetry.addData("Distance", getcmUltrasonic(rangeSensor));
                 telemetry.update();
 
@@ -381,8 +390,11 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);
 
-            robot.leftMotor.setPower(-APPROACH_SPEED * .7);
-            robot.rightMotor.setPower(-APPROACH_SPEED * .7);
+            robot.leftMotor.setPower(-APPROACH_SPEED * .8);
+            robot.rightMotor.setPower(-APPROACH_SPEED * .8);
+            sleep(40);
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
 
             telemetry.addData("Left red: ", leftColorSensor.red());
             telemetry.addData("Right red: ", rightColorSensor.red());
@@ -407,10 +419,9 @@ public class DriveToBeaconsRed extends LinearOpMode {
         if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) < 2){
             return true;
         }
-        else if(leftColorSensor.blue() > leftColorSensor.red() && rightColorSensor.blue() > rightColorSensor.red()){
+        else if(leftColorSensor.red() > leftColorSensor.blue() && rightColorSensor.red() > rightColorSensor.blue()){
             return true;
         }
-
         return false;
     }
 
@@ -423,17 +434,99 @@ public class DriveToBeaconsRed extends LinearOpMode {
         telemetry.addData("Side Range: ", getcmUltrasonic(sideRangeSensor));
         telemetry.addData("Angle", angleZ);
         telemetry.update();
-        double distCorrect = SIDE_DIST - sideRange;
+        double distCorrect = SIDE_DIST - sideRange; //positive if too close
 
         //makes angle closer to 0
-        robot.leftMotor.setPower(APPROACH_SPEED * .7 - angleZ/50 - distCorrect/50);
-        robot.rightMotor.setPower(APPROACH_SPEED * .7 + angleZ/50 + distCorrect/50);
-
+        robot.leftMotor.setPower(APPROACH_SPEED * .8 + angleZ/50);// + distCorrect/50);
+        robot.rightMotor.setPower(APPROACH_SPEED * .8 - angleZ/50);// - distCorrect/50);
     }
 
     public void stopRobot()
     {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
+    }
+
+    public void encoderDrive(double speed,
+                             double leftInches, double rightInches,
+                             double timeoutS) {
+
+        ElapsedTime runtime = new ElapsedTime();
+        int newLeftTarget;
+        int newRightTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            newLeftTarget = robot.leftMotor.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+            newRightTarget = robot.rightMotor.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+            robot.leftMotor.setTargetPosition(newLeftTarget);
+            robot.rightMotor.setTargetPosition(newRightTarget);
+
+            // Turn On RUN_TO_POSITION
+            //robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+
+            if (robot.leftMotor.getCurrentPosition() > newLeftTarget &&
+                    robot.rightMotor.getCurrentPosition() > newRightTarget) {
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                robot.leftMotor.setPower(speed);
+                robot.rightMotor.setPower(speed);
+
+                while (opModeIsActive() &&
+                        (runtime.seconds() < timeoutS) &&
+                        //(robot.leftMotor.isBusy() && robot.rightMotor.isBusy())
+                        robot.leftMotor.getCurrentPosition() > newLeftTarget &&
+                        robot.rightMotor.getCurrentPosition() > newRightTarget) {
+
+                    // Display it for the driver.
+                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+                    telemetry.addData("Path2", "Running at %7d :%7d",
+                            robot.leftMotor.getCurrentPosition(),
+                            robot.rightMotor.getCurrentPosition());
+                    telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
+                    telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
+                    telemetry.update();
+                }
+            }
+            else if (robot.leftMotor.getCurrentPosition() < newLeftTarget &&
+                    robot.rightMotor.getCurrentPosition() < newRightTarget) {
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                robot.leftMotor.setPower(speed);
+                robot.rightMotor.setPower(speed);
+
+                while (opModeIsActive() &&
+                        (runtime.seconds() < timeoutS) &&
+                        //(robot.leftMotor.isBusy() && robot.rightMotor.isBusy())
+                        robot.leftMotor.getCurrentPosition() < newLeftTarget &&
+                        robot.rightMotor.getCurrentPosition() < newRightTarget) {
+
+                    // Display it for the driver.
+                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+                    telemetry.addData("Path2", "Running at %7d :%7d",
+                            robot.leftMotor.getCurrentPosition(),
+                            robot.rightMotor.getCurrentPosition());
+                    telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
+                    telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
+                    telemetry.update();
+                }
+            }
+
+            // Stop all motion;
+            robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
+
+            robot.leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            // Turn off RUN_TO_POSITION
+            robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //  sleep(250);   // optional pause after each move
+        }
     }
 }
