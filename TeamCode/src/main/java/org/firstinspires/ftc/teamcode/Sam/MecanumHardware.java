@@ -381,7 +381,7 @@ public class MecanumHardware extends LinearOpMode
             motorDirectionChange = -1;
         }
 
-        while ((heading > angle + 5 || heading < angle - 2 && opModeIsActive()))
+        while ((heading > angle + 5 || heading < angle - 2) && opModeIsActive())
         {
             frontRight.setPower(MOTOR_POWER * speed * motorDirectionChange);
             backRight.setPower(MOTOR_POWER * speed * motorDirectionChange);
@@ -390,7 +390,6 @@ public class MecanumHardware extends LinearOpMode
             backLeft.setPower(-MOTOR_POWER * speed * motorDirectionChange);
 
             heading = sensorGyro.getHeading();
-
             telemetry.addData("We Are Turning", heading);
             telemetry.addData("Gyro Value", sensorGyro.getHeading());
             telemetry.update();
