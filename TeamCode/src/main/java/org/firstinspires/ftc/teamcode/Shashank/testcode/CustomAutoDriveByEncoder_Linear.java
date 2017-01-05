@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
@@ -93,10 +94,10 @@ public class CustomAutoDriveByEncoder_Linear extends LinearOpMode {
          */
         leftMotor   = hardwareMap.dcMotor.get("l");
         rightMotor  = hardwareMap.dcMotor.get("r");
-        leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
-        // Send telemetry message to signify robot waiting;
+        // Send telemetry message to signify waiting;
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
 
@@ -118,14 +119,69 @@ public class CustomAutoDriveByEncoder_Linear extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  10,  10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -10, -10, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+        resetEncoders();
+
+        telemetry.log().add("Resetting the encoders");
+        sleep(2000);
+
+        runUsingEncoders();
+        telemetry.log().add("run using the encoders");
+        sleep(2000);
+
+        //set the target
+        leftMotor.setTargetPosition((int) (this.COUNTS_PER_MOTOR_REV*5));
+        rightMotor.setTargetPosition((int) (this.COUNTS_PER_MOTOR_REV*5));
+
+        telemetry.log().add("setting the position");
+        sleep(2000);
+
+        //set the encoders to run to position
+        setToPosition();
+        telemetry.log().add("running the position");
+        sleep(2000);
+
+        //set the power
+        leftMotor.setPower(0.2);
+        rightMotor.setPower(0.2);
+        telemetry.log().add("setting the power");
+        sleep(2000);
+
+        //wait until the motors stop
+        while (leftMotor.isBusy()
+                && rightMotor.isBusy() && opModeIsActive()){
+            sleep(50);
+            telemetry.addData("leftMotor pos", leftMotor.getCurrentPosition());
+            telemetry.addData("rightMotor pos", rightMotor.getCurrentPosition());
+            telemetry.addData("leftMotor pos target", leftMotor.getTargetPosition());
+            telemetry.addData("rightMotor pos target", rightMotor.getTargetPosition());
+            telemetry.update();
+            telemetry.update();
+        }
+
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+
 
         sleep(1000);     // pause for servos to move
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
+    }
+
+    public void resetEncoders(){
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void runUsingEncoders(){
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void setToPosition(){
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /*
@@ -190,6 +246,87 @@ public class CustomAutoDriveByEncoder_Linear extends LinearOpMode {
             rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             sleep(250);   // optional pause after each move
+        }
+    }
+
+    public void customEncoderDrive(double speed,
+                             double leftInches, double rightInches,
+                             double timeoutS) {
+
+        ElapsedTime runtime = new ElapsedTime();
+        int newLeftTarget;
+        int newRightTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            newLeftTarget = leftMotor.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+            newRightTarget = rightMotor.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+            leftMotor.setTargetPosition(newLeftTarget);
+            rightMotor.setTargetPosition(newRightTarget);
+
+            // Turn On RUN_TO_POSITION
+            //leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+
+            if (leftMotor.getCurrentPosition() > newLeftTarget &&
+                    rightMotor.getCurrentPosition() > newRightTarget) {
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                leftMotor.setPower(speed);
+                rightMotor.setPower(speed);
+
+                while (opModeIsActive() &&
+                        (runtime.seconds() < timeoutS) &&
+                        //(leftMotor.isBusy() && rightMotor.isBusy())
+                        leftMotor.getCurrentPosition() > newLeftTarget &&
+                        rightMotor.getCurrentPosition() > newRightTarget) {
+
+                    // Display it for the driver.
+                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+                    telemetry.addData("Path2", "Running at %7d :%7d",
+                            leftMotor.getCurrentPosition(),
+                            rightMotor.getCurrentPosition());
+                    telemetry.addData("Left motor busy", leftMotor.isBusy());
+                    telemetry.addData("Right motor busy", rightMotor.isBusy());
+                    telemetry.update();
+                }
+            }
+            else if (leftMotor.getCurrentPosition() < newLeftTarget &&
+                    rightMotor.getCurrentPosition() < newRightTarget) {
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                leftMotor.setPower(speed);
+                rightMotor.setPower(speed);
+
+                while (opModeIsActive() &&
+                        (runtime.seconds() < timeoutS) &&
+                        //(leftMotor.isBusy() && rightMotor.isBusy())
+                        leftMotor.getCurrentPosition() < newLeftTarget &&
+                        rightMotor.getCurrentPosition() < newRightTarget) {
+
+                    // Display it for the driver.
+                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+                    telemetry.addData("Path2", "Running at %7d :%7d",
+                            leftMotor.getCurrentPosition(),
+                            rightMotor.getCurrentPosition());
+                    telemetry.addData("Left motor busy", leftMotor.isBusy());
+                    telemetry.addData("Right motor busy", rightMotor.isBusy());
+                    telemetry.update();
+                }
+            }
+
+            // Stop all motion;
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //  sleep(250);   // optional pause after each move
         }
     }
 }

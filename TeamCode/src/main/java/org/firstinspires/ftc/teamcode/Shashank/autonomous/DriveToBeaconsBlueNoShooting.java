@@ -34,10 +34,8 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -45,20 +43,13 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
-import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
-
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -80,9 +71,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous RED Shashank", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Blue Shashank No Shooting", group="Pushbot")
 //@Disabled
-public class DriveToBeaconsRed extends LinearOpMode {
+public class DriveToBeaconsBlueNoShooting extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
@@ -205,7 +196,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             telemetry.addData("Distance", getOpticalDistance(rangeSensor));
             telemetry.addData("Distance sonic", getcmUltrasonic(rangeSensor));
 
-            angleZ = IMUheading();
+         angleZ = IMUheading();
             telemetry.addData("Side Range Sensor", getOpticalDistance(sideRangeSensor));
             telemetry.addData("Side Range Sensor sonic", getcmUltrasonic(sideRangeSensor));
             telemetry.addData("Angle", angleZ);
@@ -217,23 +208,20 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle();
         }
 
-        leftMotor.setPower(0.3);
-        rightMotor.setPower(0.3);
-        sleep(150);
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        shooter.setPower(0.6);
-        sleep(2300);
-        scooper.setPower(0.5);
-        sleep(1200);// pause for servos to move
-        scooper.setPower(0);
-        sleep(1000);
-        scooper.setPower(0.5);
-        sleep(1000);// pause for servos to move
-        shooter.setPower(0);
-        scooper.setPower(0);
+        /*telemetry.log().add("Now turning -90");
+        turn(-90);
+        sleep(2000);
+        telemetry.log().add("Now turning 0");
+        turn(0);
+        sleep(2000);
+        telemetry.log().add("Now turning 90");
+        turn(90);
+        sleep(2000);
+        telemetry.log().add("Now turning 110");
+        turn(110);
+        sleep(2000);*/
         sleep(100);
-        turn(40);
+        turn(-40);
         sleep(100);
         telemetry.log().add("Finished turning to -40 degrees");
         toWhiteLine(false);
@@ -244,7 +232,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         sleep(50);
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
-        turn(90);
+        turn(-90);
         sleep(200);
         telemetry.update();
         approachBeacon();
@@ -287,7 +275,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         telemetry.update();
         sleep(200);
         telemetry.log().add("Turn to second beacon");
-        turn(90);
+        turn(-90);
         approachBeacon();
         sleep(100);
         pushButton();
@@ -356,16 +344,11 @@ public class DriveToBeaconsRed extends LinearOpMode {
     {
         angleZ = IMUheading();
 
-        double savedTime = this.time + 5.0;
-        telemetry.addData("tIme", time);
-        telemetry.addData("savedtIme", savedTime);
-        telemetry.update();
-
         telemetry.update();
 
         if (turnAngle < angleZ) {
-            robot.rightMotor.setPower(APPROACH_SPEED*0.85);
             robot.leftMotor.setPower(-APPROACH_SPEED*0.85);
+            robot.rightMotor.setPower(APPROACH_SPEED*0.85);
 
             telemetry.log().add("trunAngle is less than anglez");
             while (opModeIsActive() && (turnAngle < angleZ)) {
@@ -381,8 +364,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
         }
 
         else if (turnAngle > angleZ) {
-            robot.rightMotor.setPower(-APPROACH_SPEED*0.85);
             robot.leftMotor.setPower(APPROACH_SPEED*0.85);
+            robot.rightMotor.setPower(-APPROACH_SPEED*0.85);
 
             while (opModeIsActive() && (turnAngle > angleZ)) {
 
@@ -399,7 +382,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
         telemetry.log().add("difference: " + (turnAngle-angleZ));
         sleep(150);
-        if((Math.abs(turnAngle - angleZ)) > 0.6)
+        if((Math.abs(turnAngle - angleZ)) > 0.4)
             turn(turnAngle);
 
         return;
@@ -498,8 +481,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
             if((this.time - startTime) > 5)
                 break;
 
-            if(leftColorSensor.blue() < leftColorSensor.red()
-                    && rightColorSensor.red() < rightColorSensor.blue()
+            if(leftColorSensor.blue() > leftColorSensor.red()
+                    && rightColorSensor.red() > rightColorSensor.blue()
                     && !verify()){
                 //write the code here to press the left button
                 robot.leftMotor.setPower(0.5);
@@ -509,8 +492,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
                 verify();
                 telemetry.log().add("left is red "+ verify());
                 telemetry.update();
-            } else if(leftColorSensor.blue() > leftColorSensor.red()
-                    && rightColorSensor.red() > rightColorSensor.blue()
+            } else if(leftColorSensor.blue() < leftColorSensor.red()
+                    && rightColorSensor.red() < rightColorSensor.blue()
                     && !verify()){
                 //write the code here to press the right button
                 robot.rightMotor.setPower(0.5);
@@ -541,7 +524,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             return false;
         }
 
-        if(Math.abs(leftColorSensor.red() - rightColorSensor.red()) <= 2){
+        if(Math.abs(leftColorSensor.blue() - rightColorSensor.blue()) <= 2){
             return true;
         }
 

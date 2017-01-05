@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Created by spmeg on 10/21/2016.
  */
 @TeleOp(name = "RangeSensorTest", group = "Tests")
+@Disabled
 public class RangeSensorTest extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;

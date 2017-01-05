@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  * Created by spmeg on 10/22/2016.
  */
 @Autonomous(name = "CustomGyroTest", group = "Tests")
+@Disabled
 public class CustomGyroTest extends OpMode {
     ModernRoboticsI2cGyro gyro;   // Hardware Device Object
     int xVal, yVal, zVal = 0;     // Gyro rate Values

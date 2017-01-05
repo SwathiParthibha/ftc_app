@@ -34,10 +34,8 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -45,20 +43,13 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
-import org.firstinspires.ftc.teamcode.Shashank.utils.IMUInitialization;
-
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -80,9 +71,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous RED Shashank", group="Pushbot")
+@Autonomous(name="Beacons Autonomous RED Shashank No Shooting", group="Pushbot")
 //@Disabled
-public class DriveToBeaconsRed extends LinearOpMode {
+public class DriveToBeaconsRedNoShooting extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
@@ -217,41 +208,38 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle();
         }
 
-        leftMotor.setPower(0.3);
-        rightMotor.setPower(0.3);
-        sleep(150);
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        shooter.setPower(0.6);
-        sleep(2300);
-        scooper.setPower(0.5);
-        sleep(1200);// pause for servos to move
-        scooper.setPower(0);
-        sleep(1000);
-        scooper.setPower(0.5);
-        sleep(1000);// pause for servos to move
-        shooter.setPower(0);
-        scooper.setPower(0);
         sleep(100);
         turn(40);
         sleep(100);
+        checkForActiveOpmode();
+
         telemetry.log().add("Finished turning to -40 degrees");
         toWhiteLine(false);
         telemetry.update();
         sleep(100);
+        checkForActiveOpmode();
+
         robot.leftMotor.setPower(0.3);
         robot.rightMotor.setPower(0.3);
         sleep(50);
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
+        checkForActiveOpmode();
+
+        sleep(100);
         turn(90);
         sleep(200);
+        checkForActiveOpmode();
         telemetry.update();
+
         approachBeacon();
         sleep(100);
         telemetry.update();
+        checkForActiveOpmode();
+
         pushButton();
         telemetry.update();
+        checkForActiveOpmode();
 
         telemetry.log().add("Finished pressing first button");
         sleep(100);
@@ -265,18 +253,18 @@ public class DriveToBeaconsRed extends LinearOpMode {
         telemetry.log().add("Backed up");
         robot.rightMotor.setPower(0);
         robot.leftMotor.setPower(0);
+        checkForActiveOpmode();
 
         // Turn parallel to wall
         turn(0);
         sleep(100);
         telemetry.update();
         telemetry.log().add("Turn parallel to the wall");
-        sleep(100);
+        checkForActiveOpmode();
 
         robot.leftMotor.setPower(0.3);
         robot.rightMotor.setPower(0.3);
-        telemetry.update();
-        sleep(500);
+        sleep(700);
         telemetry.update();
 
         telemetry.log().add("Run parallel to the wall");
@@ -286,33 +274,48 @@ public class DriveToBeaconsRed extends LinearOpMode {
         toWhiteLine(false);
         telemetry.update();
         sleep(200);
+        checkForActiveOpmode();
+
         telemetry.log().add("Turn to second beacon");
         turn(90);
+        sleep(100);
+        checkForActiveOpmode();
+
         approachBeacon();
         sleep(100);
-        pushButton();
+        checkForActiveOpmode();
 
+        pushButton();
+        sleep(100);
         telemetry.log().add("Drives backward slightly");
+        checkForActiveOpmode();
         //Drives backward slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
         sleep(500);
+        checkForActiveOpmode();
 
         turn(-40);
         sleep(200);
+        checkForActiveOpmode();
 
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-
         sleep(1700);
 
         robot.rightMotor.setPower(0);
         robot.leftMotor.setPower(0);
+        checkForActiveOpmode();
 
         while ((opModeIsActive())){
             sleep(500);
             telemetry.update();
         }
+    }
+
+    private void checkForActiveOpmode() {
+        if(!opModeIsActive())
+            stop();
     }
 
     private int getOpticalDistance(I2cDeviceSynchImpl rangeSensor) {
@@ -354,6 +357,10 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
     void turn(int turnAngle)
     {
+
+        if(!opModeIsActive())
+            return;
+
         angleZ = IMUheading();
 
         double savedTime = this.time + 5.0;

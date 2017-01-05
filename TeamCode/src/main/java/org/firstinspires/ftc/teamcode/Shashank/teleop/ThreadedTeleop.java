@@ -27,17 +27,27 @@ public class ThreadedTeleop extends OpMode {
 
         telemetry.log().add("Finished init of motors");
 
+        Thread thread = new Thread();
+        thread.start();
+
         telemetry.log().add("Init motor thread");
         motorThread = new MotorThread(threadMsger, leftMotor, rightMotor);
+        sleep(100);
         telemetry.log().add("Starting motor thread");
         //motorThread.start();
+        sleep(100);
         telemetry.log().add("Started motor thread");
+        sleep(100);
 
         telemetry.log().add("Init joystick thread");
         joyStickThread = new JoyStickThread(this.gamepad1, threadMsger);
+        sleep(100);
+
         telemetry.log().add("Starting joystick thread");
         //joyStickThread.start();
+        sleep(100);
         telemetry.log().add("Started joystick thread");
+        sleep(100);
     }
 
     @Override
@@ -57,5 +67,13 @@ public class ThreadedTeleop extends OpMode {
         threadMsger.setRequestStop(true);
         joyStickThread.requestStop();
         motorThread.requestStop();
+    }
+
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

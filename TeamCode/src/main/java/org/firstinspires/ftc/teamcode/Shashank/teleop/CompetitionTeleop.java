@@ -49,7 +49,7 @@ public class CompetitionTeleop extends OpMode {
         }
 
         if(gamepad1.dpad_right){
-            sweeper.setPower(0.7);
+            sweeper.setPower(0.9);
             scooper.setPower(1);
         }
 
@@ -62,7 +62,7 @@ public class CompetitionTeleop extends OpMode {
         }
 
         if(gamepad1.a){
-            shooter.setPower(0.9);
+            shooter.setPower(0.7);
         }
         else if(gamepad1.b){
             shooter.setPower(0.6);
@@ -71,9 +71,9 @@ public class CompetitionTeleop extends OpMode {
         }
 
         if(gamepad1.right_bumper){
-            sweeper.setPower(0.7);
+            sweeper.setPower(1);
         } else if(gamepad1.right_trigger > 0){
-            sweeper.setPower(-0.7);
+            sweeper.setPower(-1);
         } else {
             sweeper.setPower(0);
         }

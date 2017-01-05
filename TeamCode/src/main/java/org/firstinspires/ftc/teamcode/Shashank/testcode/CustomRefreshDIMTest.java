@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Shashank.testcode;
 import android.graphics.Path;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Created by spmeg on 10/29/2016.
  */
 @Autonomous(name = "CustomRefreshDIMTest", group = "Tests")
+@Disabled
 public class CustomRefreshDIMTest extends LinearOpMode {
     private DeviceInterfaceModule module;
     private ColorSensor colorSensor;

@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by spmeg on 12/17/2016.
  */
-@Autonomous(name = "ShooterAutonomous", group = "Autonomous")
-public class ShooterAutonomous extends LinearOpMode {
+@Autonomous(name = "ShooterAutonomous2ndPos", group = "Autonomous")
+public class ShooterAutonomousv2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     public DcMotor leftMotor   = null;
@@ -68,10 +68,10 @@ public class ShooterAutonomous extends LinearOpMode {
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         leftMotor.setPower(0.3);
         rightMotor.setPower(0.3);
-        sleep(150);
+        sleep(350);
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        shooter.setPower(0.6);
+        shooter.setPower(0.7);
         sleep(2300);
         scooper.setPower(0.5);
         sleep(1200);// pause for servos to move

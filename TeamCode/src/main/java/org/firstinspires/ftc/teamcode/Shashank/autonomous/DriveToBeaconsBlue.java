@@ -121,6 +121,9 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;
 
+    private DcMotor shooter;
+    private DcMotor scooper;
+
     @Override
     public void runOpMode() throws InterruptedException {
         // start calibrating the gyro.
@@ -156,6 +159,12 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         leftMotor = robot.leftMotor;
         rightMotor = robot.rightMotor;
+
+        scooper = this.hardwareMap.dcMotor.get("scooper");
+        shooter = this.hardwareMap.dcMotor.get("shooter");
+
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -220,6 +229,19 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.log().add("Now turning 110");
         turn(110);
         sleep(2000);*/
+        leftMotor.setPower(0.3);
+        rightMotor.setPower(0.3);
+        sleep(150);
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        shooter.setPower(0.6);
+        sleep(2300);
+        scooper.setPower(0.5);
+        sleep(1200);// pause for servos to move
+        scooper.setPower(0);
+        sleep(1000);
+        scooper.setPower(0.5);
+        sleep(3000);// pause for servos to move
         sleep(100);
         turn(-40);
         sleep(100);
@@ -347,8 +369,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.update();
 
         if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(-APPROACH_SPEED*0.75);
-            robot.rightMotor.setPower(APPROACH_SPEED*0.75);
+            robot.leftMotor.setPower(-APPROACH_SPEED*0.90);
+            robot.rightMotor.setPower(APPROACH_SPEED*0.90);
 
             telemetry.log().add("trunAngle is less than anglez");
             while (opModeIsActive() && (turnAngle < angleZ)) {
@@ -382,7 +404,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         telemetry.log().add("difference: " + (turnAngle-angleZ));
         sleep(150);
-        if((Math.abs(turnAngle - angleZ)) > 0.4)
+        if((Math.abs(turnAngle - angleZ)) > 0.5)
             turn(turnAngle);
 
         return;

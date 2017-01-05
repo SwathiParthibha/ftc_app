@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
  * Created by spmeg on 10/8/2016.
  */
 @Autonomous(name = "CustomColorSensorTest", group = "Tests")
+@Disabled
 public class CustomColorSensorTest extends OpMode {
     private ColorSensor colorSensor = null;
     private DeviceInterfaceModule deviceInterfaceModule = null;

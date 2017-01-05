@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by spmeg on 12/17/2016.
  */
-@Autonomous(name = "ShooterAutonomous", group = "Autonomous")
-public class ShooterAutonomous extends LinearOpMode {
+@Autonomous(name = "ShooterAutonomousCapBall", group = "Autonomous")
+public class ShooterAutonomousCapBall extends LinearOpMode {
 
     /* Declare OpMode members. */
     public DcMotor leftMotor   = null;
@@ -81,6 +81,12 @@ public class ShooterAutonomous extends LinearOpMode {
         sleep(3000);// pause for servos to move
         shooter.setPower(0);
         scooper.setPower(0);
+
+        leftMotor.setPower(0.3);
+        rightMotor.setPower(0.3);
+        sleep(1500);
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();

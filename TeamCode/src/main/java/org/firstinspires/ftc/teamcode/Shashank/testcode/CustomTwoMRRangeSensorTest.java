@@ -16,6 +16,7 @@ Support is available by emailing support@modernroboticsinc.com.
 */
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -27,7 +28,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @TeleOp(name = "CustomTwoMRRangeSensorTest", group = "MRI")
-//@Disabled
+@Disabled
 public class CustomTwoMRRangeSensorTest extends OpMode {
 
     /* Declare OpMode members. */

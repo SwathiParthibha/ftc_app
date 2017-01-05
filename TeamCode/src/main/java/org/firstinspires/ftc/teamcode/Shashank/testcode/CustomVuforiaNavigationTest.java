@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.vuforia.HINT;
@@ -86,7 +87,7 @@ import java.util.List;
  */
 
 @Autonomous(name="CustomVuforiaNavigationTest", group ="Tests")
-//@Disabled
+@Disabled
 public class CustomVuforiaNavigationTest extends LinearOpMode {
 
     public static final String TAG = "Vuforia Sample";
