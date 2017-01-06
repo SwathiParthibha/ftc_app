@@ -38,6 +38,7 @@ public class MecanumAutonomous extends MecanumHardware
   @Override
   public void runOpMode() throws InterruptedException
   {
+    MecanumHardware robot=new MecanumHardware();
     //This Initializes the Robot
     init(hardwareMap);
 
@@ -49,7 +50,7 @@ public class MecanumAutonomous extends MecanumHardware
      //   Thread.sleep(50);
      // }
 
-      godirectionGyro(-2000,0.5);
+      robot.godirectionGyro(-2000,0.5);
 
 
   }

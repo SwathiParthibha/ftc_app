@@ -32,21 +32,6 @@ public class HardwarePushbot
     /* Public OpMode members. */
     public DcMotor leftMotor   = null;
     public DcMotor rightMotor  = null;
-    public DcMotor armMotor    = null;
-    public Servo leftClaw    = null;
-    public Servo rightClaw   = null;
-    LightSensor lightSensor;      // Primary LEGO Light sensor,
-    ModernRoboticsI2cRangeSensor rangeSensor;
-    ModernRoboticsI2cRangeSensor sideRangeSensor;
-    ModernRoboticsI2cGyro gyro;   // Hardware Device Object
-    private ColorSensor leftColorSensor;
-    private ColorSensor rightColorSensor;
-    I2cDevice device;
-
-
-    public static final double MID_SERVO       =  0.5 ;
-    public static final double ARM_UP_POWER    =  0.45 ;
-    public static final double ARM_DOWN_POWER  = -0.45 ;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -65,16 +50,12 @@ public class HardwarePushbot
         // Define and Initialize Motors
         leftMotor   = hwMap.dcMotor.get("l");
         rightMotor  = hwMap.dcMotor.get("r");
-        lightSensor = hwMap.lightSensor.get("light sensor");                // Primary LEGO Light Sensor
-        //rangeSensor = hwMap.get(ModernRoboticsI2cRangeSensor.class, "range sensor");
-        //rightRange = hwMap.get(ModernRoboticsI2cRangeSensor.class, "side range");
-        leftColorSensor  = hwMap.colorSensor.get("rcs");
-        rightColorSensor = hwMap.colorSensor.get("lcs");
-        //gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
 
-        //armMotor    = hwMap.dcMotor.get("left_arm");
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Set all motors to zero power
         leftMotor.setPower(0);
@@ -85,13 +66,6 @@ public class HardwarePushbot
         // May want to use RUN_USING_ENCODERS if encoders are installed.
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Define and initialize ALL installed servos.
-        //leftClaw = hwMap.servo.get("left_hand");
-        //rightClaw = hwMap.servo.get("right_hand");
-        //leftClaw.setPosition(MID_SERVO);
-        //rightClaw.setPosition(MID_SERVO);
     }
 
     /***

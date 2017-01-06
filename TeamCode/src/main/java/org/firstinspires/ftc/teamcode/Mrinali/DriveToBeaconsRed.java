@@ -163,7 +163,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             angleZ = IMUheading();
             telemetry.addData("Side Ultrasonic", getcmUltrasonic(sideRangeSensor));
             telemetry.addData("Angle", angleZ);
-            telemetry.addData("verify", verify());
+            //telemetry.addData("verify", verify());
             telemetry.addData("leftColorSensor", leftColorSensor.argb());
             telemetry.addData("rightColorSensor", rightColorSensor.argb());
             telemetry.update();
@@ -172,12 +172,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
 
         turn(35);
-        encoderDrive(APPROACH_SPEED, 40/2, 40/2, 8);
-
-        robot.leftMotor.setPower(APPROACH_SPEED*.8);
-        robot.rightMotor.setPower(APPROACH_SPEED*.8);
-        //toWhiteLine(false);
-        toWhiteLine(true);
+        encoderDrive(APPROACH_SPEED, 35/2, 35/2, 8);
+        toWhiteLine(false);
         turn(90);
         sleep(100);
         approachBeacon();
@@ -209,7 +205,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         //Drives backward slightly
         robot.rightMotor.setPower(-APPROACH_SPEED);
         robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(400);
+        sleep(200);
         stopRobot();
 
         turn(50);
@@ -232,8 +228,12 @@ public class DriveToBeaconsRed extends LinearOpMode {
     void toWhiteLine(boolean wall) throws InterruptedException {
         // Start the robot moving forward, and then begin looking for a white line.
         if (!wall) {
-            robot.leftMotor.setPower(APPROACH_SPEED * .6);
-            robot.rightMotor.setPower(APPROACH_SPEED * .6);
+            double newSpeed = APPROACH_SPEED * .4;
+            robot.leftMotor.setPower(newSpeed);
+            robot.rightMotor.setPower(newSpeed);
+            telemetry.addData("New Speed", robot.leftMotor.getPower());
+            telemetry.update();
+            sleep(100);
         }
 
         while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
@@ -422,7 +422,6 @@ public class DriveToBeaconsRed extends LinearOpMode {
         else if(leftColorSensor.red() > leftColorSensor.blue() && rightColorSensor.red() > rightColorSensor.blue()){
             return true;
         }
-
         return false;
     }
 
@@ -460,63 +459,34 @@ public class DriveToBeaconsRed extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftTarget = robot.leftMotor.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
-            newRightTarget = robot.rightMotor.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+            newLeftTarget = robot.leftMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
+            newRightTarget = robot.rightMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
             robot.leftMotor.setTargetPosition(newLeftTarget);
             robot.rightMotor.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            //robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
 
-            if (robot.leftMotor.getCurrentPosition() > newLeftTarget &&
-                    robot.rightMotor.getCurrentPosition() > newRightTarget) {
-                // keep looping while we are still active, and there is time left, and both motors are running.
-                robot.leftMotor.setPower(speed);
-                robot.rightMotor.setPower(speed);
+            robot.leftMotor.setPower(Math.abs(speed));
+            robot.rightMotor.setPower(Math.abs(speed));
 
-                while (opModeIsActive() &&
-                        (runtime.seconds() < timeoutS) &&
-                        //(robot.leftMotor.isBusy() && robot.rightMotor.isBusy())
-                        robot.leftMotor.getCurrentPosition() > newLeftTarget &&
-                        robot.rightMotor.getCurrentPosition() > newRightTarget) {
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.leftMotor.isBusy() && robot.rightMotor.isBusy())) {
 
-                    // Display it for the driver.
-                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
-                    telemetry.addData("Path2", "Running at %7d :%7d",
-                            robot.leftMotor.getCurrentPosition(),
-                            robot.rightMotor.getCurrentPosition());
-                    telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
-                    telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
-                    telemetry.update();
-                }
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+                telemetry.addData("Path2", "Running at %7d :%7d",
+                        robot.leftMotor.getCurrentPosition(),
+                        robot.rightMotor.getCurrentPosition());
+                telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
+                telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
+                telemetry.update();
             }
-            else if (robot.leftMotor.getCurrentPosition() < newLeftTarget &&
-                    robot.rightMotor.getCurrentPosition() < newRightTarget) {
-                // keep looping while we are still active, and there is time left, and both motors are running.
-                robot.leftMotor.setPower(speed);
-                robot.rightMotor.setPower(speed);
-
-                while (opModeIsActive() &&
-                        (runtime.seconds() < timeoutS) &&
-                        //(robot.leftMotor.isBusy() && robot.rightMotor.isBusy())
-                        robot.leftMotor.getCurrentPosition() < newLeftTarget &&
-                        robot.rightMotor.getCurrentPosition() < newRightTarget) {
-
-                    // Display it for the driver.
-                    telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
-                    telemetry.addData("Path2", "Running at %7d :%7d",
-                            robot.leftMotor.getCurrentPosition(),
-                            robot.rightMotor.getCurrentPosition());
-                    telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
-                    telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
-                    telemetry.update();
-                }
-            }
-
             // Stop all motion;
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);

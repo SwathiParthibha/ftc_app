@@ -152,9 +152,9 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");
-        rangeA = hardwareMap.i2cDevice.get("r1");// Primary LEGO Light Sensor
+        rangeA = hardwareMap.i2cDevice.get("range sensor");// Primary LEGO Light Sensor
         rangeSensor = new I2cDeviceSynchImpl(rangeA, I2cAddr.create8bit(0x2a), false);
-        rangeB = hardwareMap.i2cDevice.get("r2");// Primary LEGO Light Sensor
+        rangeB = hardwareMap.i2cDevice.get("l side range");// Primary LEGO Light Sensor
         sideRangeSensor = new I2cDeviceSynchImpl(rangeB, I2cAddr.create8bit(0x38), false);
 
         leftMotor = robot.leftMotor;
