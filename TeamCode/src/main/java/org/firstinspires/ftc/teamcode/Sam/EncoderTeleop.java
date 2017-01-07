@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by spmeg on 10/22/2016.
  */
-@TeleOp(name = "EncoderTeleop", group = "Teleop")
+@TeleOp(name = "Two Controller Teleop", group = "Teleop")
 public class EncoderTeleop extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
@@ -35,7 +37,15 @@ public class EncoderTeleop extends OpMode {
         shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        swap=false;
+
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
     }
 
@@ -64,35 +74,36 @@ public class EncoderTeleop extends OpMode {
             swap=true;
         }
 
-        if(gamepad1.dpad_right){
+        if(gamepad2.dpad_right){
             sweeper.setPower(0.7);
             scooper.setPower(1);
         }
 
-        if(gamepad1.left_trigger > 0){
-            scooper.setPower(1);
-        } else if(gamepad1.left_bumper){
+        if(gamepad2.left_trigger > 0){
             scooper.setPower(-0.7);
+        } else if(gamepad2.left_bumper){
+            scooper.setPower(1);
         } else {
             scooper.setPower(0);
         }
 
-        if(gamepad1.a){
-            shooter1.setPower(0.9);
-            shooter2.setPower(0.9);
-        } else if(gamepad1.b) {
-            shooter1.setPower(0.6);
-            shooter2.setPower(0.6);
+        if(gamepad2.a){
+            EncoderShooter(0.8);//0.7//0.9
+        } else if(gamepad2.b) {
+            EncoderShooter(0.6);//0.7
+        }
+        else if(gamepad2.y)
+        {
+            EncoderShooter(0.2);
         }
         else {
-            shooter1.setPower(0);
-            shooter2.setPower(0);
+            EncoderShooter(0);
         }
 
 
-        if(gamepad1.right_bumper){
+        if(gamepad2.right_bumper){
             sweeper.setPower(0.7);
-        } else if(gamepad1.right_trigger > 0){
+        } else if(gamepad2.right_trigger > 0){
             sweeper.setPower(-0.7);
         } else {
             sweeper.setPower(0);
@@ -103,10 +114,12 @@ public class EncoderTeleop extends OpMode {
         telemetry.update();
     }
 
-    public void EncoderShooter()
+    public void EncoderShooter(double speed)
     {
-        int left = shooter1.getCurrentPosition();
-        int right = shooter2.getCurrentPosition();
+
+        shooter1.setPower(speed);
+        shooter2.setPower(speed);
+
 
     }
 }
