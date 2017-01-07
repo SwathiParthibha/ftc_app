@@ -35,6 +35,7 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -67,7 +68,7 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  */
 
 @Autonomous(name="PressBeaconButtonsOpmodeRED", group="Pushbot")
-//@Disabled
+@Disabled
 public class PressBeaconButtonsOpmodeRED extends LinearOpMode
 {
 

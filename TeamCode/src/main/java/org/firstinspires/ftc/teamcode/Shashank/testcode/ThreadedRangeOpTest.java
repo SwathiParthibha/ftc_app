@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -40,7 +41,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Shashank.utils.RangeSensorRunnable;
-import org.firstinspires.ftc.teamcode.Shashank.utils.TemplateRunnableOpMode;
 import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
 
 /**
@@ -58,7 +58,7 @@ import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
  */
 
 @TeleOp(name="ThreadedRangeOpTest", group="Tests")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class ThreadedRangeOpTest extends OpMode
 {
     /* Declare OpMode members. */

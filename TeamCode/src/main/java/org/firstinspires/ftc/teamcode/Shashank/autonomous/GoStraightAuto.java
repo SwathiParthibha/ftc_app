@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  * Created by spmeg on 12/18/2016.
  */
 @Autonomous(name = "GoStraightAuto", group = "Auto")
+@Disabled
 public class GoStraightAuto extends LinearOpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;

@@ -69,7 +69,7 @@ import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
  */
 
 @Autonomous(name="Custom Auto Drive By Encoder Shashank", group="Pushbot")
-//@Disabled
+@Disabled
 public class CustomAutoDriveByEncoder_Linear extends LinearOpMode {
 
     /* Declare OpMode members. */

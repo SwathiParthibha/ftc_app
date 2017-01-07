@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
  * Created by spmega4567 on 10/7/16.
  */
 @Autonomous(name = "CustomColorSensorAdafruitRGBLinearTest", group = "Tests")
+@Disabled
 public class CustomColorSensorAdafruitRGBLinearTest extends LinearOpMode
 {
     ColorSensor leftColorSensor;

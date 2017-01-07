@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
  * Created by spmeg on 10/15/2016.
  */
 @Autonomous(name = "CustomThreeColorSensorLinearTest", group = "Tests")
+@Disabled
 public class CustomThreeColorSensorTest extends LinearOpMode {
     ColorSensor leftColorSensor;
     ColorSensor rightColorSensor;

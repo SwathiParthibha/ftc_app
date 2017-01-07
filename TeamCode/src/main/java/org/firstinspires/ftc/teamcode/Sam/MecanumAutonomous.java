@@ -27,7 +27,7 @@ package org.firstinspires.ftc.teamcode.Sam;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "MecanumAuto", group = "Mecanum")
+//@Autonomous(name = "MecanumAuto", group = "Mecanum")
 //@Disabled
 
 /*

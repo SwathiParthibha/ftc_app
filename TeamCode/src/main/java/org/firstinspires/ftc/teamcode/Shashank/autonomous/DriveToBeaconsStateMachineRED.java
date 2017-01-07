@@ -5,6 +5,7 @@ import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -29,6 +30,7 @@ import java.util.Locale;
  * Created by spmeg on 10/22/2016.
  */
 @Autonomous(name = "DriveToBeaconsStateMachineRED", group = "Autonomous")
+@Disabled
 public class DriveToBeaconsStateMachineRED extends OpMode {
     private ColorSensor leftColorSensor;
     private ColorSensor rightColorSensor;

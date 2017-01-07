@@ -16,34 +16,46 @@ public class ThreadSharedObject {
     private volatile HashMap<String, String> stringSensorValues = new HashMap<>();
 
     public int getInteger(String tag){
-        return intSensorValues.get(tag);
+        if(intSensorValues.containsKey(tag))
+            return intSensorValues.get(tag);
+        else
+            return 0;
     }
 
     public double getDouble(String tag){
-        return doubleSensorValues.get(tag);
+        if(intSensorValues.containsKey(tag))
+            return doubleSensorValues.get(tag);
+        else
+            return 0;
     }
 
     public boolean getBoolean(String tag){
-        return booleanSensorValues.get(tag);
+        if(intSensorValues.containsKey(tag))
+            return booleanSensorValues.get(tag);
+        else
+            return false;
     }
 
     public String getString(String tag){
-        return stringSensorValues.get(tag);
+        if(intSensorValues.containsKey(tag))
+            return stringSensorValues.get(tag);
+        else
+            return null;
     }
 
-    public synchronized void setInteger(String tag, int value){
+    public void setInteger(String tag, int value){
         intSensorValues.put(tag, value);
     }
 
-    public synchronized void setDouble(String tag, double value){
+    public void setDouble(String tag, double value){
         doubleSensorValues.put(tag, value);
     }
 
-    public synchronized void setBoolean(String tag, boolean value){
+    public void setBoolean(String tag, boolean value){
         booleanSensorValues.put(tag, value);
     }
 
-    public synchronized void setString(String tag, String value){
+    public void setString(String tag, String value){
         stringSensorValues.put(tag, value);
     }
 
