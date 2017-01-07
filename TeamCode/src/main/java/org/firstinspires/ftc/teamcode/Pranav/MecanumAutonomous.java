@@ -27,7 +27,7 @@ package org.firstinspires.ftc.teamcode.Pranav;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Mecanum Autonomous", group = "Sensor")
+@Autonomous(name = "Mecanum Autonomous", group = "Pushbot")
 //@Disabled
 
 /*

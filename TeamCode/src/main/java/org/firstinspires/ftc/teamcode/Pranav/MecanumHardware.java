@@ -165,7 +165,7 @@ public class MecanumHardware extends LinearOpMode
     }
 
     //Sets all the motors to the STOP_AND_RESET_ENCODER Mode
-    public void stopAndResetEncoder()
+        public void stopAndResetEncoder()
     {
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
