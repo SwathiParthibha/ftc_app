@@ -32,11 +32,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Shashank.utils.TemplateRunnableOpMode;
+import org.firstinspires.ftc.teamcode.Shashank.utils.TemplateRunnable;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -53,13 +54,13 @@ import org.firstinspires.ftc.teamcode.Shashank.utils.TemplateRunnableOpMode;
  */
 
 @TeleOp(name="Template: Iterative OpMode", group="Iterative Opmode")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class ThreadedOpTest extends OpMode
 {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     Thread testThread = null;
-    TemplateRunnableOpMode baseRunnable = null;
+    TemplateRunnable baseRunnable = null;
     // private DcMotor leftMotor = null;
     // private DcMotor rightMotor = null;
 
@@ -97,7 +98,7 @@ public class ThreadedOpTest extends OpMode
     @Override
     public void start() {
         runtime.reset();
-        baseRunnable = new TemplateRunnableOpMode(this.telemetry, runtime);
+        baseRunnable = new TemplateRunnable(this.telemetry, runtime);
         testThread = new Thread(baseRunnable);
 
         testThread.start();

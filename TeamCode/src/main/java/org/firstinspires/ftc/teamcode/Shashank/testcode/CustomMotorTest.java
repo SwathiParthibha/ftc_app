@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  * Created by spmeg on 10/28/2016.
  */
 @Autonomous(name = "CustomMotorTest", group = "Tests")
+@Disabled
 public class CustomMotorTest extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;

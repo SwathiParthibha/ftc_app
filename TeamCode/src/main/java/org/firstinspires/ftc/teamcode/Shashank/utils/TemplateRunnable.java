@@ -8,16 +8,16 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * Created by spmega on 1/5/17.
  */
 
-public class TemplateRunnableOpMode implements Runnable {
+public class TemplateRunnable implements Runnable {
     private Telemetry telemetry = null;
     private ElapsedTime runtime = null;
     private boolean requestStop = false;
 
-    public TemplateRunnableOpMode(Telemetry telemetry) {
+    public TemplateRunnable(Telemetry telemetry) {
         this.telemetry = telemetry;
     }
 
-    public TemplateRunnableOpMode(Telemetry telemetry, ElapsedTime runtime) {
+    public TemplateRunnable(Telemetry telemetry, ElapsedTime runtime) {
         this.telemetry = telemetry;
         this.runtime = runtime;
     }

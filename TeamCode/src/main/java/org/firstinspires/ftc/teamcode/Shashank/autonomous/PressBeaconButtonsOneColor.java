@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Shashank.autonomous;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,6 +15,7 @@ import com.vuforia.Obb2D;
  * Created by spmeg on 10/28/2016.
  */
 @Autonomous(name = "PressBeaconButtonsOneColor", group = "Auto")
+@Disabled
 public class PressBeaconButtonsOneColor extends OpMode{
     private ColorSensor colorSensor;
     private DcMotor leftMotor;

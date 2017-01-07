@@ -68,7 +68,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  */
 
 @Autonomous(name="Pushbot: AutoStraightRevolution", group="Pushbot")
-//@Disabled
+@Disabled
 public class AutoStraightRevolution extends LinearOpMode {
 
     /* Declare OpMode members. */

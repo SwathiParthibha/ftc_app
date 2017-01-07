@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -58,7 +59,7 @@ import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
  */
 
 @TeleOp(name="ThreadedRangeOpMode", group="Tests")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class ThreadedRangeOpMode extends OpMode
 {
     /* Declare OpMode members. */
@@ -91,7 +92,10 @@ public class ThreadedRangeOpMode extends OpMode
         // eg: Set the drive motor directions:
         // Reverse the motor that runs backwards when connected directly to the battery
         leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        rightMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motorss
+        rightMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // telemetry.addData("Status", "Initialized");
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -136,9 +140,13 @@ public class ThreadedRangeOpMode extends OpMode
             telemetry.addData("RangeSensor Optical: ", "NULL");
         }
 
-        if(threadSharedObject.getInteger("frontRangeUltrasonic") > 12){
+        telemetry.log().add("Getting the integer now"+ threadSharedObject.getInteger("frontRangeUltrasonic"));
+        if(threadSharedObject.getInteger("frontRangeUltrasonic") < 12){
             leftMotor.setPower(-0.4);
             rightMotor.setPower(-0.4);
+        } else {
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
         }
 
         telemetry.update();
