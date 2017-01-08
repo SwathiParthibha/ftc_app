@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -59,7 +60,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Autonomous(name="Encoders and Motor Float", group="Pushbot")
-//@Disabled
+@Disabled
 public class EncoderTest extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor

@@ -34,23 +34,20 @@ package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
@@ -73,15 +70,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Red", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Red Shooter", group="Pushbot")
 //@Disabled
-public class DriveToBeaconsRed extends LinearOpMode {
+public class DriveToBeaconsRedShooter extends LinearOpMode {
 
     //To change blue to red: negative angles, color sensors sense red, left side range sensor
 
     /* Declare OpMode members. */
     HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
+    private DcMotor shooter1;
+    private DcMotor shooter2;
+    private boolean state;
+    private DcMotor scooper;
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     I2cDeviceSynchImpl rangeSensor;
     I2cDeviceSynchImpl sideRangeSensor;
@@ -126,6 +127,20 @@ public class DriveToBeaconsRed extends LinearOpMode {
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
         // robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooter1 = this.hardwareMap.dcMotor.get("shooter1");
+        shooter2 = this.hardwareMap.dcMotor.get("shooter2");
+        scooper = this.hardwareMap.dcMotor.get("scooper");
+
+        state = false;
+
+        shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");
@@ -174,6 +189,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         }
 
         encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
+        shoot();
         turn(40);
         encoderDrive(APPROACH_SPEED, 40/2, 40/2, 8);
         toWhiteLine(false);
@@ -276,7 +292,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.leftMotor.setPower(APPROACH_SPEED);
             robot.rightMotor.setPower(-APPROACH_SPEED);
 
-            while (opModeIsActive() && (turnAngle + 7 < angleZ)) {
+            while (opModeIsActive() && (turnAngle + 15 < angleZ)) {
 
                 angleZ = IMUheading();
                 telemetry.addData("Angle", angleZ);
@@ -291,7 +307,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.leftMotor.setPower(-APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
 
-            while (opModeIsActive() && (turnAngle  - 7 > angleZ)) {
+            while (opModeIsActive() && (turnAngle  - 15 > angleZ)) {
 
                 angleZ = IMUheading();
                 telemetry.addData("Angle", angleZ);
@@ -417,11 +433,11 @@ public class DriveToBeaconsRed extends LinearOpMode {
             //robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             //robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            robot.rightMotor.setPower(-APPROACH_SPEED * .8);
             robot.leftMotor.setPower(-APPROACH_SPEED * .8);
-            sleep(80);
-            robot.rightMotor.setPower(0);
+            robot.rightMotor.setPower(-APPROACH_SPEED * .8);
+            sleep(40);
             robot.leftMotor.setPower(0);
+            robot.rightMotor.setPower(0);
 
             //robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             //robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -528,5 +544,20 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
             //  sleep(250);   // optional pause after each move
         }
+    }
+
+    public void shoot() {
+        EncoderShooter(0.8);
+        sleep(2000);
+        scooper.setPower(1);
+        sleep(2500);
+        EncoderShooter(0);
+        scooper.setPower(0);
+    }
+
+    public void EncoderShooter(double speed)
+    {
+        shooter1.setPower(speed);
+        shooter2.setPower(speed);
     }
 }
