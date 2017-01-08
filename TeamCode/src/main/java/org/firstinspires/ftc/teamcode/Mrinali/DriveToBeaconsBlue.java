@@ -179,49 +179,26 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         }
 
         encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
-        turn(-40);
+        turn(-40); //The robot uses the IMU to turn to 40 degrees
         encoderDrive(APPROACH_SPEED * .8, 40/2, 40/2, 8);
-        toWhiteLine(false);
-
-        stopRobot();
-        turn(-90);
+        toWhiteLine(false); //and then proceeds to the white line using encoders and a NXT light sensor
+        turn(-90); //The robot then turns perpendicular to the beacon suing the IMU
         sleep(100);
-        approachBeacon();
-        pushButton();
-
-        // Go backwards slightly
-        /*robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(300);
-        stopRobot();*/
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
-
-        // Turn parallel to wall
-
-        turn(0);
-
-        /*robot.leftMotor.setPower(APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        sleep(500);
-        stopRobot();*/
+        approachBeacon(); //and advances until it is 8 cm from the beacon which is measured using a range sensor
+        pushButton(); //The robot then uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again.
+        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3); //The robot then moves backward using encoders
+        turn(0); //and turns parallel to the beacon using the IMU
         encoderDrive(APPROACH_SPEED, 15/2, 15/2, 5);
+        maintainDist(); //maintains a certain distance from the wall using a range sensor and the IMU
 
-        maintainDist();
-
-        toWhiteLine(true);
+        toWhiteLine(true); //It advances to the next white line
         sleep(100);
-        turn(-90);
-        approachBeacon();
-        pushButton();
+        turn(-90); //It turn perpendicular to the beacon again using the IMU sensor
+        approachBeacon(); //then approaches the beacon and stops 8 cm from beacon again
+        pushButton(); //It uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again
+        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3); //Then it will back up
 
-        //Drives backward slightly
-        /*robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(400);
-        stopRobot();*/
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
-
-        robot.leftMotor.setPower(APPROACH_SPEED);
+        robot.leftMotor.setPower(APPROACH_SPEED); //and turns until it is facing the cap ball
         robot.rightMotor.setPower(-APPROACH_SPEED);
         while (angleZ > -180 && angleZ < 0 || angleZ > 145) {
             angleZ = IMUheading();
@@ -230,7 +207,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 68/2, 68/2, 5);
+        encoderDrive(APPROACH_SPEED, 68/2, 68/2, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
     }
 
     double IMUheading() {
@@ -314,6 +291,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         angleZ = IMUheading();
 
         double angDiff = turnAngle-angleZ; //positive: turn left
+        if (Math.abs(angDiff) > 180) angDiff = angDiff % 180;
 
         if (angDiff < 0) { //turns right
             robot.leftMotor.setPower(APPROACH_SPEED * .6 );
