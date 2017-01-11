@@ -101,9 +101,11 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
     double WHEEL_SIZE_IN = 4;
-    public int ROTATION = 1220; // # of ticks
-    double     COUNTS_PER_INCH         = ROTATION /
-            (WHEEL_SIZE_IN * Math.PI);
+    public int ROTATION = 1220; // # of ticks for 40-1 gear ratio
+    static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
+    double GEAR_RATIO = 40;
+    double     COUNTS_PER_INCH         = (ROTATION * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_SIZE_IN * Math.PI) * (40 / GEAR_RATIO);
     double DIST = 18;
     double SIDE_DIST = 30;
     byte[] rangeSensorCache;
@@ -128,8 +130,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         robot.init(hardwareMap);
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
-        // robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");
@@ -178,7 +180,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle();
         }
 
-        encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
+        encoderDrive(APPROACH_SPEED, 3, 3, 3);
         turn(-40); //The robot uses the IMU to turn to 40 degrees
         encoderDrive(APPROACH_SPEED * .8, 40/2, 40/2, 8);
         toWhiteLine(false); //and then proceeds to the white line using encoders and a NXT light sensor
@@ -186,7 +188,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         sleep(100);
         approachBeacon(); //and advances until it is 8 cm from the beacon which is measured using a range sensor
         pushButton(); //The robot then uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again.
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3); //The robot then moves backward using encoders
+        encoderDrive(APPROACH_SPEED, -6/2, -6/2, 3); //The robot then moves backward using encoders
         turn(0); //and turns parallel to the beacon using the IMU
         encoderDrive(APPROACH_SPEED, 15/2, 15/2, 5);
         maintainDist(); //maintains a certain distance from the wall using a range sensor and the IMU
@@ -196,7 +198,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         turn(-90); //It turn perpendicular to the beacon again using the IMU sensor
         approachBeacon(); //then approaches the beacon and stops 8 cm from beacon again
         pushButton(); //It uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3); //Then it will back up
+        encoderDrive(APPROACH_SPEED, -6/2, -6/2, 3); //Then it will back up
 
         robot.leftMotor.setPower(APPROACH_SPEED); //and turns until it is facing the cap ball
         robot.rightMotor.setPower(-APPROACH_SPEED);
@@ -242,10 +244,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         stopRobot();
 
         if (!wall) {
-            encoderDrive(APPROACH_SPEED * .4, 2, 2, 2);
+            encoderDrive(APPROACH_SPEED * .4, 3, 3, 2);
         }
         else {
-            encoderDrive(APPROACH_SPEED * .4, 1, 1, 2);
+            encoderDrive(APPROACH_SPEED * .4, 2, 2, 2);
         }
     }
 
@@ -285,13 +287,13 @@ public class DriveToBeaconsBlue extends LinearOpMode {
     }*/
     void turn(int turnAngle)
     {
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         angleZ = IMUheading();
 
         double angDiff = turnAngle-angleZ; //positive: turn left
-        if (Math.abs(angDiff) > 180) angDiff = angDiff % 180;
+        //if (Math.abs(angDiff) > 180) angDiff = angDiff % 180;
 
         if (angDiff < 0) { //turns right
             robot.leftMotor.setPower(APPROACH_SPEED * .6 );
@@ -344,8 +346,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);
         }
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void approachBeacon()
@@ -514,11 +516,14 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         telemetry.addData("Angle", angleZ);
         telemetry.update();
         double distCorrect = SIDE_DIST - sideRange; //positive if too close
+        if (SIDE_DIST - 5 > sideRange) //too close
+            distCorrect = SIDE_DIST - sideRange + 5;
+        else if (SIDE_DIST + 5 < sideRange) //too far
+            distCorrect = SIDE_DIST - sideRange - 5;
 
         //makes angle closer to 0
         robot.leftMotor.setPower(APPROACH_SPEED * .6 + angleZ/50 - distCorrect/60);
         robot.rightMotor.setPower(APPROACH_SPEED * .6 - angleZ/50 + distCorrect/60);
-
     }
 
     public void drive(double distance, double speed) throws InterruptedException
