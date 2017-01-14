@@ -1,18 +1,15 @@
 package org.firstinspires.ftc.teamcode.Sam;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Created by spmeg on 10/22/2016.
  */
-@TeleOp(name = "Two Controller Teleop", group = "Teleop")
-public class EncoderTeleop extends OpMode {
+@TeleOp(name = "One Controller Teleop", group = "Teleop")
+public class oneControllerTeleop extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private DcMotor scooper;
@@ -79,25 +76,25 @@ public class EncoderTeleop extends OpMode {
             swap=true;
         }
 
-        if(gamepad2.dpad_right){
+        if(gamepad1.dpad_right){
             sweeper.setPower(0.7);
             scooper.setPower(1);
         }
 
-        if(gamepad2.left_trigger > 0){
+        if(gamepad1.left_trigger > 0){
             scooper.setPower(-0.7);
-        } else if(gamepad2.left_bumper){
+        } else if(gamepad1.left_bumper){
             scooper.setPower(1);
         } else {
             scooper.setPower(0);
         }
 
-        if(gamepad2.a){
+        if(gamepad1.a){
             EncoderShooter(scaleShooterPower(0.8));//0.7//0.9
-        } else if(gamepad2.b) {
-            EncoderShooter(scaleShooterPower(0.9));//0.6//0.7
+        } else if(gamepad1.b) {
+            EncoderShooter(scaleShooterPower(0.95));//0.6//0.7
         }
-        else if(gamepad2.y)
+        else if(gamepad1.y)
         {
             //EncoderShooter(0.2);
         }
@@ -106,9 +103,9 @@ public class EncoderTeleop extends OpMode {
         }
 
 
-        if(gamepad2.right_bumper){
+        if(gamepad1.right_bumper){
             sweeper.setPower(0.7);
-        } else if(gamepad2.right_trigger > 0){
+        } else if(gamepad1.right_trigger > 0){
             sweeper.setPower(-0.7);
         } else {
             sweeper.setPower(0);
@@ -137,7 +134,7 @@ public class EncoderTeleop extends OpMode {
         double scaledPower=MAX_VOLTAGE*intialPower/currentVoltage;
 
         telemetry.addData("Scaled power: ", scaledPower);
-
+        
         return scaledPower;
 
 
