@@ -206,7 +206,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 68/2, 68/2, 5);
+        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5);
     }
 
     double IMUheading() {

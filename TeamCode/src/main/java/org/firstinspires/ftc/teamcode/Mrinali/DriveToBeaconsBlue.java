@@ -209,7 +209,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 68/2, 68/2, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
+        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
     }
 
     double IMUheading() {

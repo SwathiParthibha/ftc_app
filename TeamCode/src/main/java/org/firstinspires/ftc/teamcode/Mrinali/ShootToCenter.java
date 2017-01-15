@@ -147,7 +147,8 @@ public class ShootToCenter extends LinearOpMode {
 
         encoderDrive(APPROACH_SPEED, 20/2, 20/2, 3);
         shoot();
-        encoderDrive(APPROACH_SPEED, 404/2, 40/2, 10);
+        sleep(10000);
+        encoderDrive(APPROACH_SPEED, 36/2, 36/2, 10);
     }
 
     double IMUheading() {
@@ -520,17 +521,33 @@ public class ShootToCenter extends LinearOpMode {
     }
 
     public void shoot() {
-        EncoderShooter(0.95);
+        EncoderShooter(scaleShooterPower(0.9));//0.6//0.7
         sleep(2000);
         scooper.setPower(1);
-        sleep(8000);
+        sleep(7000);
         EncoderShooter(0);
         scooper.setPower(0);
     }
 
     public void EncoderShooter(double speed)
     {
+
         shooter1.setPower(speed);
         shooter2.setPower(speed);
+
+
+    }
+
+    public double scaleShooterPower(double intialPower)
+    {
+        double MAX_VOLTAGE=13.7;
+
+        double currentVoltage= hardwareMap.voltageSensor.get("drive").getVoltage();
+
+        double scaledPower=MAX_VOLTAGE*intialPower/currentVoltage;
+
+        telemetry.addData("Scaled power: ", scaledPower);
+
+        return scaledPower;
     }
 }

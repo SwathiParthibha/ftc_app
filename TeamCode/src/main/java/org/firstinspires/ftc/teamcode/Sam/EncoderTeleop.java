@@ -93,9 +93,9 @@ public class EncoderTeleop extends OpMode {
         }
 
         if(gamepad2.a){
-            EncoderShooter(scaleShooterPower(0.8));//0.7//0.9
+            EncoderShooter(scaleShooterPower(0.98));//0.7//0.9
         } else if(gamepad2.b) {
-            EncoderShooter(scaleShooterPower(0.9));//0.6//0.7
+            EncoderShooter(scaleShooterPower(0.95));//0.6//0.7
         }
         else if(gamepad2.y)
         {

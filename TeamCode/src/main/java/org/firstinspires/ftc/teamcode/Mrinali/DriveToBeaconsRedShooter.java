@@ -196,7 +196,7 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
         encoderDrive(APPROACH_SPEED, 8/2, 8/2, 3);
         shoot();
         encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
-        turn(40);
+        turn(45);
         encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
         toWhiteLine(false);
         turn(90);
@@ -227,7 +227,7 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 68/2, 68/2, 5);
+        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5);
     }
 
     double IMUheading() {
@@ -567,7 +567,7 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
     }
 
     public void shoot() {
-        EncoderShooter(0.8);
+        EncoderShooter(scaleShooterPower(0.9));//0.6//0.7
         sleep(2000);
         scooper.setPower(1);
         sleep(2500);
@@ -577,7 +577,24 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
 
     public void EncoderShooter(double speed)
     {
+
         shooter1.setPower(speed);
         shooter2.setPower(speed);
+
+
     }
+
+    public double scaleShooterPower(double intialPower)
+    {
+        double MAX_VOLTAGE=13.7;
+
+        double currentVoltage= hardwareMap.voltageSensor.get("drive").getVoltage();
+
+        double scaledPower=MAX_VOLTAGE*intialPower/currentVoltage;
+
+        telemetry.addData("Scaled power: ", scaledPower);
+
+        return scaledPower;
+    }
+
 }
