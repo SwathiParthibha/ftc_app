@@ -34,8 +34,6 @@ package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -44,13 +42,11 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
@@ -98,11 +94,16 @@ public class DriveToBeaconsRed extends LinearOpMode {
     static final double WHITE_THRESHOLD = 0.3;  // spans between 0.1 - 0.5 from dark to light
     static final double APPROACH_SPEED = 0.5;
     double WHEEL_SIZE_IN = 4;
-    public int ROTATION = 1220; // # of ticks
-    double     COUNTS_PER_INCH         = ROTATION /
-            (WHEEL_SIZE_IN * Math.PI);
+    public int ROTATION = 1220; // # of ticks for 40-1 gear ratio
+    static final double     DRIVE_GEAR_REDUCTION    = 1.5 ;     // This is < 1.0 if geared UP
+    double GEAR_RATIO = 40;
+    double     COUNTS_PER_INCH         = (ROTATION * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_SIZE_IN * Math.PI) * (40 / GEAR_RATIO);
     double DIST = 18;
     double SIDE_DIST = 30;
+    double backup = -2;
+    double overBeacon1 = 2.5;
+    double overBeacon2 = 2;
     byte[] rangeSensorCache;
     byte[] sideRangeSensorCache;
     I2cDevice rangeA;
@@ -124,8 +125,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.init(hardwareMap);
 
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
-        // robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // get a reference to our Light Sensor object.
         lightSensor = hardwareMap.lightSensor.get("light sensor");
@@ -175,48 +176,30 @@ public class DriveToBeaconsRed extends LinearOpMode {
 
         encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
         turn(40);
-        encoderDrive(APPROACH_SPEED, 40/2, 40/2, 8);
+        encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
         toWhiteLine(false);
         turn(90);
         sleep(100);
         approachBeacon();
         pushButton();
-
-        // Go backwards slightly
-        /*robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(300);
-        stopRobot();*/
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
-
-        // Turn parallel to wall
+        encoderDrive(APPROACH_SPEED, backup, backup, 3);
+        turn(0);
+        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 5);
+        //maintainDist();
 
         turn(0);
-
-        /*robot.leftMotor.setPower(APPROACH_SPEED);
-        robot.rightMotor.setPower(APPROACH_SPEED);
-        sleep(500);
-        stopRobot();*/
-        encoderDrive(APPROACH_SPEED, 15/2, 15/2, 5);
-
-        maintainDist();
-
+        robot.leftMotor.setPower(APPROACH_SPEED * .4);
+        robot.rightMotor.setPower(APPROACH_SPEED * .4);
         toWhiteLine(true);
         sleep(100);
         turn(90);
         approachBeacon();
         pushButton();
-
-        //Drives backward slightly
-        /*robot.rightMotor.setPower(-APPROACH_SPEED);
-        robot.leftMotor.setPower(-APPROACH_SPEED);
-        sleep(300);
-        stopRobot();*/
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
+        encoderDrive(APPROACH_SPEED, backup, backup, 3);
 
         robot.leftMotor.setPower(-APPROACH_SPEED);
         robot.rightMotor.setPower(APPROACH_SPEED);
-        while (angleZ < 180 && angleZ > 0 || angleZ < -145) {
+        while (angleZ < 180 && angleZ > 0 || angleZ < -155) {
             angleZ = IMUheading();
             telemetry.addData("Angle", angleZ);
             telemetry.update();
@@ -261,24 +244,41 @@ public class DriveToBeaconsRed extends LinearOpMode {
         stopRobot();
 
         if (!wall) {
-            encoderDrive(robot.leftMotor.getPower(), 4, 4, 2);
+            encoderDrive(APPROACH_SPEED * .4, overBeacon1, overBeacon1, 2);
         }
         else {
-            encoderDrive(robot.leftMotor.getPower(), 1, 1, 2);
+            encoderDrive(APPROACH_SPEED * .4, overBeacon2, overBeacon2, 2);
         }
     }
 
     void turn(int turnAngle)
     {
+        //robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         angleZ = IMUheading();
 
-        if (turnAngle < angleZ) {
-            robot.leftMotor.setPower(APPROACH_SPEED);
-            robot.rightMotor.setPower(-APPROACH_SPEED);
+        double angDiff = turnAngle-angleZ; //positive: turn left
+        //if (Math.abs(angDiff) > 180) angDiff = angDiff % 180;
 
-            while (opModeIsActive() && (turnAngle + 7 < angleZ)) {
+        if (angDiff < 0) { //turns right
+            robot.leftMotor.setPower(APPROACH_SPEED * .6 );
+            robot.rightMotor.setPower(-APPROACH_SPEED * .6);
+
+            while (opModeIsActive() && (angDiff < 0)) {
 
                 angleZ = IMUheading();
+                angDiff = turnAngle-angleZ;
+
+                if (Math.abs(angDiff) < 90) {
+                    robot.leftMotor.setPower(APPROACH_SPEED * .2);
+                    robot.rightMotor.setPower(-APPROACH_SPEED * .2);
+                }
+                else if (Math.abs(angDiff) < 45) {
+                    robot.leftMotor.setPower(APPROACH_SPEED * .05);
+                    robot.rightMotor.setPower(-APPROACH_SPEED * .05);
+                }
+
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -287,13 +287,24 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.rightMotor.setPower(0);
         }
 
-        else if (turnAngle > angleZ) {
+        else if (angDiff > 0) { //turns left
             robot.leftMotor.setPower(-APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
 
-            while (opModeIsActive() && (turnAngle  - 7 > angleZ)) {
+            while (opModeIsActive() && (angDiff > 0)) {
 
                 angleZ = IMUheading();
+                angDiff = turnAngle-angleZ;
+
+                if (Math.abs(angDiff) < 90) {
+                    robot.leftMotor.setPower(-APPROACH_SPEED * .2);
+                    robot.rightMotor.setPower(APPROACH_SPEED * .2);
+                }
+                else if (Math.abs(angDiff) < 45) {
+                    robot.leftMotor.setPower(-APPROACH_SPEED * .05);
+                    robot.rightMotor.setPower(APPROACH_SPEED * .05);
+                }
+
                 telemetry.addData("Angle", angleZ);
                 telemetry.update();
                 idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
@@ -301,6 +312,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.leftMotor.setPower(0);
             robot.rightMotor.setPower(0);
         }
+        //robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void approachBeacon()
@@ -402,10 +415,12 @@ public class DriveToBeaconsRed extends LinearOpMode {
                 //sleep(4000); // wait 5 seconds total
                 robot.leftMotor.setPower(APPROACH_SPEED);
                 robot.rightMotor.setPower(0);
+            } else if(getcmUltrasonic(rangeSensor) > 8) {
+                encoderDrive(APPROACH_SPEED, 1, 1, 1);
             } else{
-                telemetry.log().add("red is not detected");
                 robot.leftMotor.setPower(0);
                 robot.rightMotor.setPower(0);
+                telemetry.log().add("red is not detected");
                 telemetry.update();
                 break;
             }
@@ -523,8 +538,8 @@ public class DriveToBeaconsRed extends LinearOpMode {
             robot.rightMotor.setPower(0);
 
             // Turn off RUN_TO_POSITION
-            robot.leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            robot.rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             //  sleep(250);   // optional pause after each move
         }

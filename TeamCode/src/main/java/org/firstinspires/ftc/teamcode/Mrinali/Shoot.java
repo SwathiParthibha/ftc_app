@@ -519,7 +519,7 @@ public class Shoot extends LinearOpMode {
     }
 
     public void shoot() {
-        EncoderShooter(0.8);
+        EncoderShooter(0.95);
         sleep(2000);
         scooper.setPower(1);
         sleep(8000);

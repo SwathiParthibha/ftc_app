@@ -145,9 +145,9 @@ public class ShootToCenter extends LinearOpMode {
             idle();
         }
 
-        encoderDrive(APPROACH_SPEED, 10/2, 10/2, 3);
+        encoderDrive(APPROACH_SPEED, 20/2, 20/2, 3);
         shoot();
-        encoderDrive(APPROACH_SPEED, 44/2, 44/2, 10);
+        encoderDrive(APPROACH_SPEED, 404/2, 40/2, 10);
     }
 
     double IMUheading() {
@@ -520,7 +520,7 @@ public class ShootToCenter extends LinearOpMode {
     }
 
     public void shoot() {
-        EncoderShooter(0.8);
+        EncoderShooter(0.95);
         sleep(2000);
         scooper.setPower(1);
         sleep(8000);

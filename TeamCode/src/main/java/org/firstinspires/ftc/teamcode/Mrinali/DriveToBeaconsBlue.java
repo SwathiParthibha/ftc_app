@@ -34,7 +34,6 @@ package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -47,13 +46,8 @@ import com.qualcomm.robotcore.hardware.LightSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -108,6 +102,9 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             (WHEEL_SIZE_IN * Math.PI) * (40 / GEAR_RATIO);
     double DIST = 18;
     double SIDE_DIST = 30;
+    double backup = -2; //distance in in to back up after pressing beacon
+    double overBeacon1 = 2.5;
+    double overBeacon2 = 2;
     byte[] rangeSensorCache;
     byte[] sideRangeSensorCache;
     I2cDevice rangeA;
@@ -182,27 +179,30 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         encoderDrive(APPROACH_SPEED, 3, 3, 3);
         turn(-40); //The robot uses the IMU to turn to 40 degrees
-        encoderDrive(APPROACH_SPEED * .8, 40/2, 40/2, 8);
+        encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
         toWhiteLine(false); //and then proceeds to the white line using encoders and a NXT light sensor
         turn(-90); //The robot then turns perpendicular to the beacon suing the IMU
         sleep(100);
         approachBeacon(); //and advances until it is 8 cm from the beacon which is measured using a range sensor
         pushButton(); //The robot then uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again.
-        encoderDrive(APPROACH_SPEED, -6/2, -6/2, 3); //The robot then moves backward using encoders
+        encoderDrive(APPROACH_SPEED, backup, backup, 3); //The robot then moves backward using encoders
         turn(0); //and turns parallel to the beacon using the IMU
-        encoderDrive(APPROACH_SPEED, 15/2, 15/2, 5);
-        maintainDist(); //maintains a certain distance from the wall using a range sensor and the IMU
+        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 5);
+        //maintainDist(); //maintains a certain distance from the wall using a range sensor and the IMU
 
+        turn(0);
+        robot.leftMotor.setPower(APPROACH_SPEED * .4);
+        robot.rightMotor.setPower(APPROACH_SPEED * .4);
         toWhiteLine(true); //It advances to the next white line
         sleep(100);
         turn(-90); //It turn perpendicular to the beacon again using the IMU sensor
         approachBeacon(); //then approaches the beacon and stops 8 cm from beacon again
         pushButton(); //It uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again
-        encoderDrive(APPROACH_SPEED, -6/2, -6/2, 3); //Then it will back up
+        encoderDrive(APPROACH_SPEED, backup, backup, 3); //Then it will back up
 
         robot.leftMotor.setPower(APPROACH_SPEED); //and turns until it is facing the cap ball
         robot.rightMotor.setPower(-APPROACH_SPEED);
-        while (angleZ > -180 && angleZ < 0 || angleZ > 145) {
+        while (angleZ > -180 && angleZ < 0 || angleZ > 155) {
             angleZ = IMUheading();
             telemetry.addData("Angle", angleZ);
             telemetry.update();
@@ -244,10 +244,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         stopRobot();
 
         if (!wall) {
-            encoderDrive(APPROACH_SPEED * .4, 3, 3, 2);
+            encoderDrive(APPROACH_SPEED * .4, overBeacon1, overBeacon1, 2);
         }
         else {
-            encoderDrive(APPROACH_SPEED * .4, 2, 2, 2);
+            encoderDrive(APPROACH_SPEED * .4, overBeacon2, overBeacon2, 2);
         }
     }
 
@@ -442,7 +442,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
                 robot.leftMotor.setPower(APPROACH_SPEED); //motors seem to work in reverse
                 robot.rightMotor.setPower(0);
             } else if(leftColorSensor.red() > leftColorSensor.blue() &&
-                    rightColorSensor.red() > rightColorSensor.blue()){
+                    rightColorSensor.red() > rightColorSensor.blue()) {
                 //red button has been pressed
                 telemetry.log().add("beacon is red");
                 telemetry.update();
@@ -450,7 +450,8 @@ public class DriveToBeaconsBlue extends LinearOpMode {
                 //sleep(4000); // wait 5 seconds total
                 robot.leftMotor.setPower(APPROACH_SPEED);
                 robot.rightMotor.setPower(0);
-
+            } else if(getcmUltrasonic(rangeSensor) > 8) {
+                encoderDrive(APPROACH_SPEED, 1, 1, 1);
             } else{
                 robot.leftMotor.setPower(0);
                 robot.rightMotor.setPower(0);
