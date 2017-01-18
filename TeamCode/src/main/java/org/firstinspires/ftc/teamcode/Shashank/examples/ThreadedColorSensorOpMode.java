@@ -30,17 +30,18 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.teamcode.Shashank.testcode;
+package org.firstinspires.ftc.teamcode.Shashank.examples;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Shashank.utils.ColorSensorRunnable;
 import org.firstinspires.ftc.teamcode.Shashank.utils.RangeSensorRunnable;
 import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
 
@@ -58,19 +59,16 @@ import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="ThreadedRangeOpMode", group="Tests")  // @Autonomous(...) is the other common choice
-@Disabled
-public class ThreadedRangeOpMode extends OpMode
+@TeleOp(name="ThreadedColorSensorOpMode", group="Tests")  // @Autonomous(...) is the other common choice
+//@Disabled
+public class ThreadedColorSensorOpMode extends OpMode
 {
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
     private Thread testThread = null;
-    private RangeSensorRunnable rangeSensorRunnable = null;
-    private I2cDeviceSynchImpl rangeSensor = null;
-    private byte[] rangeSensorCache;
-    private I2cDevice rangeA;
+    private ColorSensorRunnable colorSensorRunnable = null;
     private ThreadSharedObject threadSharedObject = new ThreadSharedObject();
-
+    private ColorSensor colorSensor = null;
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;
 
@@ -79,9 +77,6 @@ public class ThreadedRangeOpMode extends OpMode
      */
     @Override
     public void init() {
-        rangeA = hardwareMap.i2cDevice.get("range sensor");// Primary range sensor
-        rangeSensor = new I2cDeviceSynchImpl(rangeA, I2cAddr.create8bit(0x2a), false);
-        rangeSensor.engage();
         /* eg: Initialize the hardware variables. Note that the strings used here as parameters
          * to 'get' must correspond to the names assigned during the robot configuration
          * step (using the FTC Robot Controller app on the phone).
@@ -97,6 +92,8 @@ public class ThreadedRangeOpMode extends OpMode
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // telemetry.addData("Status", "Initialized");
+        colorSensor  = hardwareMap.colorSensor.get("lcs");
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
@@ -114,12 +111,11 @@ public class ThreadedRangeOpMode extends OpMode
     @Override
     public void start() {
         runtime.reset();
-        rangeSensorRunnable = new RangeSensorRunnable(this.telemetry, runtime, rangeSensor, threadSharedObject);
-        testThread = new Thread(rangeSensorRunnable);
+        colorSensorRunnable = new ColorSensorRunnable(telemetry, runtime, threadSharedObject, colorSensor);
+        testThread = new Thread(colorSensorRunnable);
 
         testThread.start();
     }
-
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
@@ -130,23 +126,14 @@ public class ThreadedRangeOpMode extends OpMode
         //telemetry.log().add("Ultrasonic key contained:"+ threadSharedObject.getIntSensorValues().containsKey("frontRangeUltrasonic"));
         //telemetry.log().add("Optical key contained:"+ threadSharedObject.getIntSensorValues().containsKey("frontRangeOptical"));
         if(!threadSharedObject.getIntSensorValues().isEmpty()
-                && threadSharedObject.getIntSensorValues().containsKey("frontRangeUltrasonic")
-                && threadSharedObject.getIntSensorValues().containsKey("frontRangeOptical")) {
-            telemetry.addData("RangeSensor Ultrasonic: ", threadSharedObject.getInteger("frontRangeUltrasonic"));
-            telemetry.addData("RangeSensor Optical: ", threadSharedObject.getInteger("frontRangeOptical"));
+                && threadSharedObject.getIntSensorValues().containsKey(colorSensorRunnable.getBLUE_KEY())
+                && threadSharedObject.getIntSensorValues().containsKey(colorSensorRunnable.getRED_KEY())) {
+            telemetry.addData("color sensor red: ", threadSharedObject.getInteger(colorSensorRunnable.getRED_KEY()));
+            telemetry.addData("color sensor blue: ", threadSharedObject.getInteger(colorSensorRunnable.getBLUE_KEY()));
         }
         else {
-            telemetry.addData("RangeSensor Ultrasonic: ", "NULL");
-            telemetry.addData("RangeSensor Optical: ", "NULL");
-        }
-
-        telemetry.log().add("Getting the integer now"+ threadSharedObject.getInteger("frontRangeUltrasonic"));
-        if(threadSharedObject.getInteger("frontRangeUltrasonic") < 12){
-            leftMotor.setPower(-0.4);
-            rightMotor.setPower(-0.4);
-        } else {
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
+            telemetry.addData("color sensor red: ", "NULL");
+            telemetry.addData("color sensor blue: ", "NULL");
         }
 
         telemetry.update();
@@ -161,7 +148,7 @@ public class ThreadedRangeOpMode extends OpMode
     @Override
     public void stop() {
         super.stop();
-        rangeSensorRunnable.requestStop();
+        colorSensorRunnable.requestStop();
     }
 
 }

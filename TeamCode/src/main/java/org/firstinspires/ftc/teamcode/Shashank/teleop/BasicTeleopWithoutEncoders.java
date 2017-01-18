@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 /**
  * Created by spmeg on 10/22/2016.
  */
-@TeleOp(name = "BasicTeleop", group = "Teleop")
-public class BasicTeleop extends OpMode {
+@TeleOp(name = "BasicTeleopWithoutEncoders", group = "Teleop")
+public class BasicTeleopWithoutEncoders extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
 
@@ -19,9 +19,6 @@ public class BasicTeleop extends OpMode {
         rightMotor = this.hardwareMap.dcMotor.get("r");
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
