@@ -91,8 +91,8 @@ public class ThreadedRangeOpMode extends OpMode
 
         // eg: Set the drive motor directions:
         // Reverse the motor that runs backwards when connected directly to the battery
-        leftMotor.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
-        rightMotor.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -130,18 +130,19 @@ public class ThreadedRangeOpMode extends OpMode
         //telemetry.log().add("Ultrasonic key contained:"+ threadSharedObject.getIntSensorValues().containsKey("frontRangeUltrasonic"));
         //telemetry.log().add("Optical key contained:"+ threadSharedObject.getIntSensorValues().containsKey("frontRangeOptical"));
         if(!threadSharedObject.getIntSensorValues().isEmpty()
-                && threadSharedObject.getIntSensorValues().containsKey("frontRangeUltrasonic")
-                && threadSharedObject.getIntSensorValues().containsKey("frontRangeOptical")) {
-            telemetry.addData("RangeSensor Ultrasonic: ", threadSharedObject.getInteger("frontRangeUltrasonic"));
-            telemetry.addData("RangeSensor Optical: ", threadSharedObject.getInteger("frontRangeOptical"));
+                && threadSharedObject.getIntSensorValues().containsKey(rangeSensorRunnable.getULTRASONIC_KEY())
+                && threadSharedObject.getIntSensorValues().containsKey(rangeSensorRunnable.getOPTICAL_KEY())) {
+            telemetry.addData("RangeSensor Ultrasonic: ", threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()));
+            telemetry.addData("RangeSensor Optical: ", threadSharedObject.getInteger(rangeSensorRunnable.getOPTICAL_KEY()));
         }
         else {
             telemetry.addData("RangeSensor Ultrasonic: ", "NULL");
             telemetry.addData("RangeSensor Optical: ", "NULL");
         }
 
-        telemetry.log().add("Getting the integer now"+ threadSharedObject.getInteger("frontRangeUltrasonic"));
-        if(threadSharedObject.getInteger("frontRangeUltrasonic") < 12){
+        telemetry.log().add("Getting the integer now"+ threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()));
+        if(threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 12
+                && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0){
             leftMotor.setPower(-0.4);
             rightMotor.setPower(-0.4);
         } else {
