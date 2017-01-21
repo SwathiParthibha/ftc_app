@@ -1,17 +1,17 @@
 package org.firstinspires.ftc.teamcode.Sam;
 
-import com.google.gson.internal.Streams;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import static java.lang.Thread.sleep;
 
 
-@TeleOp(name = "Two Controller Teleop", group = "Teleop")
-public class EncoderTeleop extends OpMode {
+@TeleOp(name = "Encoder Test", group = "Teleop")
+public class EncoderTest extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private DcMotor scooper;
@@ -19,9 +19,9 @@ public class EncoderTeleop extends OpMode {
     private DcMotor shooter2;
     private DcMotor sweeper;
 
-    private double RequestedRPM=1.9;
+    private double RequestedRPM=4000;
     private double power=0;
-    private long dt=1000;
+    private long dt=100;
     private double previous_position1=0;
     private double current_position1=0;
     private double current_rpm1=0;
@@ -45,9 +45,6 @@ public class EncoderTeleop extends OpMode {
     private boolean running=false;
     private String output="";
 
-    double Kp=0.1;
-    double Ki=0.00001;
-    double Kd=0.00001;
 
     private boolean ShooterPowerCont=true;
 
@@ -58,33 +55,19 @@ public class EncoderTeleop extends OpMode {
                 synchronized (this) {
                     try {
 
-                       /* if(running) {
-                            current_position=shooter1.getCurrentPosition();
-
-                            current_rpm = (previous_position - current_position) / (int) dt;
-
-                            error = current_rpm - RequestedRPM;
-                            //abserror=(int)Math.abs(current_rpm-RequestedRPM);
-                            integral = integral + error * (int) dt;//calculate integral of error
-                            derivative = (error - previous_error) / (int) dt;//calculator derivative of data
-                            adjustment = Kp * error + Ki * integral + Kd * derivative;//summation of PID
-
-                            previous_rpm = current_rpm;
-                            previous_error = error;
-                            previous_position=current_position;
-
-                        }*/
                         current_position1=shooter1.getCurrentPosition();
 
                         current_rpm1 = (current_position1 - previous_position1) / (int) dt;
 
-                        adjustment1=Kp*(RequestedRPM-current_rpm1);
+                        error1=RequestedRPM-current_rpm1;
+                        adjustment1=error1 ;
                         previous_position1=current_position1;
                         previous_rpm1=current_rpm1;
 
-                        output="error1: "+error1;
-                        output+="adjust: "+adjustment1;
+                        output="output: "+String.format("%.4f",(power+adjustment1));
+                        output+="adjust: "+String.format("%.4f",(adjustment1));
                         output+="curr"+current_rpm1;
+                        output+="Time: "+getRuntime();
                         //output+="power: "+power;
 
 
@@ -92,13 +75,13 @@ public class EncoderTeleop extends OpMode {
 
                         current_rpm2 = (current_position2 - previous_position2) / (int) dt;
 
-                        adjustment2=Kp*(RequestedRPM-current_rpm2);
+                        adjustment2=(RequestedRPM-current_rpm2);
                         previous_position2=current_position2;
                         previous_rpm2=current_rpm2;
 
-                        output="error2: "+error2;
-                        output+="adjust: "+adjustment2;
-                        output+="curr"+current_rpm2;
+                        //output+="error2: "+error2;
+                        //output+="adjust: "+adjustment2;
+                        //output+="curr"+current_rpm2;
 
 
                         if(startrunnning)
@@ -106,13 +89,13 @@ public class EncoderTeleop extends OpMode {
                             startrunnning=false;
                             running=true;
                             shooter1.setPower(power);
-                            shooter2.setPower(power);
+                           // shooter2.setPower(power);
                         }
 
                         if(running)
                         {
-                            shooter1.setPower(power-adjustment1);
-                            shooter2.setPower(power-adjustment2);
+                            shooter1.setPower(power+adjustment1);
+                            //shooter2.setPower(power-adjustment2);
                             //shooter2.setPower(power);
                         }
                         else
@@ -149,12 +132,10 @@ public class EncoderTeleop extends OpMode {
 
     @Override
     public void init() {
-        leftMotor = this.hardwareMap.dcMotor.get("l");
-        rightMotor = this.hardwareMap.dcMotor.get("r");
-        scooper = this.hardwareMap.dcMotor.get("scooper");
+
         shooter1 = this.hardwareMap.dcMotor.get("shooter1");
         shooter2 = this.hardwareMap.dcMotor.get("shooter2");
-        sweeper = this.hardwareMap.dcMotor.get("sweeper");
+
         state = false;
 
         shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -163,9 +144,6 @@ public class EncoderTeleop extends OpMode {
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        swap=true;
 
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -179,59 +157,21 @@ public class EncoderTeleop extends OpMode {
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        Shooter.start();
+        //Shooter.start();
 
     }
 
     @Override
     public void loop() {
 
-        double left = -gamepad1.left_stick_y;
-        double right = -gamepad1.right_stick_y;
         int shooting1= shooter1.getCurrentPosition();
         int shooting2= shooter2.getCurrentPosition();
-
-        if(swap==true)
-        {
-            double temp=left;
-            left=right;
-            right=temp;
-        }
-
-        left=scaleInput(left);
-        right=scaleInput(right);
-
-        leftMotor.setPower(left);
-        rightMotor.setPower(right);
-
-        if(gamepad1.dpad_down){
-            leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            swap=false;
-        } else if(gamepad1.dpad_up){
-            leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            swap=true;
-        }
-
-        if(gamepad2.dpad_right){
-            sweeper.setPower(0.7);
-            scooper.setPower(1);
-        }
-
-        if(gamepad2.left_trigger > 0){
-            scooper.setPower(-0.7);
-        } else if(gamepad2.left_bumper){
-            scooper.setPower(1);
-        } else {
-            scooper.setPower(0);
-        }
 
         if(gamepad2.a){
             EncoderShooter(scaleShooterPower(0.55));//0.7//0.9
         } else if(gamepad2.b) {
             //EncoderShooter(scaleShooterPower(0.8));//0.6//0.7
-            power=0.7;
+            power=0.55;
             startrunnning=true;
         }
         else if(gamepad2.y)
@@ -244,20 +184,7 @@ public class EncoderTeleop extends OpMode {
             running=false;
         }
 
-
-        if(gamepad2.right_bumper){
-            sweeper.setPower(0.7);
-        } else if(gamepad2.right_trigger > 0){
-            sweeper.setPower(-0.7);
-        } else {
-            sweeper.setPower(0);
-
-        }
-
-
-        telemetry.addData("left joystick",  "%.2f", left);
-        telemetry.addData("right joystick", "%.2f", right);
-        telemetry.addData("shooting1", shooting1);
+  telemetry.addData("shooting1", shooting1);
         telemetry.addData("shooting2", shooting2);
         telemetry.addData("Out",output);
         telemetry.update();
@@ -270,12 +197,55 @@ public class EncoderTeleop extends OpMode {
     }
 
 
+    public double prevTime=0;
+
+    public double requiredPWR=0.8;
+
     public void EncoderShooter(double speed)
     {
+        if(speed!=0) {
 
-        shooter1.setPower(speed);
-        shooter2.setPower(speed);
+            double Kp = 0.001;
+            double Ki = 0.00001;
+            double Kd = 0.00001;
 
+
+            if (getRuntime() - prevTime > 0.01) {//only update every 10ms
+                current_position1 = shooter1.getCurrentPosition();
+                current_rpm1 = (current_position1 - previous_position1) / (getRuntime() - prevTime);
+
+
+                if(current_rpm1<RequestedRPM)
+                {//we need to speed up
+                    requiredPWR+=Kp;
+                }
+                else if(current_rpm1>RequestedRPM)
+                {//we need to slow down
+                    requiredPWR-=Kp;
+                }
+
+
+                previous_position1 = current_position1;
+                previous_rpm1 = current_rpm1;
+                prevTime = getRuntime();
+            }
+
+
+            telemetry.addData("requiredPWR: ", String.format("%.4f", requiredPWR));
+            telemetry.addData("curr", current_rpm1);
+            telemetry.addData("Time: ", "" + getRuntime());
+
+
+
+            shooter1.setPower(requiredPWR);
+            //shooter2.setPower(speed);
+
+        }
+        else
+        {
+            shooter1.setPower(0);
+            shooter2.setPower(0);
+        }
 
     }
 
@@ -283,52 +253,18 @@ public class EncoderTeleop extends OpMode {
     {
         double MAX_VOLTAGE=13.7;
 
-        double currentVoltage= hardwareMap.voltageSensor.get("drive").getVoltage();
+        double currentVoltage= hardwareMap.voltageSensor.get("Motor Controller 1").getVoltage();
 
         double scaledPower=MAX_VOLTAGE*intialPower/currentVoltage;
 
         telemetry.addData("Scaled power: ", scaledPower);
 
-        return scaledPower;
+        return (scaledPower*0+intialPower);
 
 
 
     }
 
-
-    /*
-     * This method scales the joystick input so for low joystick values, the
-     * scaled value is less than linear.  This is to make it easier to drive
-     * the robot more precisely at slower speeds.
-     */
-    double scaleInput(double dVal)  {
-        double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
-                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00 };
-
-        // get the corresponding index for the scaleInput array.
-        int index = (int) (dVal * 16.0);
-
-        // index should be positive.
-        if (index < 0) {
-            index = -index;
-        }
-
-        // index cannot exceed size of array minus 1.
-        if (index > 16) {
-            index = 16;
-        }
-
-        // get value from the array.
-        double dScale = 0;
-        if (dVal < 0) {
-            dScale = -scaleArray[index];
-        } else {
-            dScale = scaleArray[index];
-        }
-
-        // return scaled value.
-        return dScale;
-    }
 
 }
 
