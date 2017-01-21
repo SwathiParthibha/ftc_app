@@ -179,7 +179,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         encoderDrive(APPROACH_SPEED, 3, 3, 3);
         turn(-40); //The robot uses the IMU to turn to 40 degrees
-        encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
+        encoderDrive(APPROACH_SPEED, 17, 17, 7);
         toWhiteLine(false); //and then proceeds to the white line using encoders and a NXT light sensor
         turn(-90); //The robot then turns perpendicular to the beacon suing the IMU
         sleep(100);
@@ -187,7 +187,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         pushButton(); //The robot then uses two color sensors to push the blue side of the beacon, and verifies it press the correct side. If it didn't, then it will wait for 5 seconds and try again.
         encoderDrive(APPROACH_SPEED, backup, backup, 3); //The robot then moves backward using encoders
         turn(0); //and turns parallel to the beacon using the IMU
-        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 5);
+        encoderDrive(APPROACH_SPEED, 8, 8, 5);
         //maintainDist(); //maintains a certain distance from the wall using a range sensor and the IMU
 
         turn(0);
@@ -209,7 +209,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
+        encoderDrive(APPROACH_SPEED, 24, 24, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
     }
 
     double IMUheading() {

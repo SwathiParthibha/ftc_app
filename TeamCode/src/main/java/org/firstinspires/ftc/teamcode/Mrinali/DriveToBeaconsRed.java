@@ -174,9 +174,9 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle();
         }
 
-        encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
+        encoderDrive(APPROACH_SPEED, 3, 3, 3);
         turn(40);
-        encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
+        encoderDrive(APPROACH_SPEED, 17, 17, 7);
         toWhiteLine(false);
         turn(90);
         sleep(100);
@@ -184,7 +184,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         pushButton();
         encoderDrive(APPROACH_SPEED, backup, backup, 3);
         turn(0);
-        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 5);
+        encoderDrive(APPROACH_SPEED, 8, 8, 5);
         //maintainDist();
 
         turn(0);
@@ -206,7 +206,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5);
+        encoderDrive(APPROACH_SPEED, 24, 24, 5);
     }
 
     double IMUheading() {
@@ -370,6 +370,30 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
 
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void followLine() {
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addLine("Following Line");
+        while (getcmUltrasonic(rangeSensor) > 11){
+            telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
+            telemetry.addData("Light", lightSensor.getLightDetected());
+            if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
+                telemetry.addLine("Moving right");
+                robot.leftMotor.setPower(0.2);
+                robot.rightMotor.setPower(0);
+            } else {
+                telemetry.addLine("Moving left");
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0.2);
+            }
+        }
+        stopRobot();
         robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
