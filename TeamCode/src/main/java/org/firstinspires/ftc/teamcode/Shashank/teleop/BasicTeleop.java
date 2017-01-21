@@ -19,6 +19,9 @@ public class BasicTeleop extends OpMode {
         rightMotor = this.hardwareMap.dcMotor.get("r");
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override

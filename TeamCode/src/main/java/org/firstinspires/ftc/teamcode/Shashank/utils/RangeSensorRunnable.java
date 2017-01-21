@@ -18,21 +18,34 @@ public class RangeSensorRunnable implements Runnable {
     private I2cDeviceSynchImpl rangeSensor = null;
     private ThreadSharedObject threadSharedObject = null;
 
+    private String ULTRASONIC_KEY = "";
+    private String OPTICAL_KEY = "";
+
     public RangeSensorRunnable(Telemetry telemetry, ElapsedTime runtime, I2cDeviceSynchImpl rangeSensor, ThreadSharedObject threadSharedObject) {
         this.telemetry = telemetry;
         this.runtime = runtime;
         this.rangeSensor = rangeSensor;
         this.threadSharedObject = threadSharedObject;
+        ULTRASONIC_KEY = rangeSensor.getDeviceName()+"ultrasonic";
+        OPTICAL_KEY = rangeSensor.getDeviceName()+"optical";
+    }
+
+    public String getULTRASONIC_KEY() {
+        return ULTRASONIC_KEY;
+    }
+
+    public String getOPTICAL_KEY() {
+        return OPTICAL_KEY;
     }
 
     public void run() {
         while (!requestStop) {
-            telemetry.addData("This is printing from a thread: " ,runtime.toString());
-            telemetry.addData("From thread-RangeSensor Ultrasonic: ", getcmUltrasonic());
-            telemetry.addData("From thread-RangeSensor Optical: ", getOpticalDistance());
-            telemetry.update();
-            threadSharedObject.setInteger("frontRangeUltrasonic", getcmUltrasonic());
-            threadSharedObject.setInteger("frontRangeOptical", getOpticalDistance());
+            //telemetry.addData("This is printing from a thread: " ,runtime.toString());
+            //telemetry.addData("From thread-RangeSensor Ultrasonic: ", getcmUltrasonic());
+            //telemetry.addData("From thread-RangeSensor Optical: ", getOpticalDistance());
+            //telemetry.update();
+            threadSharedObject.setInteger(getULTRASONIC_KEY(), getcmUltrasonic());
+            threadSharedObject.setInteger(getOPTICAL_KEY(), getOpticalDistance());
         }
         telemetry.log().add("This is ending a thread: " + runtime.toString());
     }
