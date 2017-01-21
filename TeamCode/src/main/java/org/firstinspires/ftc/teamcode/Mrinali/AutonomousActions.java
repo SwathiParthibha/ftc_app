@@ -46,10 +46,12 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.internal.TelemetryImpl;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -118,7 +120,7 @@ public class AutonomousActions extends LinearOpMode {
 
     }
 
-    public void initSensors(HardwareMap hardwareMap) {
+    public void initSensors(HardwareMap hardwareMap, Telemetry telem) {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -131,7 +133,10 @@ public class AutonomousActions extends LinearOpMode {
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        telemetry = telem;
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
         // robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -180,7 +185,7 @@ public class AutonomousActions extends LinearOpMode {
             robot.rightMotor.setPower(APPROACH_SPEED * .4);
         }
 
-        while (opModeIsActive() && (lightSensor.getLightDetected() < WHITE_THRESHOLD)) {
+        while (lightSensor.getLightDetected() < WHITE_THRESHOLD) {
 
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
@@ -191,12 +196,14 @@ public class AutonomousActions extends LinearOpMode {
         // Stop all motors
         stopRobot();
 
+        /*
         if (!wall) {
             encoderDrive(APPROACH_SPEED * .4, overBeacon1, overBeacon1, 2);
         }
         else {
             encoderDrive(APPROACH_SPEED * .4, overBeacon2, overBeacon2, 2);
         }
+        */
     }
 
     void turn(int turnAngle)
@@ -213,7 +220,7 @@ public class AutonomousActions extends LinearOpMode {
             robot.leftMotor.setPower(APPROACH_SPEED * .6 );
             robot.rightMotor.setPower(-APPROACH_SPEED * .6);
 
-            while (opModeIsActive() && (angDiff < 0)) {
+            while (angDiff < 0) {
 
                 angleZ = IMUheading();
                 angDiff = turnAngle-angleZ;
@@ -239,7 +246,7 @@ public class AutonomousActions extends LinearOpMode {
             robot.leftMotor.setPower(-APPROACH_SPEED);
             robot.rightMotor.setPower(APPROACH_SPEED);
 
-            while (opModeIsActive() && (angDiff > 0)) {
+            while (angDiff > 0) {
 
                 angleZ = IMUheading();
                 angDiff = turnAngle-angleZ;
@@ -281,7 +288,7 @@ public class AutonomousActions extends LinearOpMode {
             robot.leftMotor.setPower(APPROACH_SPEED * .8);
             robot.rightMotor.setPower(APPROACH_SPEED * .8);
 
-            while (opModeIsActive() && getcmUltrasonic(rangeSensor) > DIST * 2) {
+            while (getcmUltrasonic(rangeSensor) > DIST * 2) {
 
                 telemetry.log().add("Left power" + robot.leftMotor.getPower());
                 telemetry.log().add("Right power" + robot.rightMotor.getPower());
@@ -299,7 +306,7 @@ public class AutonomousActions extends LinearOpMode {
         if (getcmUltrasonic(rangeSensor) > DIST) {
             robot.leftMotor.setPower(APPROACH_SPEED * .4);
             robot.rightMotor.setPower(APPROACH_SPEED * .4);
-            while (opModeIsActive() && getcmUltrasonic(rangeSensor) > DIST) {
+            while (getcmUltrasonic(rangeSensor) > DIST) {
 
                 telemetry.log().add("Left power" + robot.leftMotor.getPower());
                 telemetry.log().add("Right power" + robot.rightMotor.getPower());
@@ -318,6 +325,54 @@ public class AutonomousActions extends LinearOpMode {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
 
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void followLineBlueSide() {
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addLine("Following Line");
+        while (getcmUltrasonic(rangeSensor) > 11){
+            telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
+            telemetry.addData("Light", lightSensor.getLightDetected());
+            if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
+                telemetry.addLine("Moving right");
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0.2);
+            } else {
+                telemetry.addLine("Moving left");
+                robot.leftMotor.setPower(0.2);
+                robot.rightMotor.setPower(0);
+            }
+        }
+        stopRobot();
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void followLineRedSide() {
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addLine("Following Line");
+        while (getcmUltrasonic(rangeSensor) > 11){
+            telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
+            telemetry.addData("Light", lightSensor.getLightDetected());
+            if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
+                telemetry.addLine("Moving right");
+                robot.leftMotor.setPower(0.2);
+                robot.rightMotor.setPower(0);
+            } else {
+                telemetry.addLine("Moving left");
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0.2);
+            }
+        }
+        stopRobot();
         robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
@@ -394,7 +449,7 @@ public class AutonomousActions extends LinearOpMode {
 
             //robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             //robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } while  (!verify() && opModeIsActive());
+        } while (!verify());
 
         telemetry.log().add("end of the push button method");
 
@@ -472,7 +527,7 @@ public class AutonomousActions extends LinearOpMode {
             telemetry.addData("Left red: ", leftColorSensor.red());
             telemetry.addData("Right red: ", rightColorSensor.red());
             telemetry.update();
-        } while  (!verify() && opModeIsActive());
+        } while  (!verify());
 
         telemetry.log().add("end of the push button method");
 
@@ -517,68 +572,10 @@ public class AutonomousActions extends LinearOpMode {
 
     }
 
-    public void drive(double distance, double speed) throws InterruptedException
-    {
-        //1220 ticks per rotation
-        //how many rotations? depends on distance
-        //distance in cm - convert distance to encoder ticks
-        //distance for each encoder tick == circumference / 1220
-        //target distance / distance for each encoder tick == number of encoder ticks needed
-        telemetry.addData("Starting to Drive", robot.leftMotor.getCurrentPosition() / ROTATION);
-        telemetry.update();
-
-        runUsingEncoder();
-
-        stopAndResetEncoder();
-
-        robot.leftMotor.setPower(speed);
-        robot.rightMotor.setPower(speed);
-
-        robot.leftMotor.setTargetPosition(CMtoEncoderTicks(distance));
-        robot.rightMotor.setTargetPosition(CMtoEncoderTicks(distance));
-
-        runToPosition();
-
-        while (robot.leftMotor.isBusy() && robot.rightMotor.isBusy() && opModeIsActive())
-        {
-            //telemetry.addData("Heading", heading);
-        }
-
-        stopRobot();
-
-        runUsingEncoder();
-
-        telemetry.addData("Finished Driving", robot.leftMotor.getCurrentPosition() / ROTATION);
-        telemetry.update();
-    }
-
-    int CMtoEncoderTicks(double cm) {
-        return (int) (cm * ROTATION / WHEEL_SIZE_IN / Math.PI);
-        //(target dist * ticks per rotation) / (circumference)
-    }
-
     public void stopRobot()
     {
         robot.leftMotor.setPower(0);
         robot.rightMotor.setPower(0);
-    }
-
-    public void stopAndResetEncoder()
-    {
-        robot.leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void runToPosition()
-    {
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-    public void runUsingEncoder()
-    {
-        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void encoderDrive(double speed,
@@ -590,47 +587,44 @@ public class AutonomousActions extends LinearOpMode {
         int newRightTarget;
 
         // Ensure that the opmode is still active
-        if (opModeIsActive()) {
 
-            // Determine new target position, and pass to motor controller
-            newLeftTarget = robot.leftMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-            newRightTarget = robot.rightMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
-            robot.leftMotor.setTargetPosition(newLeftTarget);
-            robot.rightMotor.setTargetPosition(newRightTarget);
+        // Determine new target position, and pass to motor controller
+        newLeftTarget = robot.leftMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
+        newRightTarget = robot.rightMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+        robot.leftMotor.setTargetPosition(newLeftTarget);
+        robot.rightMotor.setTargetPosition(newRightTarget);
 
-            // Turn On RUN_TO_POSITION
-            robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Turn On RUN_TO_POSITION
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            // reset the timeout time and start motion.
-            runtime.reset();
+        // reset the timeout time and start motion.
+        runtime.reset();
 
-            robot.leftMotor.setPower(Math.abs(speed));
-            robot.rightMotor.setPower(Math.abs(speed));
+        robot.leftMotor.setPower(Math.abs(speed));
+        robot.rightMotor.setPower(Math.abs(speed));
 
-            while (opModeIsActive() &&
-                    (runtime.seconds() < timeoutS) &&
-                    (robot.leftMotor.isBusy() && robot.rightMotor.isBusy())) {
+        while ((runtime.seconds() < timeoutS) &&
+                (robot.leftMotor.isBusy() && robot.rightMotor.isBusy())) {
 
-                // Display it for the driver.
-                telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
-                telemetry.addData("Path2", "Running at %7d :%7d",
-                        robot.leftMotor.getCurrentPosition(),
-                        robot.rightMotor.getCurrentPosition());
-                telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
-                telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
-                telemetry.update();
-            }
-            // Stop all motion;
-            robot.leftMotor.setPower(0);
-            robot.rightMotor.setPower(0);
-
-            // Turn off RUN_TO_POSITION
-            robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            //  sleep(250);   // optional pause after each move
+            // Display it for the driver.
+            telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
+            telemetry.addData("Path2", "Running at %7d :%7d",
+                    robot.leftMotor.getCurrentPosition(),
+                    robot.rightMotor.getCurrentPosition());
+            telemetry.addData("Left motor busy", robot.leftMotor.isBusy());
+            telemetry.addData("Right motor busy", robot.rightMotor.isBusy());
+            telemetry.update();
         }
+        // Stop all motion;
+        robot.leftMotor.setPower(0);
+        robot.rightMotor.setPower(0);
+
+        // Turn off RUN_TO_POSITION
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //  sleep(250);   // optional pause after each move
     }
 
     public void shoot() {

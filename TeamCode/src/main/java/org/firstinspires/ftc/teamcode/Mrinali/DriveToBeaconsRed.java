@@ -374,6 +374,30 @@ public class DriveToBeaconsRed extends LinearOpMode {
         robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
+    void followLine() {
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addLine("Following Line");
+        while (getcmUltrasonic(rangeSensor) > 11){
+            telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
+            telemetry.addData("Light", lightSensor.getLightDetected());
+            if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
+                telemetry.addLine("Moving right");
+                robot.leftMotor.setPower(0.2);
+                robot.rightMotor.setPower(0);
+            } else {
+                telemetry.addLine("Moving left");
+                robot.leftMotor.setPower(0);
+                robot.rightMotor.setPower(0.2);
+            }
+        }
+        stopRobot();
+        robot.leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        robot.rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
     void pushButton() {
 
         telemetry.log().add("in the push button method");
