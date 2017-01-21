@@ -174,9 +174,9 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle();
         }
 
-        encoderDrive(APPROACH_SPEED, 6/2, 6/2, 3);
+        encoderDrive(APPROACH_SPEED, 3, 3, 3);
         turn(40);
-        encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
+        encoderDrive(APPROACH_SPEED, 17, 17, 7);
         toWhiteLine(false);
         turn(90);
         sleep(100);
@@ -184,7 +184,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
         pushButton();
         encoderDrive(APPROACH_SPEED, backup, backup, 3);
         turn(0);
-        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 5);
+        encoderDrive(APPROACH_SPEED, 8, 8, 5);
         //maintainDist();
 
         turn(0);
@@ -206,7 +206,7 @@ public class DriveToBeaconsRed extends LinearOpMode {
             idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
         }
 
-        encoderDrive(APPROACH_SPEED, 56/2, 56/2, 5);
+        encoderDrive(APPROACH_SPEED, 24, 24, 5);
     }
 
     double IMUheading() {

@@ -195,9 +195,11 @@ public class DriveToBeaconsBlueShooter extends LinearOpMode {
             idle();
         }
 
-        encoderDrive(APPROACH_SPEED, 8/2, 8/2, 3);
+        /*encoderDrive(APPROACH_SPEED, 8/2, 8/2, 3);
         shoot();
-        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);
+        encoderDrive(APPROACH_SPEED, -8/2, -8/2, 3);*/
+        encoderDrive(APPROACH_SPEED, 3, 3, 2);
+        shoot();
         turn(-45);
         encoderDrive(APPROACH_SPEED * .8, 35/2, 35/2, 8);
         toWhiteLine(false);
