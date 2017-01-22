@@ -25,5 +25,5 @@ repositories {
 apply from: 'build.release.gradle'
 
 dependencies {
-    compile files('C:/working/dev/projects/pranav_ftc_app/libs/state-machine-framework-0.7.6.jar')
+    compile files('../libs/state-machine-framework-0.7.6.jar')
 }

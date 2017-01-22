@@ -19,7 +19,7 @@ public class EncoderTest extends OpMode {
     private DcMotor shooter2;
     private DcMotor sweeper;
 
-    private double RequestedRPM=4000;
+    private double RequestedRPM=1000;
     private double power=0;
     private long dt=100;
     private double previous_position1=0;
