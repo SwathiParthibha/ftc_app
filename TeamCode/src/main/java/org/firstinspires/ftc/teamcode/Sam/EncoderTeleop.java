@@ -19,7 +19,7 @@ public class EncoderTeleop extends OpMode {
     private DcMotor shooter2;
     private DcMotor sweeper;
 
-    private double RequestedRPM=1.9;
+    private double RequestedRPM=1500;
     private double power=0;
     private long dt=1000;
     private double previous_position1=0;
@@ -270,15 +270,73 @@ public class EncoderTeleop extends OpMode {
     }
 
 
+    public double prevTime=0;
+
+    public double requiredPWR1=0.8;
+    public double requiredPWR2=0.8;
+
     public void EncoderShooter(double speed)
     {
+        if(speed!=0) {
 
-        shooter1.setPower(speed);
-        shooter2.setPower(speed);
+            double Kp = 0.001;
+            double Ki = 0.00001;
+            double Kd = 0.00001;
 
+
+            if (getRuntime() - prevTime > 0.25) {//only update every 10ms
+                current_position1 = shooter1.getCurrentPosition();
+                current_position2 = shooter2.getCurrentPosition();
+                current_rpm1 = (current_position1 - previous_position1) / (getRuntime() - prevTime);
+                current_rpm2 = (current_position2 - previous_position2) / (getRuntime() - prevTime);
+
+
+                if(current_rpm1<RequestedRPM)
+                {//we need to speed up
+                    requiredPWR1+=Kp;
+                }
+                else if(current_rpm1>RequestedRPM)
+                {//we need to slow down
+                    requiredPWR1-=Kp;
+                }
+                if(current_rpm2<RequestedRPM)
+                {//we need to speed up
+                    requiredPWR2+=Kp;
+                }
+                else if(current_rpm2>RequestedRPM)
+                {//we need to slow down
+                    requiredPWR2-=Kp;
+                }
+
+
+                previous_position1 = current_position1;
+                previous_rpm1 = current_rpm1;
+                previous_position2 = current_position2;
+                previous_rpm2 = current_rpm2;
+                prevTime = getRuntime();
+            }
+
+
+            telemetry.addData("requiredPWR1: ", String.format("%.4f", requiredPWR1));
+            telemetry.addData("requiredPWR2: ", String.format("%.4f", requiredPWR2));
+            telemetry.addData("curr1", current_rpm1);
+            telemetry.addData("curr2", current_rpm2);
+            telemetry.addData("Time: ", "" + getRuntime());
+
+
+
+            shooter1.setPower(requiredPWR1);
+            shooter2.setPower(requiredPWR2);
+            //shooter2.setPower(speed);
+
+        }
+        else
+        {
+            shooter1.setPower(0);
+            shooter2.setPower(0);
+        }
 
     }
-
     public double scaleShooterPower(double intialPower)
     {
         double MAX_VOLTAGE=13.7;

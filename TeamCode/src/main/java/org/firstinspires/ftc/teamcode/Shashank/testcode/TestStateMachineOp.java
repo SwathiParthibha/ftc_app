@@ -41,6 +41,8 @@ public class TestStateMachineOp extends OpMode {
         b.addTelem(S.TEST, S.DRIVE, this.telemetry);
 
         b.addDrive(S.DRIVE, S.WAIT, leftMotor, rightMotor);
+        b.addTelem(S.WAIT, S.DRIVE, this.telemetry);
+        b.addDrive(S.DRIVE, S.WAIT, leftMotor, rightMotor);
         //add a wait state named WAIT for 1000 milliseconds, then go to the state named STOP
         b.addWait(S.WAIT, S.STOP, 1000);
 

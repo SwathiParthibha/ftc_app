@@ -17,13 +17,8 @@ import ftc.electronvolts.statemachine.States;
  */
 
 public class AutoStates extends States {
-    private static Telemetry telemetry = null;
 
-    public AutoStates(Telemetry telemetry) {
-        this.telemetry = telemetry;
-    }
-
-    public static State telemetry(StateName stateName, final StateName nextStateName){
+    public static State telemetry(Telemetry telemetry, StateName stateName, final StateName nextStateName){
         telemetry.log().add("Now returning state from method telemetry");
         return new TestState(nextStateName, 2);
     }
@@ -32,7 +27,7 @@ public class AutoStates extends States {
         return new TestMoveState(stateName, nextStateName, 1, leftMotor, rightMotor);
     }
 
-    public static State lineFollow(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
+    public static State lineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
         return new LineFollowState(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor,  rangeSensor);
     }
 

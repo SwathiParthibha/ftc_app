@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Shashank.examples;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -18,7 +19,7 @@ import ftc.electronvolts.statemachine.StateName;
 /**
  * Created by spmeg on 1/21/2017.
  */
-
+@Autonomous(name = "LineFollowStateMachineOp", group = "StateOps")
 public class LineFollowStateMachineOp extends OpMode {
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;
@@ -26,10 +27,6 @@ public class LineFollowStateMachineOp extends OpMode {
     private I2cDeviceSynchImpl rangeSensor = null;
     private byte[] rangeSensorCache;
     private I2cDevice rangeA;
-
-    private RangeSensorRunnable rangeSensorRunnable = null;
-
-    private ThreadSharedObject threadSharedObject = new ThreadSharedObject();
 
     ElapsedTime runtime = new ElapsedTime();
     private LightSensor lightSensor;
@@ -64,9 +61,11 @@ public class LineFollowStateMachineOp extends OpMode {
 
         AutoStateMachineBuilder autoStateMachineBuilder = new AutoStateMachineBuilder(S.WAIT);
 
-        autoStateMachineBuilder.addWait(S.WAIT, S.FOLLOW_lINE, 1000);
-        autoStateMachineBuilder.addLineFollow(S.FOLLOW_lINE, S.STOP, leftMotor, rightMotor, lightSensor, rangeSensor);
+        autoStateMachineBuilder.addWait(S.WAIT, S.FOLLOW_lINE, 3000);
+        autoStateMachineBuilder.addLineFollow(telemetry, S.FOLLOW_lINE, S.STOP, leftMotor, rightMotor, lightSensor, rangeSensor);
         autoStateMachineBuilder.addStop(S.STOP);
+
+        stateMachine = autoStateMachineBuilder.build();
 
         runtime.reset();
         telemetry.log().add("Finished init");
@@ -79,38 +78,23 @@ public class LineFollowStateMachineOp extends OpMode {
         telemetry.log().add("Starting stat method");
         telemetry.update();
 
-        runtime.reset();
-        rangeSensorRunnable = new RangeSensorRunnable(this.telemetry, runtime, rangeSensor, threadSharedObject);
-        testThread = new Thread(rangeSensorRunnable);
-
-        testThread.start();
-
         telemetry.log().add("Finished start");
         telemetry.update();
     }
 
     @Override
     public void loop() {
-        telemetry.addData("Range Sensor ultrasonic from thread", threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()));
-        telemetry.update();
+        if(stateMachine == null)
+            telemetry.log().add("statemachine is null");
 
-        if(threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 11){
-            if(lightSensor.getLightDetected() > 0.3){
-                leftMotor.setPower(0.2);
-                rightMotor.setPower(0);
-            } else {
-                leftMotor.setPower(0);
-                rightMotor.setPower(0.2);
-            }
-        } else {
-            leftMotor.setPower(0);
-            rightMotor.setPower(0);
-        }
+        telemetry.addData("State", stateMachine.getCurrentStateName());
+        telemetry.addData("Light detected", lightSensor.getLightDetected());
+        telemetry.update();
+        stateMachine.act();
     }
 
     @Override
     public void stop() {
         super.stop();
-        rangeSensorRunnable.requestStop();
     }
 }

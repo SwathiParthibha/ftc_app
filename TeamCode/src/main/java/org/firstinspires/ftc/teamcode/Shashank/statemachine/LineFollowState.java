@@ -64,6 +64,14 @@ public class LineFollowState extends BasicAbstractState {
 
     @Override
     public StateName act() {
+        if(!hasInitialized) {
+            init();
+            hasInitialized = true;
+        }
+
+        telemetry.log().add("range sensor values"+ threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY())+ " and the bool: " + isDone()+ " Light sensor: "+ lightSensor.getLightDetected());
+        telemetry.update();
+
         if(!isDone()) {
             if (lightSensor.getLightDetected() > 0.3) {
                 leftMotor.setPower(0.2);
@@ -84,7 +92,7 @@ public class LineFollowState extends BasicAbstractState {
 
     @Override
     public boolean isDone() {
-        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 11;
+        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 11 && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0;
     }
 
     @Override
