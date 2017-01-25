@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Shashank.statemachine;
+package org.firstinspires.ftc.teamcode.Shashank.statemachine.states;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -92,7 +92,7 @@ public class LineFollowState extends BasicAbstractState {
 
     @Override
     public boolean isDone() {
-        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 11 && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0;
+        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 9 && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0;
     }
 
     @Override

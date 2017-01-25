@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Shashank.statemachine;
+package org.firstinspires.ftc.teamcode.Shashank.statemachine.states;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Shashank.statemachine.BeaconColor;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.StateName;
@@ -33,7 +34,7 @@ public class PressBeaconState extends BasicAbstractState {
 
     private BeaconColor beaconColor = BeaconColor.RED;
 
-    public PressBeaconState(DcMotor leftMotor, DcMotor rightMotor, StateName stateName, StateName nextStateName, ColorSensor leftColorSensor, ColorSensor rightColorSensor, Telemetry telemetry, int timeout, BeaconColor color) {
+    public PressBeaconState(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, Telemetry telemetry, int timeout, BeaconColor color) {
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
         this.stateName = stateName;
@@ -42,43 +43,72 @@ public class PressBeaconState extends BasicAbstractState {
         this.rightColorSensor = rightColorSensor;
         this.telemetry = telemetry;
         this.timeout = timeout;
-        this.beaconColor = beaconColor;
+        this.beaconColor = color;
     }
 
     @Override
     public void init() {
+        elapsedTime.reset();
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.log().add("Finished init");
     }
 
     @Override
     public StateName act() {
-        if(isDone())
+        if(!hasInitialized) {
+            init();
+            hasInitialized = true;
+            telemetry.log().add("called init");
+            telemetry.update();
+        }
+
+        telemetry.log().add("isSame(): " + isSameColor());
+        telemetry.log().add("isDone(): " + isDone());
+        telemetry.log().add("timeout: " + (elapsedTime.seconds() > timeout));
+        telemetry.log().add("timeout value: " + timeout);
+        telemetry.update();
+
+        if(isDone()) {
+            telemetry.log().add("it is done");
+            telemetry.update();
             return nextStateName;
+        }
 
         if(beaconColor == BeaconColor.RED){
             //if red do this
+            telemetry.log().add("in RED if");
+            telemetry.update();
             if(leftColorSensor.red() > rightColorSensor.red()){
                 leftMotor.setPower(0.2);
                 rightMotor.setPower(0);
+                telemetry.log().add("turn left");
+                telemetry.update();
             } else {
                 leftMotor.setPower(0);
                 rightMotor.setPower(0.2);
+                telemetry.log().add("turn right");
+                telemetry.update();
             }
         } else if(beaconColor == BeaconColor.BLUE){
             //if blue do this
+            telemetry.log().add("in BLUE if");
             if(leftColorSensor.blue() > rightColorSensor.blue()){
                 leftMotor.setPower(0.2);
                 rightMotor.setPower(0);
+                telemetry.log().add("turn left");
+                telemetry.update();
             } else {
                 leftMotor.setPower(0);
                 rightMotor.setPower(0.2);
+                telemetry.log().add("turn right");
+                telemetry.update();
             }
         } else {
-            return nextStateName;
+            beaconColor = BeaconColor.RED;
         }
 
         return stateName;
@@ -86,7 +116,8 @@ public class PressBeaconState extends BasicAbstractState {
 
     @Override
     public boolean isDone() {
-        return elapsedTime.seconds() > timeout || isSameColor();
+        //return elapsedTime.seconds() > timeout || isSameColor();
+        return isSameColor();
     }
 
     private boolean isSameColor() {

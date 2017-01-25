@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Shashank.statemachine;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Shashank.statemachine.states.LineFollowState;
+import org.firstinspires.ftc.teamcode.Shashank.statemachine.states.PressBeaconState;
+import org.firstinspires.ftc.teamcode.Shashank.statemachine.states.ToWhiteLineState;
 import org.firstinspires.ftc.teamcode.Shashank.testcode.TestMoveState;
 import org.firstinspires.ftc.teamcode.Shashank.testcode.TestState;
 
@@ -29,6 +33,14 @@ public class AutoStates extends States {
 
     public static State lineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
         return new LineFollowState(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor,  rangeSensor);
+    }
+
+    public static State pressBeacon(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, BeaconColor color){
+        return new PressBeaconState(stateName, nextStateName, leftMotor, rightMotor, leftColorSensor, rightColorSensor, telemetry, 4, color);
+    }
+
+    public static State toWhiteLine(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor){
+        return new ToWhiteLineState(leftMotor, rightMotor, lightSensor, stateName, nextStateName);
     }
 
 }

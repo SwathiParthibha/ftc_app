@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Shashank.statemachine;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LightSensor;
@@ -29,6 +30,14 @@ public class AutoStateMachineBuilder extends StateMachineBuilder {
 
     public void addLineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
         add(stateName, AutoStates.lineFollow(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor, rangeSensor));
+    }
+
+    public void addPressBeacon(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, BeaconColor color){
+        add(stateName, AutoStates.pressBeacon(telemetry, stateName, nextStateName, leftMotor, rightMotor, leftColorSensor, rightColorSensor, color));
+    }
+
+    public void addToWhiteLine(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor){
+        add(stateName, AutoStates.toWhiteLine(stateName, nextStateName, leftMotor, rightMotor, lightSensor));
     }
 
 }
