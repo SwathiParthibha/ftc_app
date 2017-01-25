@@ -168,7 +168,7 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
 
         rightColorSensor = hardwareMap.colorSensor.get("rcs");
 
-        telemetry.addData("verify", verify()); //checks color sensors
+        telemetry.addData("verifyBlue", verify()); //checks color sensors
 
         // turn on LED of light sensor.
         lightSensor.enableLed(true);
@@ -186,7 +186,7 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
             angleZ = IMUheading();
             telemetry.addData("Side Ultrasonic", getcmUltrasonic(sideRangeSensor));
             telemetry.addData("Angle", angleZ);
-            //telemetry.addData("verify", verify());
+            //telemetry.addData("verifyBlue", verifyBlue());
             telemetry.addData("leftColorSensor", leftColorSensor.argb());
             telemetry.addData("rightColorSensor", rightColorSensor.argb());
             telemetry.update();
@@ -414,14 +414,14 @@ public class DriveToBeaconsRedShooter extends LinearOpMode {
 
             telemetry.update();
 
-            if(leftColorSensor.red() > rightColorSensor.red()){// && !verify()){
+            if(leftColorSensor.red() > rightColorSensor.red()){// && !verifyBlue()){
                 //write the code here to press the left button
                 telemetry.log().add("left is red");
                 telemetry.update();
 
                 robot.rightMotor.setPower(APPROACH_SPEED); //motors seem to work in reverse
                 robot.leftMotor.setPower(0);
-            } else if(rightColorSensor.red() > leftColorSensor.red()) {// && !verify()){
+            } else if(rightColorSensor.red() > leftColorSensor.red()) {// && !verifyBlue()){
                 //write the code here to press the right button
                 telemetry.log().add("right is red");
                 telemetry.update();
