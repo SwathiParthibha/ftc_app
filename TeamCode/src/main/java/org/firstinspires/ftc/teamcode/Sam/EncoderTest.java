@@ -19,6 +19,7 @@ public class EncoderTest extends OpMode {
     private DcMotor shooter2;
     private DcMotor sweeper;
 
+
     private double RequestedRPM=1000;
     private double power=0;
     private long dt=100;
@@ -133,6 +134,7 @@ public class EncoderTest extends OpMode {
     @Override
     public void init() {
 
+
         shooter1 = this.hardwareMap.dcMotor.get("shooter1");
         shooter2 = this.hardwareMap.dcMotor.get("shooter2");
 
@@ -206,7 +208,7 @@ public class EncoderTest extends OpMode {
     {
         if(speed!=0) {
 
-            double Kp = 0.001;
+            double Kp = 0.01;
             double Ki = 0.00001;
             double Kd = 0.00001;
 

@@ -19,7 +19,7 @@ public class EncoderTeleop extends OpMode {
     private DcMotor shooter2;
     private DcMotor sweeper;
 
-    private double RequestedRPM=1500;
+    private double RequestedRPM=1250;
     private double power=0;
     private long dt=1000;
     private double previous_position1=0;
@@ -179,7 +179,7 @@ public class EncoderTeleop extends OpMode {
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        Shooter.start();
+//        Shooter.start();
 
     }
 
@@ -228,11 +228,11 @@ public class EncoderTeleop extends OpMode {
         }
 
         if(gamepad2.a){
-            EncoderShooter(scaleShooterPower(0.55));//0.7//0.9
+            EncoderShooter(0.55);//0.7//0.9
         } else if(gamepad2.b) {
-            //EncoderShooter(scaleShooterPower(0.8));//0.6//0.7
-            power=0.7;
-            startrunnning=true;
+            EncoderShooter(0.8);//0.6//0.7
+            //power=0.7;
+            //startrunnning=true;
         }
         else if(gamepad2.y)
         {
@@ -245,21 +245,32 @@ public class EncoderTeleop extends OpMode {
         }
 
 
-        if(gamepad2.right_bumper){
-            sweeper.setPower(0.7);
-        } else if(gamepad2.right_trigger > 0){
-            sweeper.setPower(-0.7);
-        } else {
-            sweeper.setPower(0);
-
+        if(gamepad2.left_stick_y>0.3)
+        {
+            RequestedRPM+=5;
         }
+        else if(gamepad2.left_stick_y<-0.3)
+        {
+            RequestedRPM-=5;
+        }
+
+
+            if(gamepad2.right_bumper){
+                sweeper.setPower(0.7);
+            } else if(gamepad2.right_trigger > 0){
+                sweeper.setPower(-0.7);
+            } else {
+                sweeper.setPower(0);
+
+            }
 
 
         telemetry.addData("left joystick",  "%.2f", left);
         telemetry.addData("right joystick", "%.2f", right);
         telemetry.addData("shooting1", shooting1);
         telemetry.addData("shooting2", shooting2);
-        telemetry.addData("Out",output);
+        telemetry.addData("RequestedPWM", RequestedRPM);
+        //telemetry.addData("Out",output);
         telemetry.update();
     }
 
@@ -272,8 +283,128 @@ public class EncoderTeleop extends OpMode {
 
     public double prevTime=0;
 
-    public double requiredPWR1=0.8;
-    public double requiredPWR2=0.8;
+    public double requiredPWR1=0.4;
+    public double requiredPWR2=0.4;
+    public double runningAvgRPM1=0;
+    public double runningAvgRPM2=0;
+    public double prevResetTime=0;
+
+    public double count=1;
+
+
+    public void updateAvgRPM(double speed)
+    {
+       // if(getRuntime()-prevResetTime>3.0)
+       // {
+       //     count=1;
+       // }
+
+
+
+        if(speed==0)
+        {
+            runningAvgRPM1=1;
+            runningAvgRPM2=1;
+            count=1;
+
+            shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            return;
+        }
+        else {
+
+            if (getRuntime() - prevTime > 0.1) {//only update every 10ms
+                current_position1 = shooter1.getCurrentPosition();
+                current_position2 = shooter2.getCurrentPosition();
+                current_rpm1 = (current_position1 - previous_position1) / (getRuntime() - prevTime);
+                current_rpm2 = (current_position2 - previous_position2) / (getRuntime() - prevTime);
+
+                previous_position1 = current_position1;
+                previous_rpm1 = current_rpm1;
+                previous_position2 = current_position2;
+                previous_rpm2 = current_rpm2;
+                prevTime = getRuntime();
+
+
+                /*runningAvgRPM1=runningAvgRPM1/(count+1);
+                runningAvgRPM1*=count;
+                runningAvgRPM1*=current_rpm1/(count+1);
+
+                runningAvgRPM2=runningAvgRPM2/(count+1);
+                runningAvgRPM2*=count;
+                runningAvgRPM2*=current_rpm2/(count+1);
+                */
+
+                runningAvgRPM1*=count;
+                runningAvgRPM1+=current_rpm1;
+                runningAvgRPM2*=count;
+                runningAvgRPM2+=current_rpm2;
+                count++;
+                runningAvgRPM1/=count;
+                runningAvgRPM2/=count;
+
+            }
+        }
+    }
+
+
+/*    public void EncoderShooter(double speed)
+    {
+        updateAvgRPM(speed);
+        if(speed!=0) {
+
+            double Kp = 0.01;
+            double Ki = 0.00001;
+            double Kd = 0.00001;
+
+
+
+
+                if(runningAvgRPM1<RequestedRPM)
+                {//we need to speed up
+                    requiredPWR1+=Kp;
+                }
+                else if(runningAvgRPM1>RequestedRPM)
+                {//we need to slow down
+                    requiredPWR1-=Kp;
+                }
+                if(runningAvgRPM2<RequestedRPM)
+                {//we need to speed up
+                    requiredPWR2+=Kp;
+                }
+                else if(runningAvgRPM2>RequestedRPM)
+                {//we need to slow down
+                    requiredPWR2-=Kp;
+                }
+
+
+
+
+            telemetry.addData("requiredPWR1: ", String.format("%.4f", requiredPWR1));
+            telemetry.addData("requiredPWR2: ", String.format("%.4f", requiredPWR2));
+            telemetry.addData("curr1", runningAvgRPM2);
+            telemetry.addData("curr2", runningAvgRPM2);
+            telemetry.addData("Time: ", "" + getRuntime());
+
+
+
+            shooter1.setPower(requiredPWR1);
+            shooter2.setPower(requiredPWR2);
+            //shooter2.setPower(speed);
+
+        }
+        else
+        {
+            shooter1.setPower(0);
+            shooter2.setPower(0);
+        }
+
+    }
+    */
 
     public void EncoderShooter(double speed)
     {
@@ -284,7 +415,7 @@ public class EncoderTeleop extends OpMode {
             double Kd = 0.00001;
 
 
-            if (getRuntime() - prevTime > 0.25) {//only update every 10ms
+            if (getRuntime() - prevTime > 0.1) {//only update every 10ms
                 current_position1 = shooter1.getCurrentPosition();
                 current_position2 = shooter2.getCurrentPosition();
                 current_rpm1 = (current_position1 - previous_position1) / (getRuntime() - prevTime);
@@ -337,6 +468,7 @@ public class EncoderTeleop extends OpMode {
         }
 
     }
+
     public double scaleShooterPower(double intialPower)
     {
         double MAX_VOLTAGE=13.7;
