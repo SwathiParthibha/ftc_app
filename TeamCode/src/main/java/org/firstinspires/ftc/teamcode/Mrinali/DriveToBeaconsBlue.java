@@ -70,7 +70,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
          */
-        auto.initSensors(hardwareMap, telemetry);
+        auto.init(hardwareMap, telemetry);
 
         telemetry.addData("verifyBlue", auto.verifyBlue()); //checks color sensors
 

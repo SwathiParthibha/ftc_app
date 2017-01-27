@@ -120,7 +120,7 @@ public class AutonomousActions extends LinearOpMode {
 
     }
 
-    public void initSensors(HardwareMap hardwareMap, Telemetry telem) {
+    public void init(HardwareMap hardwareMap, Telemetry telem) {
 
         // Define and Initialize Motors
         leftMotor   = hardwareMap.dcMotor.get("l");
@@ -237,8 +237,7 @@ public class AutonomousActions extends LinearOpMode {
             encoderDrive(APPROACH_SPEED * .4, 2, 2, 2);
     }
 
-    void turn(int turnAngle)
-    {
+    void turn(int turnAngle) {
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -302,8 +301,7 @@ public class AutonomousActions extends LinearOpMode {
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void approachBeacon()
-    {
+    void approachBeacon() {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -637,8 +635,7 @@ public class AutonomousActions extends LinearOpMode {
 
     }
 
-    public void stopRobot()
-    {
+    public void stopRobot() {
         leftMotor.setPower(0);
         rightMotor.setPower(0);
     }
@@ -701,22 +698,16 @@ public class AutonomousActions extends LinearOpMode {
         scooper.setPower(0);
     }
 
-    public void EncoderShooter(double speed)
-    {
+    public void EncoderShooter(double speed) {
         shooter1.setPower(speed);
         shooter2.setPower(speed);
     }
 
-    public double scaleShooterPower(double intialPower)
-    {
+    public double scaleShooterPower(double intialPower) {
         double MAX_VOLTAGE=13.7;
-
         double currentVoltage= hardwareMap.voltageSensor.get("drive").getVoltage();
-
         double scaledPower=MAX_VOLTAGE*intialPower/currentVoltage;
-
         telemetry.addData("Scaled power: ", scaledPower);
-
         return scaledPower;
     }
 }

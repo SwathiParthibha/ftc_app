@@ -70,9 +70,9 @@ public class DriveToBeaconsRed extends LinearOpMode {
         /* Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
          */
-        auto.initSensors(hardwareMap, telemetry);
+        auto.init(hardwareMap, telemetry);
 
-        telemetry.addData("verifyBlue", auto.verifyBlue()); //checks color sensors
+        telemetry.addData("verify", auto.verifyRed()); //checks color sensors
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to runIMU");    //
