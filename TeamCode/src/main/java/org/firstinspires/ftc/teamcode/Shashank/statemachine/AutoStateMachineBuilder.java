@@ -28,8 +28,8 @@ public class AutoStateMachineBuilder extends StateMachineBuilder {
         add(stateName, TestStates.drive(stateName, nextStateName, leftMotor, rightMotor));
     }
 
-    public void addLineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
-        add(stateName, AutoStates.lineFollow(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor, rangeSensor));
+    public void addLineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor, BeaconColor color){
+        add(stateName, AutoStates.lineFollow(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor, rangeSensor, color));
     }
 
     public void addPressBeacon(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, BeaconColor color){

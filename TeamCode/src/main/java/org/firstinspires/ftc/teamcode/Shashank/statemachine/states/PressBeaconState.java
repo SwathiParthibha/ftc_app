@@ -28,11 +28,11 @@ public class PressBeaconState extends BasicAbstractState {
 
     private boolean hasInitialized = false;
 
-    private ElapsedTime elapsedTime = new ElapsedTime();
+    private ElapsedTime elapsedTime = null;
 
     private int timeout = 0;
 
-    private BeaconColor beaconColor = BeaconColor.RED;
+    private BeaconColor beaconColor = null;
 
     public PressBeaconState(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, Telemetry telemetry, int timeout, BeaconColor color) {
         this.leftMotor = leftMotor;
@@ -48,7 +48,7 @@ public class PressBeaconState extends BasicAbstractState {
 
     @Override
     public void init() {
-        elapsedTime.reset();
+        elapsedTime = new ElapsedTime();
         leftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightMotor.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
@@ -75,14 +75,16 @@ public class PressBeaconState extends BasicAbstractState {
         if(isDone()) {
             telemetry.log().add("it is done");
             telemetry.update();
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
             return nextStateName;
         }
-
         if(beaconColor == BeaconColor.RED){
             //if red do this
             telemetry.log().add("in RED if");
             telemetry.update();
-            if(leftColorSensor.red() > rightColorSensor.red()){
+            if(leftColorSensor.red() > leftColorSensor.blue()
+                    && rightColorSensor.red() < rightColorSensor.blue()){
                 leftMotor.setPower(0.2);
                 rightMotor.setPower(0);
                 telemetry.log().add("turn left");
@@ -96,7 +98,8 @@ public class PressBeaconState extends BasicAbstractState {
         } else if(beaconColor == BeaconColor.BLUE){
             //if blue do this
             telemetry.log().add("in BLUE if");
-            if(leftColorSensor.blue() > rightColorSensor.blue()){
+            if(leftColorSensor.red() < leftColorSensor.blue()
+                    && rightColorSensor.red() > rightColorSensor.blue()){
                 leftMotor.setPower(0.2);
                 rightMotor.setPower(0);
                 telemetry.log().add("turn left");
@@ -108,7 +111,8 @@ public class PressBeaconState extends BasicAbstractState {
                 telemetry.update();
             }
         } else {
-            beaconColor = BeaconColor.RED;
+            leftMotor.setPower(0);
+            rightMotor.setPower(0);
         }
 
         return stateName;
@@ -116,24 +120,17 @@ public class PressBeaconState extends BasicAbstractState {
 
     @Override
     public boolean isDone() {
-        //return elapsedTime.seconds() > timeout || isSameColor();
-        return isSameColor();
+        return elapsedTime.seconds() > timeout || isSameColor();
     }
 
     private boolean isSameColor() {
-        if(beaconColor == BeaconColor.RED){
-            if(leftColorSensor.red() > leftColorSensor.blue() && rightColorSensor.red() > rightColorSensor.blue())
+        if(leftColorSensor.red() > leftColorSensor.blue() && rightColorSensor.red() > rightColorSensor.blue())
                 return true;
-            else
-                return false;
-        } else if(beaconColor == BeaconColor.BLUE){
-            if(leftColorSensor.red() < leftColorSensor.blue() && rightColorSensor.red() < rightColorSensor.blue())
+        else if(leftColorSensor.red() < leftColorSensor.blue() && rightColorSensor.red() < rightColorSensor.blue())
                 return true;
-            else
-                return false;
-        } else {
+        else
             return false;
-        }
+
     }
 
     @Override

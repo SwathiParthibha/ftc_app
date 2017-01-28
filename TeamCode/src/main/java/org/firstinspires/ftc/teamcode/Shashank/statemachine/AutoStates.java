@@ -31,12 +31,12 @@ public class AutoStates extends States {
         return new TestMoveState(stateName, nextStateName, 1, leftMotor, rightMotor);
     }
 
-    public static State lineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor){
-        return new LineFollowState(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor,  rangeSensor);
+    public static State lineFollow(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor, BeaconColor color){
+        return new LineFollowState(telemetry, stateName, nextStateName, leftMotor, rightMotor, lightSensor,  rangeSensor, color);
     }
 
     public static State pressBeacon(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, ColorSensor leftColorSensor, ColorSensor rightColorSensor, BeaconColor color){
-        return new PressBeaconState(stateName, nextStateName, leftMotor, rightMotor, leftColorSensor, rightColorSensor, telemetry, 4, color);
+        return new PressBeaconState(stateName, nextStateName, leftMotor, rightMotor, leftColorSensor, rightColorSensor, telemetry, 100, color);
     }
 
     public static State toWhiteLine(StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor){
