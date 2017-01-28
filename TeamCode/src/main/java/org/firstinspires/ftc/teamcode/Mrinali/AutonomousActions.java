@@ -78,6 +78,7 @@ public class AutonomousActions extends LinearOpMode {
     /* Declare OpMode members. */
     //HardwarePushbot robot = new HardwarePushbot();   // Use a Pushbot's hardware
     // could also use HardwarePushbotMatrix class.
+    LinearOpMode opMode;
     public DcMotor leftMotor   = null;
     public DcMotor rightMotor  = null;
     private DcMotor shooter1;
@@ -114,6 +115,10 @@ public class AutonomousActions extends LinearOpMode {
     byte[] sideRangeSensorCache;
     I2cDevice rangeA;
     I2cDevice rangeB;
+
+    public AutonomousActions(LinearOpMode anOpMode) {
+        opMode = anOpMode;
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -219,7 +224,7 @@ public class AutonomousActions extends LinearOpMode {
             rightMotor.setPower(APPROACH_SPEED * .4);
         }
 
-        while (lightSensor.getLightDetected() < WHITE_THRESHOLD) {
+        while (opMode.opModeIsActive() && lightSensor.getLightDetected() < WHITE_THRESHOLD) {
 
             // Display the light level while we are looking for the line
             telemetry.addData("Light Level", lightSensor.getLightDetected());
@@ -237,7 +242,7 @@ public class AutonomousActions extends LinearOpMode {
             encoderDrive(APPROACH_SPEED * .4, 2, 2, 2);
     }
 
-    void turn(int turnAngle) {
+    void turn (int turnAngle) throws InterruptedException{
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -250,7 +255,7 @@ public class AutonomousActions extends LinearOpMode {
             leftMotor.setPower(APPROACH_SPEED * .6 );
             rightMotor.setPower(-APPROACH_SPEED * .6);
 
-            while (angDiff < 0) {
+            while (opMode.opModeIsActive() && angDiff < 0) {
 
                 angleZ = IMUheading();
                 angDiff = turnAngle-angleZ;
@@ -358,7 +363,7 @@ public class AutonomousActions extends LinearOpMode {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    void followLineBlueSide() {
+    void followLineBlueSide() throws InterruptedException {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -366,12 +371,12 @@ public class AutonomousActions extends LinearOpMode {
         telemetry.addLine("Following Line");
         leftMotor.setPower(.2);
         rightMotor.setPower(-.2);
-        while (lightSensor.getLightDetected() < WHITE_THRESHOLD) {
+        while (opMode.opModeIsActive() && lightSensor.getLightDetected() < WHITE_THRESHOLD) {
             telemetry.addData("Light", lightSensor.getLightDetected());
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        while (getcmUltrasonic(rangeSensor) > 9){
+        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 9){
             telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
             telemetry.addData("Light", lightSensor.getLightDetected());
             if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
@@ -389,7 +394,7 @@ public class AutonomousActions extends LinearOpMode {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    void followLineRedSide() {
+    void followLineRedSide() throws InterruptedException {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -397,12 +402,12 @@ public class AutonomousActions extends LinearOpMode {
         telemetry.addLine("Following Line");
         leftMotor.setPower(-.2);
         rightMotor.setPower(.2);
-        while (lightSensor.getLightDetected() < WHITE_THRESHOLD) {
+        while (opMode.opModeIsActive() && lightSensor.getLightDetected() < WHITE_THRESHOLD) {
             telemetry.addData("Light", lightSensor.getLightDetected());
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        while (getcmUltrasonic(rangeSensor) > 9){
+        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 9){
             telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
             telemetry.addData("Light", lightSensor.getLightDetected());
             if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
@@ -420,7 +425,7 @@ public class AutonomousActions extends LinearOpMode {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    void pushBlueButton() {
+    void pushBlueButton() throws InterruptedException {
 
         telemetry.log().add("in the push button method");
 
@@ -492,7 +497,7 @@ public class AutonomousActions extends LinearOpMode {
 
             //leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             //rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        } while (!verifyBlue());
+        } while (opMode.opModeIsActive() && !verifyBlue());
 
         telemetry.log().add("end of the push button method");
 
@@ -500,7 +505,7 @@ public class AutonomousActions extends LinearOpMode {
         rightMotor.setPower(0);
     }
 
-    void pushRedButton() {
+    void pushRedButton() throws InterruptedException {
 
         telemetry.log().add("in the push button method");
 
@@ -570,7 +575,7 @@ public class AutonomousActions extends LinearOpMode {
             telemetry.addData("Left red: ", leftColorSensor.red());
             telemetry.addData("Right red: ", rightColorSensor.red());
             telemetry.update();
-        } while  (!verifyRed());
+        } while  (opMode.opModeIsActive() && !verifyRed());
 
         telemetry.log().add("end of the push button method");
 
@@ -618,7 +623,7 @@ public class AutonomousActions extends LinearOpMode {
         return false;
     }
 
-    void maintainDist() {
+    void maintainDist() throws InterruptedException {
 
         leftMotor.setPower(0);
         rightMotor.setPower(0);
@@ -640,9 +645,9 @@ public class AutonomousActions extends LinearOpMode {
         rightMotor.setPower(0);
     }
 
-    public void encoderDrive(double speed,
+    public void encoderDrive (double speed,
                              double leftInches, double rightInches,
-                             double timeoutS) {
+                             double timeoutS) throws InterruptedException {
 
         ElapsedTime runtime = new ElapsedTime();
         int newLeftTarget;
@@ -666,7 +671,8 @@ public class AutonomousActions extends LinearOpMode {
         leftMotor.setPower(Math.abs(speed));
         rightMotor.setPower(Math.abs(speed));
 
-        while ((runtime.seconds() < timeoutS) &&
+        while (opMode.opModeIsActive() &&
+                (runtime.seconds() < timeoutS) &&
                 (leftMotor.isBusy() && rightMotor.isBusy())) {
 
             // Display it for the driver.
