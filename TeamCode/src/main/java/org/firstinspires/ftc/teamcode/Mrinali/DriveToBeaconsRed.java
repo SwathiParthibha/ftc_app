@@ -55,14 +55,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Red 1", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Red", group="Pushbot")
 //@Disabled
 public class DriveToBeaconsRed extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
 
     /* Declare OpMode members. */
-    AutonomousActions auto = new AutonomousActions();
+    AutonomousActions auto = new AutonomousActions(this);
 
     @Override
     public void runOpMode() throws InterruptedException {

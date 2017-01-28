@@ -34,6 +34,10 @@ package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpModeManagerImpl;
+import com.qualcomm.robotcore.util.ThreadPool;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * This file illustrates the concept of driving up to a line and then stopping.
@@ -55,14 +59,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Beacons Autonomous Blue 1", group="Pushbot")
+@Autonomous(name="Beacons Autonomous Blue", group="Pushbot")
 //@Disabled
 public class DriveToBeaconsBlue extends LinearOpMode {
 
     //To change red to blue: negative angles, color sensors sense blue, right side range sensor
 
     /* Declare OpMode members. */
-    AutonomousActions auto = new AutonomousActions();
+    AutonomousActions auto = new AutonomousActions(this);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -71,6 +75,7 @@ public class DriveToBeaconsBlue extends LinearOpMode {
          * The init() method of the hardware class does all the work here
          */
         auto.init(hardwareMap, telemetry);
+        auto.runOpMode();
 
         telemetry.addData("verifyBlue", auto.verifyBlue()); //checks color sensors
 
@@ -125,4 +130,10 @@ public class DriveToBeaconsBlue extends LinearOpMode {
 
         auto.encoderDrive(auto.APPROACH_SPEED, 24, 24, 5); //The robot then advances forward, using encoders, and hits the cap ball off the centerpiece and parks on it
     }
+
+    @Override
+    protected void postLoop() {
+        super.postLoop();
+    }
 }
+

@@ -123,12 +123,19 @@ public class EncoderTeleopBlue extends OpMode {
 
         if (red > 50){
             sweeper.setPower(0);
-            sweeper.setPower(0.7);
             ElapsedTime time= new ElapsedTime();
             time.reset();
-            while(time.seconds() < 0.5){
+            if (time.seconds() < 0.5 && !gamepad2.x){
+                sweeper.setPower(0.7);
             }
+        } else if(gamepad2.right_bumper){
+            sweeper.setPower(0.7);
+        } else if(gamepad2.right_trigger > 0){
+            sweeper.setPower(-0.7);
+        } else {
+            sweeper.setPower(0);
         }
+
 
     }
 

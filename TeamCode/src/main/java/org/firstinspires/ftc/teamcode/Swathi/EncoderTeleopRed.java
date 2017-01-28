@@ -129,7 +129,8 @@ public class EncoderTeleopRed extends OpMode {
             sweeper.setPower(0.7);
             ElapsedTime time= new ElapsedTime();
             time.reset();
-            while(time.seconds() < 0.5){
+            if (time.seconds() < 0.5){
+                sweeper.setPower(0.7);
             }
         }
 
