@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.LightSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Shashank.statemachine.BeaconColor;
 import org.firstinspires.ftc.teamcode.Shashank.utils.RangeSensorRunnable;
 import org.firstinspires.ftc.teamcode.Shashank.utils.ThreadSharedObject;
 
@@ -36,7 +37,9 @@ public class LineFollowState extends BasicAbstractState {
 
     ElapsedTime runtime = new ElapsedTime();
 
-    public LineFollowState(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor) {
+    private BeaconColor color = null;
+
+    public LineFollowState(Telemetry telemetry, StateName stateName, StateName nextStateName, DcMotor leftMotor, DcMotor rightMotor, LightSensor lightSensor, I2cDeviceSynchImpl rangeSensor, BeaconColor color) {
         this.stateName = stateName;
         this.nextStateName = nextStateName;
         this.leftMotor = leftMotor;
@@ -44,6 +47,7 @@ public class LineFollowState extends BasicAbstractState {
         this.lightSensor = lightSensor;
         this.telemetry = telemetry;
         this.rangeSensor = rangeSensor;
+        this.color = color;
     }
 
     @Override
@@ -73,16 +77,28 @@ public class LineFollowState extends BasicAbstractState {
         telemetry.update();
 
         if(!isDone()) {
-            if (lightSensor.getLightDetected() > 0.3) {
-                leftMotor.setPower(0.2);
-                rightMotor.setPower(0);
+            if(color == BeaconColor.BLUE){
+                if (lightSensor.getLightDetected() > 0.3) {
+                    leftMotor.setPower(0);
+                    rightMotor.setPower(0.2);
+                } else {
+                    leftMotor.setPower(0.2);
+                    rightMotor.setPower(0);
+                }
+                return stateName;
+            } else if(color == BeaconColor.RED){
+                if (lightSensor.getLightDetected() > 0.3) {
+                    leftMotor.setPower(0.2);
+                    rightMotor.setPower(0);
+                } else {
+                    leftMotor.setPower(0);
+                    rightMotor.setPower(0.2);
+                }
+                return stateName;
             } else {
-                leftMotor.setPower(0);
-                rightMotor.setPower(0.2);
+                return stateName;
             }
-            return stateName;
-        }
-        else {
+        } else {
             leftMotor.setPower(0);
             rightMotor.setPower(0);
             rangeSensorRunnable.requestStop();
@@ -92,7 +108,7 @@ public class LineFollowState extends BasicAbstractState {
 
     @Override
     public boolean isDone() {
-        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 9 && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0;
+        return threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) < 11 && threadSharedObject.getInteger(rangeSensorRunnable.getULTRASONIC_KEY()) > 0;
     }
 
     @Override
