@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.testcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,6 +13,7 @@ import ftc.electronvolts.statemachine.StateName;
  * Created by spmeg on 1/20/2017.
  */
 @Autonomous(name = "TestStateMachineOp", group = "TestOpmodes")
+@Disabled
 public class TestStateMachineOp extends OpMode {
     private StateMachineBuilder b = null;
     private StateMachine stateMachine = null;

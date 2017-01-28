@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Shashank.examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -21,6 +22,7 @@ import ftc.electronvolts.statemachine.StateName;
  * Created by spmeg on 1/21/2017.
  */
 @Autonomous(name = "LineFollowStateMachineOp", group = "StateOps")
+@Disabled
 public class LineFollowStateMachineOp extends OpMode {
     private DcMotor leftMotor = null;
     private DcMotor rightMotor = null;

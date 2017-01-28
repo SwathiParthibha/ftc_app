@@ -120,7 +120,7 @@ public class StateMachineOp extends OpMode {
         else if(beaconColor == null)
             telemetry.log().add("Beacon color is: NULL");
 
-        AutoStateMachineBuilder autoStateMachineBuilder = new AutoStateMachineBuilder(S.WAIT);
+        AutoStateMachineBuilder autoStateMachineBuilder = new AutoStateMachineBuilder(S.TO_WHITE_LINE);
 
         autoStateMachineBuilder.addToWhiteLine(S.TO_WHITE_LINE, S.FOLLOW_lINE, leftMotor, rightMotor, lightSensor);
         autoStateMachineBuilder.addLineFollow(telemetry, S.FOLLOW_lINE, S.PRESS_BEACON, leftMotor, rightMotor, lightSensor, rangeSensor, beaconColor);
