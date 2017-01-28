@@ -4,16 +4,20 @@ import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
-
-import static java.lang.Thread.sleep;
 
 
-@TeleOp(name = "Encoder Test", group = "Teleop")
-//@Disabled
-public class EncoderTest extends OpMode {
+@TeleOp(name = "Two Controller Teleop V2", group = "Teleop")
+public class twoControllerTeleopv2 extends OpMode {
+    private DcMotor leftMotor;
+    private DcMotor rightMotor;
+    private DcMotor scooper;
+    private DcMotor shooter1;
+    private DcMotor shooter2;
+    private DcMotor sweeper;
+
+    private boolean state;
+    boolean swap=false;
 
 
     public class shooterSettings{//data members can be replaced, but default values are for 1750 ETPS = 955 RPM
@@ -93,11 +97,9 @@ public class EncoderTest extends OpMode {
 
     }
 
-    private boolean USE_TELEMETRY=true;
+    private boolean USE_TELEMETRY=false;
 
 
-    private DcMotor shooter1;
-    private DcMotor shooter2;
 
     shooterSettings RPM955;
     shooterSettings RPM0;
@@ -108,17 +110,24 @@ public class EncoderTest extends OpMode {
     public double startShootingtime=0;
     public double prevTime=0;
 
+
+
+
+
     @Override
     public void init() {
+        leftMotor = this.hardwareMap.dcMotor.get("l");
+        rightMotor = this.hardwareMap.dcMotor.get("r");
+        scooper = this.hardwareMap.dcMotor.get("scooper");
+        shooter1 = this.hardwareMap.dcMotor.get("shooter1");
+        shooter2 = this.hardwareMap.dcMotor.get("shooter2");
+        sweeper = this.hardwareMap.dcMotor.get("sweeper");
+        state = false;
+
+
         RPM955= new shooterSettings();//default settings are for 955, 0.43,0.43
         RPM0 = new shooterSettings(0,0,0);
         RPM800 = new shooterSettings(800,0.35,0.35);
-
-
-
-        shooter1 = this.hardwareMap.dcMotor.get("shooter1");
-        shooter2 = this.hardwareMap.dcMotor.get("shooter2");
-
 
 
         shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -126,6 +135,10 @@ public class EncoderTest extends OpMode {
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        swap=true;
 
         shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -146,29 +159,85 @@ public class EncoderTest extends OpMode {
     @Override
     public void loop() {
 
+        double left = -gamepad1.left_stick_y;
+        double right = -gamepad1.right_stick_y;
+        int shooting1= shooter1.getCurrentPosition();
+        int shooting2= shooter2.getCurrentPosition();
 
-        if(getRuntime()<15)
-        EncoderShooter(RPM955);
-        else if (getRuntime()>20)
-        EncoderShooter(RPM955);
-        else
-        EncoderShooter(RPM0);
+        if(swap==true)
+        {
+            double temp=left;
+            left=right;
+            right=temp;
+        }
+
+        left=scaleInput(left);
+        right=scaleInput(right);
+
+        leftMotor.setPower(left);
+        rightMotor.setPower(right);
+
+        if(gamepad1.dpad_down){
+            leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            swap=false;
+        } else if(gamepad1.dpad_up){
+            leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            swap=true;
+        }
+
+        if(gamepad2.dpad_right){
+            sweeper.setPower(0.7);
+            scooper.setPower(1);
+        }
+
+        if(gamepad2.left_trigger > 0){
+            scooper.setPower(-0.7);
+        } else if(gamepad2.left_bumper){
+            scooper.setPower(1);
+        } else {
+            scooper.setPower(0);
+        }
+
+        if(gamepad2.a){
+            EncoderShooter(RPM955);
+        } else if(gamepad2.b) {
+            EncoderShooter(RPM955);//0.6//0.7
+            //power=0.7;
+            //startrunnning=true;
+        }
+        else if(gamepad2.y)
+        {
+            //EncoderShooter(0.2);
+        }
+        else {
+            EncoderShooter(RPM0);
+        }
 
 
 
 
-        telemetry.addData("","");//forces telemetry to always update
+
+            if(gamepad2.right_bumper){
+                sweeper.setPower(0.7);
+            } else if(gamepad2.right_trigger > 0){
+                sweeper.setPower(-0.7);
+            } else {
+                sweeper.setPower(0);
+
+            }
+
+
+        telemetry.addData("left joystick",  "%.2f", left);
+        telemetry.addData("right joystick", "%.2f", right);
         telemetry.update();
     }
 
-
     @Override
     public void stop() {
-
         super.stop();
     }
-
-
 
 
 
@@ -380,7 +449,7 @@ public class EncoderTest extends OpMode {
         settings.prevPk1=1;
         settings.Xk1=0;
         settings.Pk1=1;
-       // Kk1=0;
+        // Kk1=0;
 
 
         settings.input2=0;
@@ -388,7 +457,7 @@ public class EncoderTest extends OpMode {
         settings.prevPk2=1;
         settings.Xk2=0;
         settings.Pk2=1;
-       // Kk2=0;
+        // Kk2=0;
 
 
 
@@ -418,8 +487,57 @@ public class EncoderTest extends OpMode {
     }
 
 
-}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     * This method scales the joystick input so for low joystick values, the
+     * scaled value is less than linear.  This is to make it easier to drive
+     * the robot more precisely at slower speeds.
+     */
+    double scaleInput(double dVal)  {
+        double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
+                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00 };
+
+        // get the corresponding index for the scaleInput array.
+        int index = (int) (dVal * 16.0);
+
+        // index should be positive.
+        if (index < 0) {
+            index = -index;
+        }
+
+        // index cannot exceed size of array minus 1.
+        if (index > 16) {
+            index = 16;
+        }
+
+        // get value from the array.
+        double dScale = 0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        } else {
+            dScale = scaleArray[index];
+        }
+
+        // return scaled value.
+        return dScale;
+    }
+
+
+}
 
 
 

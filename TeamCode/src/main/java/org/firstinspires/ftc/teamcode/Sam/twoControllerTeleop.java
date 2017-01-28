@@ -1,20 +1,14 @@
 package org.firstinspires.ftc.teamcode.Sam;
 
-import com.google.gson.internal.Streams;
 import com.qualcomm.ftccommon.DbgLog;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import static java.lang.Thread.sleep;
-
-
-@TeleOp(name = "old Teleop", group = "Teleop")
-public class EncoderTeleop extends OpMode {
+@TeleOp(name = "Two Controller Teleop", group = "Teleop")
+public class twoControllerTeleop extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private DcMotor scooper;
@@ -432,6 +426,8 @@ public class EncoderTeleop extends OpMode {
     */
 int currcount=0;
 
+
+
     public void EncoderShooter(double speed)
     {
         if(speed!=0) {
@@ -462,26 +458,19 @@ int currcount=0;
                 DbgLog.msg("Time: "+getRuntime()+"RPM1: " + current_rpm1+"RPM2: " + current_rpm2);
 
 
-                if(isClose(Xk1,RequestedRPM,50)) {
-                    //do nothing
-                }
-                else {
-                    if (Xk1 < RequestedRPM) {//we need to speed up
-                        requiredPWR1 += Kp;
-                    } else if (Xk1 > RequestedRPM) {//we need to slow down
-                        requiredPWR1 -= Kp;
-                    }
+
+                if (current_rpm1 < RequestedRPM) {//we need to speed up
+                    requiredPWR1 += Kp;
+                } else if (current_rpm1 > RequestedRPM) {//we need to slow down
+                    requiredPWR1 -= Kp;
                 }
 
-                if(isClose(Xk1,RequestedRPM,50 )) {
-                    //do nothing
-                }
-                else {
-                    if (Xk2 < RequestedRPM) {//we need to speed up
-                        requiredPWR2 += Kp;
-                    } else if (Xk2 > RequestedRPM) {//we need to slow down
-                        requiredPWR2 -= Kp;
-                    }
+
+
+                if (current_rpm2 < RequestedRPM) {//we need to speed up
+                    requiredPWR2 += Kp;
+                } else if (current_rpm2 > RequestedRPM) {//we need to slow down
+                    requiredPWR2 -= Kp;
                 }
 
                 previous_position1 = current_position1;
@@ -582,7 +571,8 @@ int currcount=0;
 
     public void timeUpdate(double curr1, double curr2)
     {
-
+        //cout<<"Enter input: ";
+        //cin>>input;
 
         input1=curr1;
         prevXk1=Xk1;
