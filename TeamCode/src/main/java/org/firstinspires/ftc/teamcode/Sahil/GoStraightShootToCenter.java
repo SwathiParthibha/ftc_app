@@ -31,7 +31,7 @@ public class GoStraightShootToCenter extends LinearOpMode {
     private DcMotor shooter1;
     private DcMotor shooter2;
     private boolean state;
-    private DcMotor sweeper;
+    private DcMotor scooper;
     LightSensor lightSensor;      // Primary LEGO Light sensor,
     I2cDeviceSynchImpl rangeSensor;
     I2cDeviceSynchImpl sideRangeSensor;
@@ -415,7 +415,7 @@ public class GoStraightShootToCenter extends LinearOpMode {
 
         shooter1 = this.hardwareMap.dcMotor.get("shooter1");
         shooter2 = this.hardwareMap.dcMotor.get("shooter2");
-        sweeper = this.hardwareMap.dcMotor.get("sweeper");
+        scooper = this.hardwareMap.dcMotor.get("scooper");
 
         state = false;
 
@@ -435,9 +435,9 @@ public class GoStraightShootToCenter extends LinearOpMode {
         }
 
         // sleep(10000);
-        encoderDrive(APPROACH_SPEED, 10 / 2, 10 / 2, 3);
+        encoderDrive(APPROACH_SPEED, 20 / 2, 20 / 2, 3);
         shoot();
-        encoderDrive(APPROACH_SPEED, 50 / 2, 50 / 2, 10);
+        encoderDrive(APPROACH_SPEED, 40 / 2, 40 / 2, 10);
     }
 
 
@@ -578,7 +578,7 @@ public class GoStraightShootToCenter extends LinearOpMode {
         {
             EncoderShooter(RPM955);
             if(checkIfReadyToShoot(RPM955)){
-                sweeper.setPower(1);
+                scooper.setPower(1);
                 sleep(3000);
                 break;
             }
