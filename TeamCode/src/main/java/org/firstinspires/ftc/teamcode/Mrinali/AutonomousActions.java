@@ -376,7 +376,7 @@ public class AutonomousActions extends LinearOpMode {
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 9){
+        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 11){
             telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
             telemetry.addData("Light", lightSensor.getLightDetected());
             if(lightSensor.getLightDetected() > WHITE_THRESHOLD){
@@ -407,7 +407,7 @@ public class AutonomousActions extends LinearOpMode {
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 9){
+        while (opMode.opModeIsActive() && getcmUltrasonic(rangeSensor) > 11){
             telemetry.addData("Front range", getcmUltrasonic(rangeSensor));
             telemetry.addData("Light", lightSensor.getLightDetected());
             if(lightSensor.getLightDetected() > WHITE_THRESHOLD){

@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.Swathi;
+package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -18,11 +19,12 @@ public class EncoderTeleopBlue extends OpMode {
     private DcMotor shooter1;
     private DcMotor shooter2;
     private DcMotor sweeper;
+    Servo frontCover;
     ColorSensor colorSensor;
 
     private boolean state;
     boolean swap=false;
-
+    ElapsedTime time = new ElapsedTime();
 
     @Override
     public void init() {
@@ -34,12 +36,14 @@ public class EncoderTeleopBlue extends OpMode {
         sweeper = this.hardwareMap.dcMotor.get("sweeper");
         state = false;
         colorSensor = this.hardwareMap.colorSensor.get("colorLegacy");
+        frontCover = this.hardwareMap.servo.get("frontCover");
 
         shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        time.reset();
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -48,6 +52,7 @@ public class EncoderTeleopBlue extends OpMode {
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        frontCover.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override
@@ -121,7 +126,6 @@ public class EncoderTeleopBlue extends OpMode {
 
         int red = colorSensor.red();
 
-        ElapsedTime time = new ElapsedTime();
         if (red > 50) {
             time.reset();
         } if (time.seconds() < 0.5 && !gamepad2.x){
@@ -137,11 +141,8 @@ public class EncoderTeleopBlue extends OpMode {
 
     public void EncoderShooter(double speed)
     {
-
         shooter1.setPower(speed);
         shooter2.setPower(speed);
-
-
     }
 
     public double scaleShooterPower(double intialPower)
