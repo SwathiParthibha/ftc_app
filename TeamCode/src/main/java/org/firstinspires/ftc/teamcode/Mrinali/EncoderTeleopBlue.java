@@ -1,30 +1,30 @@
-package org.firstinspires.ftc.teamcode.Swathi;
+package org.firstinspires.ftc.teamcode.Mrinali;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.Mrinali.HardwarePushbot;
 
 /**
  * Created by spmeg on 10/22/2016.
  */
-@TeleOp(name = "Two Controller Teleop RED", group = "Teleop")
-public class EncoderTeleopRed extends OpMode {
+@TeleOp(name = "Two Controller Teleop BLUE", group = "Teleop")
+public class EncoderTeleopBlue extends OpMode {
     private DcMotor leftMotor;
     private DcMotor rightMotor;
     private DcMotor scooper;
     private DcMotor shooter1;
     private DcMotor shooter2;
     private DcMotor sweeper;
+    Servo frontCover;
     ColorSensor colorSensor;
 
     private boolean state;
     boolean swap=false;
-
+    ElapsedTime time = new ElapsedTime();
 
     @Override
     public void init() {
@@ -36,12 +36,14 @@ public class EncoderTeleopRed extends OpMode {
         sweeper = this.hardwareMap.dcMotor.get("sweeper");
         state = false;
         colorSensor = this.hardwareMap.colorSensor.get("colorLegacy");
+        frontCover = this.hardwareMap.servo.get("frontCover");
 
         shooter1.setDirection(DcMotorSimple.Direction.FORWARD);
         shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+        time.reset();
 
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -50,7 +52,7 @@ public class EncoderTeleopRed extends OpMode {
         shooter1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
+        frontCover.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override
@@ -108,20 +110,8 @@ public class EncoderTeleopRed extends OpMode {
             EncoderShooter(0);
         }
 
-        telemetry.addData("left joystick",  "%.2f", left);
-        telemetry.addData("right joystick", "%.2f", right);
-        telemetry.addData("Blue ", colorSensor.blue());
-        telemetry.update();
 
-        int blue = colorSensor.blue();
-
-        if (blue > 50){
-            ElapsedTime time= new ElapsedTime();
-            time.reset();
-            if (time.seconds() < 0.5 && !gamepad2.x){
-                sweeper.setPower(0.7);
-            }
-        } else if(gamepad2.right_bumper){
+        if(gamepad2.right_bumper){
             sweeper.setPower(0.7);
         } else if(gamepad2.right_trigger > 0){
             sweeper.setPower(-0.7);
@@ -129,15 +119,30 @@ public class EncoderTeleopRed extends OpMode {
             sweeper.setPower(0);
         }
 
+        telemetry.addData("left joystick",  "%.2f", left);
+        telemetry.addData("right joystick", "%.2f", right);
+        telemetry.addData("Red ", colorSensor.red());
+        telemetry.update();
+
+        int red = colorSensor.red();
+
+        if (red > 50) {
+            time.reset();
+        } if (time.seconds() < 0.5 && !gamepad2.x){
+            sweeper.setPower(0.7);
+        } else if(gamepad2.right_bumper){
+            sweeper.setPower(0.7);
+        } else if(gamepad2.right_trigger > 0){
+            sweeper.setPower(-0.7);
+        } else {
+            sweeper.setPower(0);
+        }
     }
 
     public void EncoderShooter(double speed)
     {
-
         shooter1.setPower(speed);
         shooter2.setPower(speed);
-
-
     }
 
     public double scaleShooterPower(double intialPower)
@@ -166,7 +171,7 @@ public class EncoderTeleopRed extends OpMode {
         double[] scaleArray = { 0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
                 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00 };
 
-        // get the corresponding index1 for the scaleInput array.
+        // get the corresponding index for the scaleInput array.
         int index = (int) (dVal * 16.0);
 
         // index should be positive.

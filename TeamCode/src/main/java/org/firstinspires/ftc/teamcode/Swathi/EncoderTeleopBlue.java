@@ -121,13 +121,11 @@ public class EncoderTeleopBlue extends OpMode {
 
         int red = colorSensor.red();
 
-        if (red > 50){
-            sweeper.setPower(0);
-            ElapsedTime time= new ElapsedTime();
+        ElapsedTime time = new ElapsedTime();
+        if (red > 50) {
             time.reset();
-            if (time.seconds() < 0.5 && !gamepad2.x){
-                sweeper.setPower(0.7);
-            }
+        } if (time.seconds() < 0.5 && !gamepad2.x){
+            sweeper.setPower(0.7);
         } else if(gamepad2.right_bumper){
             sweeper.setPower(0.7);
         } else if(gamepad2.right_trigger > 0){
@@ -135,8 +133,6 @@ public class EncoderTeleopBlue extends OpMode {
         } else {
             sweeper.setPower(0);
         }
-
-
     }
 
     public void EncoderShooter(double speed)
