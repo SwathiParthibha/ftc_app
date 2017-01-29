@@ -387,10 +387,15 @@ public class twoControllerTeleopv2 extends OpMode {
     }
 
 
-    public void checkIfReadyToShoot(shooterSettings settings) {
+    public boolean checkIfReadyToShoot(shooterSettings settings) {
         if(Math.abs(settings.error1)<settings.deadband && Math.abs(settings.error2)<settings.deadband && getRuntime()-startShootingtime>settings.rampUpTime)
         {
             telemetry.addData("READY TO SHOOT", "");
+            return true;
+        }
+        else
+        {
+            return false;
         }
 
     }
